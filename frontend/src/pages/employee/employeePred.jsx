@@ -1,6 +1,48 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState } from 'react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+import { HiOutlineOfficeBuilding, HiOutlineLocationMarker, HiOutlineCalendar, 
+         HiOutlineBriefcase, HiOutlineUserGroup, HiOutlineHome, 
+         HiOutlineClock, HiOutlineCurrencyDollar, HiOutlineChartBar } from 'react-icons/hi';
+
+const FloatingInput = ({ icon: Icon, label, type, name, value, onChange, options, min, max, step }) => (
+  <div className="relative group">
+    <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-white rounded-2xl blur opacity-50 group-hover:opacity-75 transition-opacity" />
+    <div className="relative bg-white/80 backdrop-blur-xl border border-gray-400/50 rounded-2xl p-4 hover:border-gray-300/50 transition-all">
+      <div className="flex items-center gap-3 text-gray-600">
+        <Icon className="text-xl" />
+        <label className="text-sm font-medium">{label}</label>
+      </div>
+      {options ? (
+        <select
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-full mt-2 bg-transparent border-none text-gray-900 text-lg font-medium focus:ring-0 focus:outline-none"
+        >
+          <option value="">Select {label}</option>
+          {options.map(opt => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          min={min}
+          max={max}
+          step={step}
+          className="w-full mt-2 bg-transparent border-none text-gray-900 text-lg font-medium focus:ring-0 focus:outline-none"
+          placeholder={`Enter ${label.toLowerCase()}`}
+        />
+      )}
+    </div>
+  </div>
+);
 
 const EmployeePred = () => {
   const [formData, setFormData] = useState({
@@ -33,12 +75,9 @@ const EmployeePred = () => {
     setLoading(true);
     setError(null);
     try {
-      // Get prediction from backend
       const response = await axios.post('http://localhost:9000/api/employee/predict', formData);
-      console.log('Prediction response:', response.data); // Debug log
       setPredictionData(response.data);
 
-      // Get AI suggestions based on the layoff risk
       const suggestionPrompt = `Based on the following employee data and layoff prediction, provide 3-4 professional development suggestions:
         - Company: ${formData.company_name}
         - Role: ${formData.job_title}
@@ -54,7 +93,7 @@ const EmployeePred = () => {
       });
       setAiSuggestions(aiResponse.data.suggestions);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -64,18 +103,32 @@ const EmployeePred = () => {
   const renderPredictionResult = () => {
     if (loading) {
       return (
-        <div className="mt-8 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-16 flex items-center justify-center"
+        >
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 border-t-2 border-blue-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-2 border-t-2 border-blue-400/50 rounded-full animate-spin-slow"></div>
+          </div>
+        </motion.div>
       );
     }
 
     if (error) {
       return (
-        <div className="mt-8 bg-red-50 p-4 rounded-lg">
-          <h3 className="text-red-800 font-semibold">Error</h3>
-          <p className="text-red-600">{error}</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-16 relative"
+        >
+          <div className="absolute inset-0 bg-red-50 rounded-3xl blur-xl opacity-25" />
+          <div className="relative bg-white/80 backdrop-blur-xl border border-red-100 rounded-3xl p-8">
+            <h3 className="text-red-800 font-semibold text-lg mb-2">Error</h3>
+            <p className="text-red-600">{error}</p>
+          </div>
+        </motion.div>
       );
     }
 
@@ -84,324 +137,355 @@ const EmployeePred = () => {
     const { data, prediction } = predictionData;
     const riskLevel = prediction.layoff_risk;
     const riskColor = 
-      riskLevel === 'High' ? 'red-600' : 
-      riskLevel === 'Moderate' ? 'yellow-600' : 
-      'green-600';
-
-    // Calculate risk factors
-    const hasHighLayoffRate = data.industry_layoff_rate > 30;
-    const hasNegativeGrowth = data.revenue_growth < 0;
-    const hasHighUnemployment = data.unemployment_rate > 40;
-
-    const riskFactors = [];
-    if (hasHighLayoffRate) riskFactors.push('High industry layoff rate');
-    if (hasNegativeGrowth) riskFactors.push('Negative revenue growth');
-    if (hasHighUnemployment) riskFactors.push('High unemployment rate');
+      riskLevel === 'High' ? 'red-500' : 
+      riskLevel === 'Moderate' ? 'yellow-500' : 
+      'green-500';
 
     return (
-      <div className="mt-8">
-        {/* Prediction Result Card */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4">Layoff Risk Assessment</h2>
-          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-            <div className={`text-${riskColor} text-xl font-semibold`}>
-              Risk Level: {riskLevel}
-            </div>
-          </div>
-
-          {riskFactors.length > 0 && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold mb-2">Risk Factors:</h3>
-              <ul className="list-disc list-inside space-y-1">
-                {riskFactors.map((factor, index) => (
-                  <li key={index} className="text-gray-700">{factor}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Company Metrics</h3>
-              <ul className="space-y-2">
-                <li>Revenue Growth: {data.revenue_growth?.toFixed(2)}%</li>
-                <li>Profit Margin: {data.profit_margin?.toFixed(2)}%</li>
-                <li>Stock Price Change: {data.stock_price_change?.toFixed(2)}%</li>
-                <li>Total Employees: {data.total_employees?.toLocaleString()}</li>
-              </ul>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Economic Indicators</h3>
-              <ul className="space-y-2">
-                <li>Industry Layoff Rate: {data.industry_layoff_rate?.toFixed(2)}%</li>
-                <li>Unemployment Rate: {data.unemployment_rate?.toFixed(2)}%</li>
-                <li>Inflation Rate: {data.inflation_rate?.toFixed(2)}%</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Suggestions Card */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">AI-Powered Suggestions</h2>
-          <div className="space-y-4">
-            {aiSuggestions?.map((suggestion, index) => (
-              <div key={index} className="flex items-start">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-blue-600 font-semibold">{index + 1}</span>
-                </div>
-                <p className="text-gray-700">{suggestion}</p>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-16 space-y-8"
+      >
+        {/* Risk Score Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-white to-blue-50 rounded-3xl blur-xl opacity-25" />
+          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-400/50 rounded-3xl p-8 overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-100/20 to-indigo-100/20 rounded-full blur-3xl -mr-32 -mt-32" />
+            
+            <div className="relative">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-semibold text-gray-900">Risk Analysis</h2>
+                <motion.div 
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: 1 }}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-full 
+                    bg-${riskColor}/10 text-${riskColor} font-medium
+                  `}
+                >
+                  <span className={`w-2 h-2 rounded-full bg-${riskColor}`} />
+                  {riskLevel} Risk
+                </motion.div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Action Steps */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
-          <h2 className="text-2xl font-bold mb-4">Recommended Actions</h2>
-          <div className="space-y-3">
-            {riskLevel === 'High' ? (
-              <>
-                <div className="flex items-center text-gray-700">
-                  <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <span>Update your resume and LinkedIn profile immediately</span>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Key Metrics</h3>
+                    <div className="space-y-4">
+                      {[
+                        { 
+                          label: 'Revenue Growth',
+                          value: data.revenue_growth?.toFixed(2),
+                          suffix: '%',
+                          trend: data.revenue_growth > 0 ? 'up' : 'down'
+                        },
+                        { 
+                          label: 'Industry Position',
+                          value: data.industry_layoff_rate < 30 ? 'Strong' : 'Challenging',
+                          color: data.industry_layoff_rate < 30 ? 'green' : 'yellow'
+                        }
+                      ].map((metric, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ x: -20, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-gray-50/50 rounded-2xl p-4"
+                        >
+                          <div className="text-sm text-gray-500 mb-1">{metric.label}</div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl font-semibold text-gray-900">
+                              {metric.value}{metric.suffix}
+                            </span>
+                            {metric.trend && (
+                              <span className={`text-${metric.trend === 'up' ? 'green' : 'red'}-500`}>
+                                {metric.trend === 'up' ? '↑' : '↓'}
+                              </span>
+                            )}
+                            {metric.color && (
+                              <span className={`text-${metric.color}-500 text-sm`}>
+                                ●
+                              </span>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <span>Start actively job searching and networking</span>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Market Context</h3>
+                    <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-4">
+                      <div className="absolute inset-x-0 bottom-0 top-8 flex items-end justify-around px-4">
+                        {[
+                          { 
+                            label: 'Industry',
+                            value: data.industry_layoff_rate || 0,
+                            color: 'blue-500'
+                          },
+                          { 
+                            label: 'Market',
+                            value: data.unemployment_rate || 0,
+                            color: 'indigo-500'
+                          },
+                          { 
+                            label: 'Growth',
+                            value: data.revenue_growth || 0,
+                            color: 'green-500'
+                          }
+                        ].map((metric, index) => (
+                          <div key={index} className="relative flex flex-col items-center w-1/4">
+                            <motion.div
+                              initial={{ height: 0 }}
+                              animate={{ height: `${Math.min(Math.max(metric.value, 0), 100)}%` }}
+                              transition={{ duration: 0.5, delay: index * 0.1 }}
+                              className={`w-full bg-${metric.color} bg-opacity-20 rounded-t-lg`}
+                            />
+                            <div className="absolute bottom-full left-0 right-0 mb-1 text-center">
+                              <span className="text-sm font-medium text-gray-900">
+                                {metric.value.toFixed(1)}%
+                              </span>
+                            </div>
+                            <span className="absolute top-full mt-2 text-sm text-gray-500">
+                              {metric.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="absolute left-4 top-0 bottom-8 w-8 flex flex-col justify-between">
+                        {[100, 75, 50, 25, 0].map((tick) => (
+                          <div key={tick} className="flex items-center gap-2">
+                            <div className="w-2 h-px bg-gray-300" />
+                            <span className="text-xs text-gray-400">{tick}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <svg className="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <span>Consider exploring opportunities in companies with better financial indicators</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center text-gray-700">
-                  <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Keep your skills updated and relevant to industry demands</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>Build a strong professional network</span>
-                </div>
-              </>
-            )}
-            <div className="flex items-center text-gray-700">
-              <svg className="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Maintain documentation of your achievements and contributions</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* AI Insights Card */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white rounded-3xl blur-xl opacity-25" />
+          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-400/50 rounded-3xl p-8">
+            <h2 className="text-3xl font-semibold text-gray-900 mb-6">AI Insights</h2>
+            
+            <div className="grid grid-cols-1 gap-6">
+              {aiSuggestions?.map((suggestion, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="relative group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl opacity-0 group-hover:opacity-25 transition-opacity" />
+                  <div className="relative p-6 rounded-2xl border border-gray-400/50 hover:border-blue-200/50 transition-colors">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-100/50 flex items-center justify-center">
+                        <span className="text-blue-600 font-medium text-lg">{index + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-px bg-gradient-to-r from-blue-100 to-transparent" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {suggestion.split('\n').map((paragraph, pIndex) => (
+                        <p key={pIndex} className="text-gray-600 leading-relaxed">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Action Steps */}
+            <div className="mt-12 pt-8 border-t border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Strategic Action Plan</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    title: 'Immediate Steps',
+                    icon: '🎯',
+                    items: ['Update technical skills', 'Network within industry', 'Document achievements']
+                  },
+                  {
+                    title: 'Medium Term',
+                    icon: '📈',
+                    items: ['Industry certification', 'Build project portfolio', 'Seek mentorship']
+                  },
+                  {
+                    title: 'Long Term',
+                    icon: '🌟',
+                    items: ['Career advancement', 'Leadership development', 'Market positioning']
+                  }
+                ].map((section, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="relative group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative p-6 rounded-2xl border border-gray-400/50 hover:border-blue-200/50 transition-colors">
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-2xl">{section.icon}</span>
+                        <h4 className="text-lg font-medium text-gray-900">{section.title}</h4>
+                      </div>
+                      <ul className="space-y-3">
+                        {section.items.map((item, itemIndex) => (
+                          <li key={itemIndex} className="flex items-center gap-3 text-gray-600">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                            <span className="leading-relaxed">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     );
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Employee Prediction Form</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Company Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="form-group">
-            <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
-              Company Name
-            </label>
-            <select
-              id="company_name"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            >
-              <option value="">Select Company</option>
-              <option value="TCS">TCS</option>
-              <option value="Infosys">Infosys</option>
-              <option value="Wipro">Wipro</option>
-              <option value="HCL">HCL</option>
-              <option value="Tech Mahindra">Tech Mahindra</option>
-            </select>
-          </div>
+    <div className="max-w-6xl mx-auto px-6 mt-7 py-16">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-16"
+      >
+        <h1 className="text-6xl text-transparent bg-clip-text p-2 tracking-tight bg-gradient-to-r from-gray-800 via-purple-600 to-blue-500">
+          Employee Risk Assessment
+        </h1>
+        <p className="text-xl mt-2 text-gray-600">
+          Predict potential outcomes with our advanced AI analysis
+        </p>
+      </motion.div>
 
-          <div className="form-group">
-            <label htmlFor="company_location" className="block text-sm font-medium text-gray-700 mb-1">
-              Company Location
-            </label>
-            <select
-              id="company_location"
-              name="company_location"
-              value={formData.company_location}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            >
-              <option value="">Select Location</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Hyderabad">Hyderabad</option>
-              <option value="Chennai">Chennai</option>
-              <option value="Pune">Pune</option>
-            </select>
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <FloatingInput
+            icon={HiOutlineOfficeBuilding}
+            label="Company"
+            name="company_name"
+            value={formData.company_name}
+            onChange={handleChange}
+            options={['TCS', 'Infosys', 'Wipro', 'HCL', 'Tech Mahindra']}
+          />
 
-        <div className="form-group">
-          <label htmlFor="reporting_quarter" className="block text-sm font-medium text-gray-700 mb-1">
-            Reporting Quarter
-          </label>
-          <select
-            id="reporting_quarter"
+          <FloatingInput
+            icon={HiOutlineLocationMarker}
+            label="Location"
+            name="company_location"
+            value={formData.company_location}
+            onChange={handleChange}
+            options={['Bangalore', 'Mumbai', 'Hyderabad', 'Chennai', 'Pune']}
+          />
+
+          <FloatingInput
+            icon={HiOutlineCalendar}
+            label="Quarter"
             name="reporting_quarter"
             value={formData.reporting_quarter}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Select Quarter</option>
-            <option value="Q1-2023">Q1-2023</option>
-            <option value="Q2-2023">Q2-2023</option>
-            <option value="Q3-2023">Q3-2023</option>
-            <option value="Q4-2023">Q4-2023</option>
-          </select>
-        </div>
+            options={['Q1-2023', 'Q2-2023', 'Q3-2023', 'Q4-2023']}
+          />
 
-        {/* Job Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="form-group">
-            <label htmlFor="job_title" className="block text-sm font-medium text-gray-700 mb-1">
-              Job Title
-            </label>
-            <select
-              id="job_title"
-              name="job_title"
-              value={formData.job_title}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            >
-              <option value="">Select Job Title</option>
-              <option value="Software Engineer">Software Engineer</option>
-              <option value="Senior Software Engineer">Senior Software Engineer</option>
-              <option value="Technical Lead">Technical Lead</option>
-              <option value="Project Manager">Project Manager</option>
-              <option value="Data Scientist">Data Scientist</option>
-            </select>
-          </div>
+          <FloatingInput
+            icon={HiOutlineBriefcase}
+            label="Job Title"
+            name="job_title"
+            value={formData.job_title}
+            onChange={handleChange}
+            options={['Software Engineer', 'Senior Software Engineer', 'Technical Lead', 'Project Manager', 'Data Scientist']}
+          />
 
-          <div className="form-group">
-            <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
-              Department
-            </label>
-            <select
-              id="department"
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            >
-              <option value="">Select Department</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Product">Product</option>
-              <option value="Data Science">Data Science</option>
-              <option value="DevOps">DevOps</option>
-            </select>
-          </div>
-        </div>
+          <FloatingInput
+            icon={HiOutlineUserGroup}
+            label="Department"
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            options={['Engineering', 'Product', 'Data Science', 'DevOps']}
+          />
 
-        <div className="form-group">
-          <label htmlFor="remote_work" className="block text-sm font-medium text-gray-700 mb-1">
-            Remote Work
-          </label>
-          <select
-            id="remote_work"
+          <FloatingInput
+            icon={HiOutlineHome}
+            label="Remote Work"
             name="remote_work"
             value={formData.remote_work}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
+            options={['Yes', 'No']}
+          />
+
+          <FloatingInput
+            icon={HiOutlineClock}
+            label="Years at Company"
+            type="number"
+            name="years_at_company"
+            value={formData.years_at_company}
+            onChange={handleChange}
+            min="0"
+            step="0.5"
+          />
+
+          <FloatingInput
+            icon={HiOutlineCurrencyDollar}
+            label="Salary (LPA)"
+            type="number"
+            name="salary_range"
+            value={formData.salary_range}
+            onChange={handleChange}
+            min="0"
+            step="0.5"
+          />
+
+          <FloatingInput
+            icon={HiOutlineChartBar}
+            label="Performance Rating"
+            type="number"
+            name="performance_rating"
+            value={formData.performance_rating}
+            onChange={handleChange}
+            min="1"
+            max="5"
+            step="0.1"
+          />
+        </div>
+
+        <div className="flex justify-center mt-12">
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+              relative group px-8 py-3 rounded-full
+              bg-gray-900 text-white
+              hover:bg-gray-800 
+              transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
           >
-            <option value="">Select Remote Work Status</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity" />
+            <span className="relative text-sm font-medium tracking-wide">
+              {loading ? 'Processing...' : 'Analyze Risk'}
+            </span>
+          </button>
         </div>
-
-        {/* Employee Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="form-group">
-            <label htmlFor="years_at_company" className="block text-sm font-medium text-gray-700 mb-1">
-              Years at Company
-            </label>
-            <input
-              type="number"
-              id="years_at_company"
-              name="years_at_company"
-              value={formData.years_at_company}
-              onChange={handleChange}
-              min="0"
-              step="0.5"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="salary_range" className="block text-sm font-medium text-gray-700 mb-1">
-              Salary Range (LPA)
-            </label>
-            <input
-              type="number"
-              id="salary_range"
-              name="salary_range"
-              value={formData.salary_range}
-              onChange={handleChange}
-              min="0"
-              step="0.5"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="performance_rating" className="block text-sm font-medium text-gray-700 mb-1">
-              Performance Rating
-            </label>
-            <input
-              type="number"
-              id="performance_rating"
-              name="performance_rating"
-              value={formData.performance_rating}
-              onChange={handleChange}
-              min="1"
-              max="5"
-              step="0.1"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              required
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full ${loading ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-        >
-          {loading ? 'Processing...' : 'Submit'}
-        </button>
       </form>
 
       {renderPredictionResult()}
