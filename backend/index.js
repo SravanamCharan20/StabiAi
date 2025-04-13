@@ -7,6 +7,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { SymbolConvertor } from './controllers/employee/SymbolConvertor.js';
 import {getCompanyStats} from './controllers/employee/compantStats.js';
+import suggestionRoutes from './routes/suggestionRoutes.js';
+
 
 dotenv.config();
 const PORT = process.env.PORT || 9000;
@@ -137,6 +139,9 @@ app.post('/api/employee/predict', async (req, res) => {
         });
     }
 });
+
+// Routes
+app.use('/api/suggestions', suggestionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {

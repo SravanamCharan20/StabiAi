@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineOfficeBuilding, HiOutlineLocationMarker, HiOutlineCalendar, 
          HiOutlineBriefcase, HiOutlineUserGroup, HiOutlineHome, 
          HiOutlineClock, HiOutlineCurrencyDollar, HiOutlineChartBar } from 'react-icons/hi';
+import AiSuggestions from './aiSuggestions';
 
 const FloatingInput = ({ icon: Icon, label, type, name, value, onChange, options, min, max, step }) => (
   <div className="relative group">
@@ -60,7 +61,6 @@ const EmployeePred = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [predictionData, setPredictionData] = useState(null);
-  const [aiSuggestions, setAiSuggestions] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,21 +77,6 @@ const EmployeePred = () => {
     try {
       const response = await axios.post('http://localhost:9000/api/employee/predict', formData);
       setPredictionData(response.data);
-
-      const suggestionPrompt = `Based on the following employee data and layoff prediction, provide 3-4 professional development suggestions:
-        - Company: ${formData.company_name}
-        - Role: ${formData.job_title}
-        - Years of Experience: ${formData.years_at_company || 'N/A'}
-        - Performance Rating: ${formData.performance_rating}
-        - Layoff Risk: ${response.data.prediction.layoff_risk}
-        - Industry: ${response.data.data.industry}
-        - Revenue Growth: ${response.data.data.revenue_growth}%
-        - Industry Layoff Rate: ${response.data.data.industry_layoff_rate}%`;
-
-      const aiResponse = await axios.post('http://localhost:9000/api/ai/suggestions', {
-        prompt: suggestionPrompt
-      });
-      setAiSuggestions(aiResponse.data.suggestions);
     } catch (error) {
       console.error('Error:', error);
       setError(error.message);
@@ -272,92 +257,12 @@ const EmployeePred = () => {
           </div>
         </div>
 
-        {/* AI Insights Card */}
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white rounded-3xl blur-xl opacity-25" />
-          <div className="relative bg-white/80 backdrop-blur-xl border border-gray-400/50 rounded-3xl p-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-6">AI Insights</h2>
-            
-            <div className="grid grid-cols-1 gap-6">
-              {aiSuggestions?.map((suggestion, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="relative group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl opacity-0 group-hover:opacity-25 transition-opacity" />
-                  <div className="relative p-6 rounded-2xl border border-gray-400/50 hover:border-blue-200/50 transition-colors">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-100/50 flex items-center justify-center">
-                        <span className="text-blue-600 font-medium text-lg">{index + 1}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="h-px bg-gradient-to-r from-blue-100 to-transparent" />
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      {suggestion.split('\n').map((paragraph, pIndex) => (
-                        <p key={pIndex} className="text-gray-600 leading-relaxed">
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Action Steps */}
-            <div className="mt-12 pt-8 border-t border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">Strategic Action Plan</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    title: 'Immediate Steps',
-                    icon: '🎯',
-                    items: ['Update technical skills', 'Network within industry', 'Document achievements']
-                  },
-                  {
-                    title: 'Medium Term',
-                    icon: '📈',
-                    items: ['Industry certification', 'Build project portfolio', 'Seek mentorship']
-                  },
-                  {
-                    title: 'Long Term',
-                    icon: '🌟',
-                    items: ['Career advancement', 'Leadership development', 'Market positioning']
-                  }
-                ].map((section, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + index * 0.1 }}
-                    className="relative group"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="relative p-6 rounded-2xl border border-gray-400/50 hover:border-blue-200/50 transition-colors">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-2xl">{section.icon}</span>
-                        <h4 className="text-lg font-medium text-gray-900">{section.title}</h4>
-                      </div>
-                      <ul className="space-y-3">
-                        {section.items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-center gap-3 text-gray-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                            <span className="leading-relaxed">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* AI Suggestions Component */}
+        <AiSuggestions 
+          employeeData={formData}
+          predictionData={predictionData}
+          loading={loading}
+        />
       </motion.div>
     );
   };
