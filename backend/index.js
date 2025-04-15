@@ -7,8 +7,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 import { SymbolConvertor } from './controllers/employee/SymbolConvertor.js';
 import {getCompanyStats} from './controllers/employee/compantStats.js';
-import suggestionRoutes from './routes/suggestionRoutes.js';
-
+import getSuggestions from './controllers/employee/suggestionController.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 9000;
@@ -28,32 +27,6 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-// AI Suggestions endpoint
-app.post('/api/ai/suggestions', async (req, res) => {
-    try {
-        const { prompt } = req.body;
-
-        // Get the generative model
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-        // Generate suggestions
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const suggestions = response.text()
-            .split('\n')
-            .filter(line => line.trim())
-            .map(line => line.replace(/^\d+\.\s*/, ''));
-
-        res.json({ suggestions });
-    } catch (error) {
-        console.error('AI Suggestion Error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to generate AI suggestions',
-            error: error.message
-        });
-    }
-});
 
 app.post('/api/employee/predict', async (req, res) => {
     try {
@@ -68,6 +41,19 @@ app.post('/api/employee/predict', async (req, res) => {
             salary_range,
             performance_rating
         } = req.body;
+
+        const userData = {
+            company_name,
+            company_location,
+            reporting_quarter,
+            job_title,
+            department,
+            remote_work,
+            years_at_company,
+            salary_range,
+            performance_rating
+        }
+
         
         if (!company_name) {
             return res.status(400).json({
@@ -78,7 +64,7 @@ app.post('/api/employee/predict', async (req, res) => {
 
         try {
             const symbol = SymbolConvertor(company_name);
-            console.log("Converted symbol:", symbol);
+            // console.log("Converted symbol:", symbol);
 
             const companyStats = await getCompanyStats(symbol);
 
@@ -109,7 +95,7 @@ app.post('/api/employee/predict', async (req, res) => {
                 inflation_rate: 5.5
             };
 
-            console.log("Sending data to ML model:", finalData);
+            // console.log("Sending data to ML model:", finalData);
 
             const predictionResponse = await axios.post('https://layoff-prediction-api.onrender.com/predict', finalData);
             
@@ -141,7 +127,28 @@ app.post('/api/employee/predict', async (req, res) => {
 });
 
 // Routes
-app.use('/api/suggestions', suggestionRoutes);
+// app.use('/api/suggestions', suggestionRoutes);
+app.post("/api/suggestions", async (req, res) => {
+    console.log("Received:", req.body);
+    try {
+      const { employeeData, predictionData } = req.body;
+      if (!employeeData || !predictionData) {
+        throw new Error("Missing employeeData or predictionData");
+      }
+      if (!predictionData.prediction || !predictionData.prediction.layoff_risk) {
+        throw new Error("Invalid predictionData: missing prediction.layoff_risk");
+      }
+      const userData = {
+        ...employeeData,
+        layoff_risk: predictionData.prediction.layoff_risk,
+      };
+      const suggestions = await getSuggestions(userData);
+      res.json({ success: true, suggestions });
+    } catch (err) {
+      console.error("Error:", err);
+      res.status(400).json({ success: false, message: err.message });
+    }
+  });
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
