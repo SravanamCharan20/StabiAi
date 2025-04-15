@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react'
+ import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { RiRobot2Line } from 'react-icons/ri'
 
