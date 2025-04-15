@@ -21,7 +21,7 @@ const Home = () => {
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-6">
           <div className="max-w-[800px] mx-auto text-center">
-            <h1 className="text-[64px] leading-tight font-semibold text-gray-900 tracking-tight mb-6">
+            <h1 className="text-[67px] text-transparent text-medium bg-clip-text bg-gradient-to-r from-slate-700 to-purple-600 mb-6">
               AI predictions that just work.
             </h1>
             <p className="text-xl text-gray-500 mb-8 max-w-2xl mx-auto">
@@ -46,31 +46,10 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              { icon: RiBrainLine, value: '99%', label: 'Prediction Accuracy' },
-              { icon: RiBarChartBoxLine, value: '10M+', label: 'Predictions Made' },
-              { icon: HiOutlineChartBar, value: '50K+', label: 'Active Users' },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-4">
-                  <stat.icon className="text-4xl text-gray-900 mx-auto" />
-                </div>
-                <div className="text-5xl font-semibold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-gray-500">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
-      <section id="features" className="py-24">
+      <section id="features" className="py-14 border-black border rounded-full m-12">
         <div className="container mx-auto px-6">
-          <h2 className="text-4xl font-semibold text-gray-900 text-center mb-16">
+          <h2 className="text-6xl font-semibold text-gray-900 text-center mb-16">
             Three powerful solutions.<br />
             One intelligent platform.
           </h2>
@@ -96,7 +75,7 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gray-900 text-white">
+      <section className="py-24 text-black">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl font-semibold mb-6">
@@ -107,7 +86,7 @@ const Home = () => {
             </p>
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 rounded-full hover:bg-gray-100 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-black text-white text-gray-900 rounded-full hover:bg-gray-900 transition-colors text-sm font-medium"
             >
               Try it free
               <HiArrowRight className="text-lg" />
