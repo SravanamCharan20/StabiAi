@@ -129,26 +129,26 @@ app.post('/api/employee/predict', async (req, res) => {
 // Routes
 // app.use('/api/suggestions', suggestionRoutes);
 app.post("/api/suggestions", async (req, res) => {
-    console.log("Received:", req.body);
-    try {
-      const { employeeData, predictionData } = req.body;
-      if (!employeeData || !predictionData) {
-        throw new Error("Missing employeeData or predictionData");
-      }
-      if (!predictionData.prediction || !predictionData.prediction.layoff_risk) {
-        throw new Error("Invalid predictionData: missing prediction.layoff_risk");
-      }
-      const userData = {
-        ...employeeData,
-        layoff_risk: predictionData.prediction.layoff_risk,
-      };
-      const suggestions = await getSuggestions(userData);
-      res.json({ success: true, suggestions });
-    } catch (err) {
-      console.error("Error:", err);
-      res.status(400).json({ success: false, message: err.message });
+  console.log("Received:", req.body);
+  try {
+    const { employeeData, predictionData } = req.body;
+    if (!employeeData || !predictionData) {
+      throw new Error("Missing employeeData or predictionData");
     }
-  });
+    if (!predictionData.prediction || !predictionData.prediction.layoff_risk) {
+      throw new Error("Invalid predictionData: missing prediction.layoff_risk");
+    }
+    const userData = {
+      ...employeeData,
+      layoff_risk: predictionData.prediction.layoff_risk,
+    };
+    const suggestions = await getSuggestions(userData);
+    res.json({ success: true, suggestions });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
