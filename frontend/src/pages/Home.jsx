@@ -3,6 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { RiRobot2Line, RiBrainLine, RiBarChartBoxLine } from 'react-icons/ri'
 import { HiArrowRight, HiOutlineChartBar, HiOutlineUserGroup, HiOutlineAcademicCap } from 'react-icons/hi'
+import Footer from '../components/Footer'
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="group cursor-pointer">
@@ -54,7 +55,7 @@ const Home = () => {
             One intelligent platform.
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
             <FeatureCard
               icon={HiOutlineUserGroup}
               title="Employee Analytics"
@@ -94,6 +95,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <Footer/>
     </div>
   )
 }

@@ -27,7 +27,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-5">
               <RiRobot2Line className="text-3xl mb-1 text-gray-900" />
-              <span className="text-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">StabiAI</span>
+              <span className="text-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">StabilityAI</span>
             </Link>
 
             {/* Main Navigation */}
@@ -41,10 +41,10 @@ const Navbar = () => {
                   key={item.path}
                   to={item.path}
                   className={`
-                    text-sm font-medium tracking-tight
+                    text-md font-medium tracking-tight
                     transition-colors duration-200
                     ${location.pathname.includes(item.path) 
-                      ? 'text-blue-600' 
+                      ? 'text-blue-600 underline' 
                       : 'text-gray-600 hover:text-blue-600'
                     }
                   `}
