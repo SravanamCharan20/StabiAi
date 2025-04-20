@@ -11,6 +11,8 @@ import getSuggestions from './controllers/employee/suggestionController.js';
 import {getModelStats} from './controllers/investor/MLmodelStats.js'
 import { getMLModelAIStats } from './controllers/investor/MLmodelaiStats.js';
 import { getAISuggestions } from './controllers/investor/aiSuggestionController.js';
+import fetchStudentStats from './controllers/student/AIStats.js';
+import getStudentSuggestions from './controllers/student/studentAISuggestions.js';
 
 dotenv.config();
 const PORT = process.env.PORT || 9000;
@@ -151,8 +153,8 @@ app.post("/api/suggestions", async (req, res) => {
 const tiers = {
     'Tier 1': [
       "Tata Consultancy Services", "Infosys", "HCL Technologies", "Wipro",
-      "Accenture", "IBM", "Cognizant", "Capgemini", "Microsoft India",
-      "Google India", "Amazon Web Services", "SAP Labs India", "Deloitte",
+      "Accenture", "IBM", "Cognizant", "Capgemini", "Microsoft",
+      "Google", "Amazon Web Services", "SAP Labs", "Deloitte",
       "EY (Ernst & Young)"
     ],
     'Tier 2': [
@@ -277,6 +279,30 @@ app.post('/api/investor/predict', async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+
+app.post('/api/student/predict', async (req, res) => {
+  try {
+    const userInput = req.body;
+    const geminiScores = await fetchStudentStats(userInput);
+    const combinedData = { ...userInput, ...geminiScores };
+
+    const response = await axios.post('https://student-prediction-api.onrender.com/predict', combinedData);
+    const suggestions = await getStudentSuggestions(userInput);
+
+    return res.json({
+      job_stability_score: response.data.job_stability_score,
+      suggestions: suggestions 
+    });
+
+  } catch (error) {
+    console.error("Prediction Error:", error.message);
+    return res.status(500).json({ success: false, message: "Prediction failed", error: error.message });
+  }
+});
+
+
   
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {

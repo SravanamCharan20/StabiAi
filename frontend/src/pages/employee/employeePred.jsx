@@ -350,7 +350,7 @@ const EmployeePred = () => {
         <h1 className="text-5xl sm:text-5xl font-medium p-2 mt-5 bg-gradient-to-r from-slate-800 to-purple-600 text-transparent bg-clip-text">
           Employee Risk Assessment
         </h1>
-        <p className="mt-4 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-gray-600">
           Discover your career stability and get personalized recommendations
         </p>
       </motion.div>
@@ -449,7 +449,7 @@ const EmployeePred = () => {
             type="submit"
             disabled={loading}
             className="
-              relative text-md px-8 py-3 rounded-full bg-gradient-to-r from-slate-700 to-purple-600 text-white
+              relative text-md px-8 py-3 rounded-full bg-slate-800 text-white
               hover:bg-gradient-to-r from-slate-800 to-purple-700 focus:ring-2 cursor-pointer focus:ring-slate-500 focus:ring-offset-2
               transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
             "
