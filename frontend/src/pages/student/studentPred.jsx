@@ -220,7 +220,7 @@ const StudentPred = () => {
             transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
-            {loading ? "Analyzing..." : "Get Prediction"}
+            {loading ? "Analyzing..." : "Get Stabiity Score"}
           </button>
         </div>
       </form>
