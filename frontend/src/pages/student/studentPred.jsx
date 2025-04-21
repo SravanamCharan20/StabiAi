@@ -111,8 +111,11 @@ const StudentPred = () => {
         className="text-4xl mt-11 text-center text-slate-800 mb-8"
       >
         <span className="text-5xl mb-2 sm:text-5xl font-medium p-2 mt-5 bg-gradient-to-r from-slate-800 to-purple-600 text-transparent bg-clip-text">
-          Student Job Readiness Predictor
+          Student Job Stability Predictor
         </span>
+        <p className="text-center text-gray-600 mt-2 text-lg mb-8">
+          Understand your Job Stability and get personalized strategies to boost your Career.
+        </p>
       </motion.h1>
 
       <form

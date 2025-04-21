@@ -29,7 +29,7 @@ const InvestorPred = () => {
   const toggleTab = (tab) => setActiveTab(tab)
 
   return (
-    <div className="bg-gradient-to-br from-gray-100 to-white py-16 px-4 sm:px-6 lg:px-8">
+    <div className="py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
@@ -39,6 +39,9 @@ const InvestorPred = () => {
         <span className="text-5xl mb-2 sm:text-5xl font-medium p-2 mt-2 bg-gradient-to-r from-slate-800 to-purple-600 text-transparent bg-clip-text">
           Company Risk Prediction
         </span>
+        <p className="text-center mt-2 text-gray-600 text-lg mb-8">
+          Analyze company performance and uncover hidden risks using AI-driven insights.
+        </p>
       </motion.h1>
 
         <div className="backdrop-blur-md border border-purple-200 shadow-lg rounded-3xl p-8">
