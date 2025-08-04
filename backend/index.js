@@ -22,7 +22,7 @@ app.use(express.json());
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://your-production-site.com'
+  'https://stabiai-production.up.railway.app'
 ];
 
 app.use(cors({
