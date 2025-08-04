@@ -19,25 +19,27 @@ const PORT = process.env.PORT || 9000;
 const app = express();
 app.use(express.json());
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://stabiai-production.up.railway.app',
-  'https://stabi-ai.vercel.app/'
-];
+// const allowedOrigins = [
+//   'http://localhost:5173',
+//   'http://localhost:5174',
+//   'https://stabiai-production.up.railway.app',
+//   'https://stabi-ai.vercel.app/'
+// ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // optional: if you're using cookies/auth
-}));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl)
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.includes(origin)) {
+//       return callback(null, true);
+//     } else {
+//       return callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true, // optional: if you're using cookies/auth
+// }));
+
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.send('Hello World');
