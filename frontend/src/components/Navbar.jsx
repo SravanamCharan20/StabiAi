@@ -55,7 +55,7 @@ const Navbar = () => {
             </nav>
 
             {/* Auth Links */}
-            <div className="flex items-center gap-6">
+{/*             <div className="flex items-center gap-6">
               <Link
                 to="/signup"
                 className="
@@ -68,7 +68,7 @@ const Navbar = () => {
               >
                 Sign up
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
