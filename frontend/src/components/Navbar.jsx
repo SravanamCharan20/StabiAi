@@ -34,8 +34,8 @@ const Navbar = () => {
             <nav className="hidden md:flex items-center gap-8">
               {[
                 { path: '/employee/predict', label: 'Employee' },
-                { path: '/student/predict', label: 'Student' },
-                { path: '/investor/predict', label: 'Investor' }
+                // { path: '/student/predict', label: 'Student' },
+                // { path: '/investor/predict', label: 'Investor' }
               ].map((item) => (
                 <Link
                   key={item.path}

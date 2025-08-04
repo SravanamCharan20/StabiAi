@@ -223,7 +223,7 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
           predictionData: formattedPredictionData,
         });
         const response = await axios.post(
-          "http://localhost:9000/api/suggestions",
+          "https://stabiai-production.up.railway.app/api/suggestions",
           {
             employeeData: formattedEmployeeData,
             predictionData: formattedPredictionData,

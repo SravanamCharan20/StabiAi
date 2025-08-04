@@ -274,7 +274,7 @@ const EmployeePred = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:9000/api/employee/predict", formData);
+      const response = await axios.post("https://stabiai-production.up.railway.app/api/employee/predict", formData);
       console.log("Prediction Response:", response.data);
       setPredictionData(response.data);
     } catch (error) {

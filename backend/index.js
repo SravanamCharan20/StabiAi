@@ -19,9 +19,23 @@ const PORT = process.env.PORT || 9000;
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://your-production-site.com'
+];
+
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // optional: if you're using cookies/auth
 }));
 
 app.get('/', (req, res) => {

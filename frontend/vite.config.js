@@ -11,7 +11,7 @@ export default defineConfig({
   ],
   proxy: {
     '/api': {
-      target: 'http://localhost:9000',
+      target: 'https://stabiai-production.up.railway.app',
       changeOrigin: true,
       
     }
