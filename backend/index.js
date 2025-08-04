@@ -20,9 +20,10 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  'https://stabi-ai.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://stabiai-production.up.railway.app',
+  'https://stabi-ai.vercel.app/'
 ];
 
 app.use(cors({
@@ -37,7 +38,6 @@ app.use(cors({
   },
   credentials: true, // optional: if you're using cookies/auth
 }));
-app.options('*', cors()); 
 
 app.get('/', (req, res) => {
     res.send('Hello World');
