@@ -28,10 +28,37 @@ const EmptyItem = ({ message }) => (
   <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-500">{message}</div>
 );
 
+const AI_TABS = [
+  { id: "skills", label: "AI Skills" },
+  { id: "immediate", label: "AI Immediate" },
+  { id: "strategic", label: "AI Strategic" },
+  { id: "opportunities", label: "AI Opportunities" },
+];
+
+const AiTabs = ({ active, onChange }) => (
+  <div className="flex flex-wrap gap-2">
+    {AI_TABS.map((tab) => (
+      <button
+        key={tab.id}
+        type="button"
+        onClick={() => onChange(tab.id)}
+        className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
+          active === tab.id
+            ? "border-cyan-700 bg-cyan-600 text-white"
+            : "border-cyan-200 bg-cyan-50/70 text-cyan-800 hover:border-cyan-300 hover:bg-cyan-100"
+        }`}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+);
+
 const AiSuggestions = ({ employeeData, predictionData, loading }) => {
   const [suggestions, setSuggestions] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("skills");
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -135,9 +162,9 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="rounded-2xl border border-cyan-200 bg-cyan-50/30 p-5">
         <div className="flex items-start gap-3">
-          <HiLightBulb className="mt-0.5 h-5 w-5 text-slate-700" />
+          <HiLightBulb className="mt-0.5 h-5 w-5 text-cyan-700" />
           <div>
             <h2 className="text-lg font-semibold text-slate-900">AI Career Guidance</h2>
             <p className="mt-1 text-sm text-slate-600">
@@ -157,13 +184,16 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             ) : null}
           </div>
         </div>
+        <div className="mt-4">
+          <AiTabs active={activeTab} onChange={setActiveTab} />
+        </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      {activeTab === "skills" ? (
         <SectionCard title="Priority Skills" subtitle="Skills that improve retention and internal mobility">
           {grouped.skills.length ? (
             grouped.skills.map((skill, index) => (
-              <div key={`${skill.name}-${index}`} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div key={`${skill.name}-${index}`} className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
                 <p className="text-sm font-semibold text-slate-900">{skill.name}</p>
                 <p className="mt-1 text-sm text-slate-700">{skill.why}</p>
                 <p className="mt-1 text-xs text-slate-600">How: {skill.how}</p>
@@ -174,11 +204,13 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             <EmptyItem message="No skill recommendations generated." />
           )}
         </SectionCard>
+      ) : null}
 
+      {activeTab === "immediate" ? (
         <SectionCard title="Immediate Actions" subtitle="Short-term steps (next 1-3 months)">
           {grouped.immediateActions.length ? (
             grouped.immediateActions.map((action, index) => (
-              <div key={`${action.title}-${index}`} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div key={`${action.title}-${index}`} className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
                 <p className="text-sm font-semibold text-slate-900">{action.title}</p>
                 <p className="mt-1 text-xs text-slate-600">Timeline: {action.timeline}</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
@@ -193,11 +225,13 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             <EmptyItem message="No immediate actions generated." />
           )}
         </SectionCard>
+      ) : null}
 
+      {activeTab === "strategic" ? (
         <SectionCard title="Strategic Actions" subtitle="Medium/long horizon career stabilization">
           {grouped.strategicActions.length ? (
             grouped.strategicActions.map((action, index) => (
-              <div key={`${action.title}-${index}`} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div key={`${action.title}-${index}`} className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
                 <p className="text-sm font-semibold text-slate-900">{action.title}</p>
                 <p className="mt-1 text-xs text-slate-600">Timeline: {action.timeline}</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
@@ -212,11 +246,13 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             <EmptyItem message="No strategic actions generated." />
           )}
         </SectionCard>
+      ) : null}
 
+      {activeTab === "opportunities" ? (
         <SectionCard title="Opportunities" subtitle="Internal or external paths with risk-reduction impact">
           {grouped.opportunities.length ? (
             grouped.opportunities.map((opportunity, index) => (
-              <div key={`${opportunity.title}-${index}`} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div key={`${opportunity.title}-${index}`} className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
                 <p className="text-sm font-semibold text-slate-900">{opportunity.title}</p>
                 <p className="mt-1 text-xs text-slate-600">Timeline: {opportunity.timeline}</p>
                 <p className="mt-1 text-sm text-slate-700">Requirements: {opportunity.requirements}</p>
@@ -227,7 +263,7 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             <EmptyItem message="No opportunity recommendations generated." />
           )}
         </SectionCard>
-      </div>
+      ) : null}
     </div>
   );
 };

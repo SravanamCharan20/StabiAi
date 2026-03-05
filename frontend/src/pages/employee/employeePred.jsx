@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   HiCheckCircle,
+  HiChevronDown,
   HiExclamationCircle,
   HiInformationCircle,
   HiOutlineBriefcase,
@@ -119,17 +120,17 @@ const FALLBACK_DEPARTMENT_OPTIONS = [
 const RISK_TONE = {
   low: {
     badge: "bg-emerald-100/70 text-emerald-800",
-    card: "border-slate-200 bg-white",
+    card: "border-emerald-200 bg-emerald-50/30",
     icon: HiCheckCircle,
   },
   medium: {
     badge: "bg-amber-100/70 text-amber-800",
-    card: "border-slate-200 bg-white",
+    card: "border-amber-200 bg-amber-50/30",
     icon: HiInformationCircle,
   },
   high: {
     badge: "bg-rose-100/70 text-rose-800",
-    card: "border-slate-200 bg-white",
+    card: "border-rose-200 bg-rose-50/30",
     icon: HiExclamationCircle,
   },
   unknown: {
@@ -141,19 +142,19 @@ const RISK_TONE = {
 
 const RELIABILITY_TONE = {
   high: {
-    wrap: "border-slate-200 bg-white",
+    wrap: "border-emerald-200 bg-emerald-50/45",
     text: "text-emerald-800",
     icon: HiCheckCircle,
     title: "High Reliability",
   },
   medium: {
-    wrap: "border-slate-200 bg-white",
+    wrap: "border-amber-200 bg-amber-50/45",
     text: "text-amber-800",
     icon: HiInformationCircle,
     title: "Moderate Reliability",
   },
   warning: {
-    wrap: "border-slate-200 bg-white",
+    wrap: "border-rose-200 bg-rose-50/45",
     text: "text-rose-800",
     icon: HiExclamationCircle,
     title: "Reduced Reliability",
@@ -231,6 +232,58 @@ const WORKSPACE_TABS = [
   { id: "quality", label: "Quality" },
   { id: "guidance", label: "AI Guidance" },
 ];
+
+const SALARY_BOUNDS = {
+  minInr: 300000,
+  maxInr: 12000000,
+  minLpa: 3,
+  maxLpa: 120,
+};
+
+const FORM_INPUT_CLASS =
+  "w-full rounded-xl border bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-2";
+
+const FORM_SELECT_CLASS =
+  "select-input w-full rounded-xl border bg-white px-3 py-2.5 pr-9 text-sm text-slate-900 outline-none transition focus:ring-2";
+
+const WORKSPACE_FRAME_THEME = {
+  simulator: {
+    border: "border-sky-200",
+    bg: "bg-sky-50/45",
+    text: "text-sky-800",
+    label: "Scenario Lab",
+  },
+  actions: {
+    border: "border-emerald-200",
+    bg: "bg-emerald-50/45",
+    text: "text-emerald-800",
+    label: "Execution Tracker",
+  },
+  review: {
+    border: "border-amber-200",
+    bg: "bg-amber-50/45",
+    text: "text-amber-900",
+    label: "Governance Review",
+  },
+  history: {
+    border: "border-slate-300",
+    bg: "bg-slate-100/60",
+    text: "text-slate-800",
+    label: "Historical Trend",
+  },
+  quality: {
+    border: "border-indigo-200",
+    bg: "bg-indigo-50/45",
+    text: "text-indigo-800",
+    label: "Model Health",
+  },
+  guidance: {
+    border: "border-cyan-200",
+    bg: "bg-cyan-50/45",
+    text: "text-cyan-800",
+    label: "AI Guidance",
+  },
+};
 
 const toAnnualInr = (value, unit) => {
   const numeric = Number(value);
@@ -704,8 +757,8 @@ const ResponsibleBrief = ({ predictionData, inputQuality }) => {
   const assessment = getResponsibleAssessment(predictionData, inputQuality);
 
   return (
-    <section className={`rounded-2xl border p-5 ${assessment.statusMeta.container}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <details className={`rounded-2xl border ${assessment.statusMeta.container}`}>
+      <summary className="flex flex-wrap items-start justify-between gap-3 p-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Responsible Prediction Brief</p>
           <h3 className="mt-1 text-base font-semibold text-slate-900">{assessment.statusMeta.title}</h3>
@@ -714,51 +767,53 @@ const ResponsibleBrief = ({ predictionData, inputQuality }) => {
         <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${assessment.statusMeta.badgeClass}`}>
           {assessment.statusMeta.badge}
         </span>
-      </div>
+      </summary>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs text-slate-500">Predicted Risk</p>
-          <p className="mt-1 text-sm font-semibold text-slate-900">{assessment.risk}</p>
+      <div className="px-4 pb-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs text-slate-500">Predicted Risk</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900">{assessment.risk}</p>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs text-slate-500">Model Confidence</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.confidence * 100).toFixed(1)}%</p>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs text-slate-500">Reliability Score</p>
+            <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.reliabilityScore * 100).toFixed(1)}%</p>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs text-slate-500">Market Volatility</p>
+            <p className={`mt-1 text-sm font-semibold ${assessment.volatility.tone}`}>{assessment.volatility.label}</p>
+            <p className="mt-1 text-[11px] text-slate-600">{assessment.volatility.detail}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs text-slate-500">Model Confidence</p>
-          <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.confidence * 100).toFixed(1)}%</p>
-        </div>
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs text-slate-500">Reliability Score</p>
-          <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.reliabilityScore * 100).toFixed(1)}%</p>
-        </div>
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs text-slate-500">Market Volatility</p>
-          <p className={`mt-1 text-sm font-semibold ${assessment.volatility.tone}`}>{assessment.volatility.label}</p>
-          <p className="mt-1 text-[11px] text-slate-600">{assessment.volatility.detail}</p>
-        </div>
-      </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Required Checks</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
-            {assessment.checks.map((item, idx) => (
-              <li key={`check-${idx}`}>{item}</li>
-            ))}
-          </ul>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Required Checks</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+              {assessment.checks.map((item, idx) => (
+                <li key={`check-${idx}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Known Limitations</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+              {assessment.limitations.map((item, idx) => (
+                <li key={`limitation-${idx}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
-        <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Known Limitations</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
-            {assessment.limitations.map((item, idx) => (
-              <li key={`limitation-${idx}`}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
 
-      <p className="mt-3 text-[11px] text-slate-600">
-        Input Quality: {assessment.inputScore != null ? `${assessment.inputScore.toFixed(0)}/100` : "N/A"} | Market Regime: {assessment.marketRegime} | Checked: {formatCheckedAt(assessment.checkedAt)}
-      </p>
-    </section>
+        <p className="mt-3 text-[11px] text-slate-600">
+          Input Quality: {assessment.inputScore != null ? `${assessment.inputScore.toFixed(0)}/100` : "N/A"} | Market Regime: {assessment.marketRegime} | Checked: {formatCheckedAt(assessment.checkedAt)}
+        </p>
+      </div>
+    </details>
   );
 };
 
@@ -774,6 +829,7 @@ const Field = ({
   max,
   step,
   required = true,
+  error = "",
 }) => (
   <label className="space-y-2">
     <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -781,12 +837,17 @@ const Field = ({
       {label}
     </span>
     {options ? (
-      <select
+      <SelectControl
         name={name}
         value={value}
         onChange={onChange}
         required={required}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        aria-invalid={Boolean(error)}
+        className={`${
+          error
+            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
+            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
+        }`}
       >
         <option value="">Select {label}</option>
         {options.map((option) => (
@@ -794,7 +855,7 @@ const Field = ({
             {option}
           </option>
         ))}
-      </select>
+      </SelectControl>
     ) : (
       <input
         name={name}
@@ -805,10 +866,32 @@ const Field = ({
         max={max}
         step={step}
         required={required}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        aria-invalid={Boolean(error)}
+        className={`${FORM_INPUT_CLASS} ${
+          error
+            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
+            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
+        }`}
       />
     )}
+    {error ? <p className="text-xs text-rose-700">{error}</p> : null}
   </label>
+);
+
+const SelectControl = ({
+  children,
+  className = "",
+  ...props
+}) => (
+  <div className="relative">
+    <select
+      {...props}
+      className={`${FORM_SELECT_CLASS} ${className}`}
+    >
+      {children}
+    </select>
+    <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+  </div>
 );
 
 const ReliabilityBanner = ({ reliability }) => {
@@ -865,6 +948,22 @@ const SegmentTabs = ({ tabs, active, onChange }) => (
   </div>
 );
 
+const WorkspacePanelFrame = ({ tabId, children }) => {
+  const tone = WORKSPACE_FRAME_THEME[tabId] || WORKSPACE_FRAME_THEME.simulator;
+  return (
+    <section className={`rounded-3xl border p-4 shadow-sm ${tone.border} ${tone.bg}`}>
+      <div className="mb-3">
+        <span className={`rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${tone.text}`}>
+          {tone.label}
+        </span>
+      </div>
+      <div className="rounded-2xl border border-white/85 bg-white/90 p-1">
+        {children}
+      </div>
+    </section>
+  );
+};
+
 const ResultPanel = ({ predictionData, inputQuality }) => {
   const [resultView, setResultView] = useState("story");
   const prediction = predictionData?.prediction || {};
@@ -883,6 +982,21 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
   const RiskIcon = tone.icon;
   const confidence = Number(prediction.confidence || 0);
   const riskScore = Number(prediction.risk_score || 0);
+  const riskMeter = Math.max(0, Math.min(100, riskScore));
+  const riskMeterTone = risk === "high"
+    ? "bg-rose-500"
+    : risk === "medium"
+      ? "bg-amber-500"
+      : risk === "low"
+        ? "bg-emerald-500"
+        : "bg-slate-500";
+  const riskHeadline = risk === "high"
+    ? "Immediate stabilization actions are recommended."
+    : risk === "medium"
+      ? "Risk is balanced and sensitive to near-term changes."
+      : risk === "low"
+        ? "Current profile is relatively stable."
+        : "Risk posture is currently unclear.";
   const reasonForFactor = (factor) => getContextualFactorReason(factor, predictionData);
   const riskStory = buildRiskStory(predictionData);
   const stabilizationPlan = buildStabilizationPlan(predictionData);
@@ -891,7 +1005,7 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
     <div className="space-y-4">
       <ReliabilityBanner reliability={predictionData?.reliability} />
 
-      <div className={`rounded-2xl border p-5 shadow-sm ${tone.card}`}>
+      <div className={`rounded-3xl border p-5 shadow-sm ${tone.card}`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <RiskIcon className="h-5 w-5 text-slate-800" />
@@ -902,18 +1016,38 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
           </span>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-white/80 bg-white/80 p-3">
-            <p className="text-xs text-slate-500">Model Confidence</p>
-            <p className="mt-1 text-xl font-semibold text-slate-900">{(confidence * 100).toFixed(1)}%</p>
+        <div className="mt-4 grid gap-3 lg:grid-cols-[1.45fr_1fr]">
+          <div className="rounded-2xl border border-white/80 bg-white/85 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Decision Snapshot</p>
+            <p className="mt-1 text-base font-semibold text-slate-900">{riskHeadline}</p>
+            <p className="mt-2 text-sm text-slate-700">{riskStory.summary}</p>
+            <p className="mt-1 text-sm text-slate-700">{riskStory.marketLine}</p>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <span>Risk Index</span>
+                <span>{riskScore.toFixed(1)} / 100</span>
+              </div>
+              <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-200/90">
+                <div
+                  className={`h-full rounded-full ${riskMeterTone}`}
+                  style={{ width: `${Math.max(4, riskMeter)}%` }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="rounded-xl border border-white/80 bg-white/80 p-3">
-            <p className="text-xs text-slate-500">Risk Score</p>
-            <p className="mt-1 text-xl font-semibold text-slate-900">{riskScore.toFixed(1)} / 100</p>
-          </div>
-          <div className="rounded-xl border border-white/80 bg-white/80 p-3">
-            <p className="text-xs text-slate-500">Model Version</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{prediction.model_version || "N/A"}</p>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="rounded-xl border border-white/80 bg-white/85 p-3">
+              <p className="text-xs text-slate-500">Model Confidence</p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{(confidence * 100).toFixed(1)}%</p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/85 p-3">
+              <p className="text-xs text-slate-500">Input Quality</p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{inputQuality?.score ?? "N/A"} / 100</p>
+              <p className="mt-1 text-xs text-slate-600">
+                Market: {predictionData?.market_signals?.marketRegime || "N/A"}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -938,35 +1072,35 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
               <p className="mt-1 text-sm text-slate-700">{riskStory.overall}</p>
             </div>
             <div className="grid gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pressures</p>
+              <div className="rounded-xl border border-rose-200 bg-rose-50/40 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">Pressures</p>
                 <div className="mt-2 space-y-2">
                   {riskStory.pressureSignals.length ? (
                     riskStory.pressureSignals.map((item, index) => (
-                      <div key={`pressure-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{item.strength} Signal</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p>
-                        <p className="mt-1 text-sm text-slate-700">{item.reason}</p>
+                      <div key={`pressure-${index}`} className="rounded-lg border border-rose-100 bg-white/80 p-2.5">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">{item.strength} Signal</p>
+                        <p className="mt-1 text-sm font-semibold text-rose-900">{item.title}</p>
+                        <p className="mt-1 text-sm text-rose-900">{item.reason}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-600">No major pressure signals were detected in this run.</p>
+                    <p className="text-sm text-rose-800">No major pressure signals were detected in this run.</p>
                   )}
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Protection</p>
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Protection</p>
                 <div className="mt-2 space-y-2">
                   {riskStory.protectionSignals.length ? (
                     riskStory.protectionSignals.map((item, index) => (
-                      <div key={`protection-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">{item.strength} Signal</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p>
-                        <p className="mt-1 text-sm text-slate-700">{item.reason}</p>
+                      <div key={`protection-${index}`} className="rounded-lg border border-emerald-100 bg-white/80 p-2.5">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">{item.strength} Signal</p>
+                        <p className="mt-1 text-sm font-semibold text-emerald-900">{item.title}</p>
+                        <p className="mt-1 text-sm text-emerald-900">{item.reason}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-600">No strong protective signals were detected in this run.</p>
+                    <p className="text-sm text-emerald-800">No strong protective signals were detected in this run.</p>
                   )}
                 </div>
               </div>
@@ -1234,17 +1368,17 @@ const ActionTrackerPanel = ({
             <p className="text-sm font-semibold text-slate-900">{action.title}</p>
             {action.detail ? <p className="mt-1 text-xs text-slate-600">{action.detail}</p> : null}
             <div className="mt-2">
-              <select
+              <SelectControl
                 value={action.status}
                 onChange={(event) => onUpdateStatus(index, event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                className="border-slate-200 py-2 focus:border-slate-400 focus:ring-slate-200"
               >
                 {ACTION_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </SelectControl>
             </div>
           </div>
         ))}
@@ -1309,17 +1443,17 @@ const HumanReviewPanel = ({
         onChange={(event) => setReviewForm((prev) => ({ ...prev, reviewed_by: event.target.value }))}
         className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
       />
-      <select
+      <SelectControl
         value={reviewForm.decision}
         onChange={(event) => setReviewForm((prev) => ({ ...prev, decision: event.target.value }))}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+        className="border-slate-200 py-2 focus:border-slate-400 focus:ring-slate-200"
       >
         {REVIEW_DECISIONS.map((decision) => (
           <option key={decision} value={decision}>
             {decision}
           </option>
         ))}
-      </select>
+      </SelectControl>
       <textarea
         rows={3}
         placeholder="Review reason and human evidence"
@@ -1511,6 +1645,7 @@ const EmployeePred = () => {
   const [salaryUnit, setSalaryUnit] = useState("LPA");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [predictionData, setPredictionData] = useState(null);
   const [inputSpec, setInputSpec] = useState(null);
   const [historyEntries, setHistoryEntries] = useState([]);
@@ -1612,7 +1747,7 @@ const EmployeePred = () => {
       warnings.push(`Performance rating should be between ${options.perfMin} and ${options.perfMax}.`);
     }
 
-    if (!Number.isFinite(annualSalaryInr) || annualSalaryInr < 300000 || annualSalaryInr > 10000000) {
+    if (!Number.isFinite(annualSalaryInr) || annualSalaryInr < SALARY_BOUNDS.minInr || annualSalaryInr > SALARY_BOUNDS.maxInr) {
       score -= 25;
       warnings.push("Salary looks out of range. Check unit and entered amount.");
     }
@@ -1624,6 +1759,9 @@ const EmployeePred = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    if (error) {
+      setError("");
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -1653,27 +1791,98 @@ const EmployeePred = () => {
     }
   }, []);
 
+  const validateFormData = useCallback((data = formData, unit = salaryUnit) => {
+    const errors = {};
+    const requiredText = "This field is required.";
+
+    if (!String(data.company_name || "").trim()) {
+      errors.company_name = requiredText;
+    } else if (!options.companies.includes(data.company_name)) {
+      errors.company_name = "Select a company from the dropdown options.";
+    }
+
+    if (!String(data.company_location || "").trim()) {
+      errors.company_location = requiredText;
+    } else if (!options.locations.includes(data.company_location)) {
+      errors.company_location = "Select a location from the dropdown options.";
+    }
+
+    if (!String(data.reporting_quarter || "").trim()) {
+      errors.reporting_quarter = requiredText;
+    } else if (!options.quarters.includes(data.reporting_quarter)) {
+      errors.reporting_quarter = "Select a valid reporting quarter.";
+    }
+
+    if (!String(data.job_title || "").trim()) {
+      errors.job_title = requiredText;
+    } else if (!options.jobs.includes(data.job_title)) {
+      errors.job_title = "Select a valid job title from the list.";
+    }
+
+    if (!String(data.department || "").trim()) {
+      errors.department = requiredText;
+    } else if (!options.departments.includes(data.department)) {
+      errors.department = "Select a valid department from the list.";
+    }
+
+    if (!String(data.remote_work || "").trim()) {
+      errors.remote_work = requiredText;
+    } else if (!options.remote.includes(data.remote_work)) {
+      errors.remote_work = "Select Yes or No.";
+    }
+
+    const years = Number(data.years_at_company);
+    if (!String(data.years_at_company || "").trim()) {
+      errors.years_at_company = requiredText;
+    } else if (!Number.isFinite(years) || years < 0 || years > options.yearsMax) {
+      errors.years_at_company = `Enter years between 0 and ${options.yearsMax}.`;
+    }
+
+    const performance = Number(data.performance_rating);
+    if (!String(data.performance_rating || "").trim()) {
+      errors.performance_rating = requiredText;
+    } else if (!Number.isFinite(performance) || performance < options.perfMin || performance > options.perfMax) {
+      errors.performance_rating = `Enter performance between ${options.perfMin} and ${options.perfMax}.`;
+    }
+
+    const salaryRaw = String(data.salary_range || "").trim();
+    const salaryNumber = Number(data.salary_range);
+    const annualInr = toAnnualInr(data.salary_range, unit);
+    if (!salaryRaw) {
+      errors.salary_range = requiredText;
+    } else if (!Number.isFinite(salaryNumber) || salaryNumber <= 0) {
+      errors.salary_range = "Enter a valid numeric salary.";
+    } else if (unit === "LPA" && (salaryNumber < SALARY_BOUNDS.minLpa || salaryNumber > SALARY_BOUNDS.maxLpa)) {
+      errors.salary_range = `Salary in LPA must be between ${SALARY_BOUNDS.minLpa} and ${SALARY_BOUNDS.maxLpa}.`;
+    } else if (annualInr < SALARY_BOUNDS.minInr || annualInr > SALARY_BOUNDS.maxInr) {
+      errors.salary_range = `Salary must be between ₹${SALARY_BOUNDS.minInr.toLocaleString("en-IN")} and ₹${SALARY_BOUNDS.maxInr.toLocaleString("en-IN")} annually.`;
+    }
+
+    return errors;
+  }, [formData, options, salaryUnit]);
+
+  useEffect(() => {
+    if (!Object.keys(fieldErrors).length) {
+      return;
+    }
+    const nextErrors = validateFormData(formData, salaryUnit);
+    const currentKeys = Object.keys(fieldErrors);
+    const nextKeys = Object.keys(nextErrors);
+    const isSame =
+      currentKeys.length === nextKeys.length
+      && currentKeys.every((key) => fieldErrors[key] === nextErrors[key]);
+    if (!isSame) {
+      setFieldErrors(nextErrors);
+    }
+  }, [fieldErrors, formData, salaryUnit, validateFormData]);
+
   const validate = () => {
-    const requiredFields = Object.entries(formData).filter(([, value]) => String(value).trim() === "");
-    if (requiredFields.length) {
-      return "Please complete all required fields before prediction.";
+    const nextErrors = validateFormData(formData, salaryUnit);
+    setFieldErrors(nextErrors);
+    if (!Object.keys(nextErrors).length) {
+      return "";
     }
-
-    const years = Number(formData.years_at_company);
-    if (!Number.isFinite(years) || years < 0 || years > options.yearsMax) {
-      return `Years at company must be between 0 and ${options.yearsMax}.`;
-    }
-
-    const performance = Number(formData.performance_rating);
-    if (!Number.isFinite(performance) || performance < options.perfMin || performance > options.perfMax) {
-      return `Performance rating must be between ${options.perfMin} and ${options.perfMax}.`;
-    }
-
-    if (!Number.isFinite(annualSalaryInr) || annualSalaryInr <= 0) {
-      return "Enter a valid salary value.";
-    }
-
-    return "";
+    return Object.values(nextErrors)[0] || "Please correct highlighted fields before prediction.";
   };
 
   const buildPayloadFromForm = () => ({
@@ -2088,7 +2297,7 @@ const EmployeePred = () => {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f5f8fa_0%,#ffffff_42%,#f4f7f9_100%)] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[95rem]">
         <div className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Employee Intelligence</p>
           <h1 className="font-display mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Layoff Risk Predictor</h1>
@@ -2100,7 +2309,7 @@ const EmployeePred = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.05fr_1.35fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_1.5fr]">
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="font-display text-lg font-semibold text-slate-900">Prediction Input Flow</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -2123,14 +2332,14 @@ const EmployeePred = () => {
             </div>
 
             {options.guidance.length ? (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Data Tips</p>
+              <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <summary className="text-xs font-semibold uppercase tracking-wide text-slate-600">Data Tips</summary>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-600">
                   {options.guidance.map((item, index) => (
                     <li key={`${item}-${index}`}>{item}</li>
                   ))}
                 </ul>
-              </div>
+              </details>
             ) : null}
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-5">
@@ -2144,6 +2353,7 @@ const EmployeePred = () => {
                     value={formData.company_name}
                     onChange={handleChange}
                     options={options.companies}
+                    error={fieldErrors.company_name}
                   />
                   <Field
                     icon={HiOutlineLocationMarker}
@@ -2152,6 +2362,7 @@ const EmployeePred = () => {
                     value={formData.company_location}
                     onChange={handleChange}
                     options={options.locations}
+                    error={fieldErrors.company_location}
                   />
                   <div className="sm:col-span-2">
                     <Field
@@ -2161,6 +2372,7 @@ const EmployeePred = () => {
                       value={formData.reporting_quarter}
                       onChange={handleChange}
                       options={options.quarters}
+                      error={fieldErrors.reporting_quarter}
                     />
                   </div>
                 </div>
@@ -2176,6 +2388,7 @@ const EmployeePred = () => {
                     value={formData.job_title}
                     onChange={handleChange}
                     options={options.jobs}
+                    error={fieldErrors.job_title}
                   />
                   <Field
                     icon={HiOutlineUserGroup}
@@ -2184,6 +2397,7 @@ const EmployeePred = () => {
                     value={formData.department}
                     onChange={handleChange}
                     options={options.departments}
+                    error={fieldErrors.department}
                   />
                   <div className="sm:col-span-2">
                     <Field
@@ -2193,6 +2407,7 @@ const EmployeePred = () => {
                       value={formData.remote_work}
                       onChange={handleChange}
                       options={options.remote}
+                      error={fieldErrors.remote_work}
                     />
                   </div>
                 </div>
@@ -2211,6 +2426,7 @@ const EmployeePred = () => {
                     min="0"
                     max={String(options.yearsMax)}
                     step="0.5"
+                    error={fieldErrors.years_at_company}
                   />
 
                   <label className="space-y-2">
@@ -2219,23 +2435,33 @@ const EmployeePred = () => {
                       Salary
                     </span>
                     <div className="flex gap-2">
-                      <select
+                      <SelectControl
                         value={salaryUnit}
-                        onChange={(event) => setSalaryUnit(event.target.value)}
-                        className="w-28 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                        onChange={(event) => {
+                          if (error) {
+                            setError("");
+                          }
+                          setSalaryUnit(event.target.value);
+                        }}
+                        className="w-32 border-slate-200 focus:border-slate-400 focus:ring-slate-200"
                       >
                         <option value="LPA">LPA</option>
                         <option value="INR">Annual INR</option>
-                      </select>
+                      </SelectControl>
                       <input
                         name="salary_range"
                         type="number"
                         value={formData.salary_range}
                         onChange={handleChange}
-                        min={salaryUnit === "LPA" ? "1" : "300000"}
-                        max={salaryUnit === "LPA" ? "120" : "10000000"}
+                        min={salaryUnit === "LPA" ? String(SALARY_BOUNDS.minLpa) : String(SALARY_BOUNDS.minInr)}
+                        max={salaryUnit === "LPA" ? String(SALARY_BOUNDS.maxLpa) : String(SALARY_BOUNDS.maxInr)}
                         step={salaryUnit === "LPA" ? "0.5" : "10000"}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                        aria-invalid={Boolean(fieldErrors.salary_range)}
+                        className={`${FORM_INPUT_CLASS} ${
+                          fieldErrors.salary_range
+                            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
+                            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
+                        }`}
                       />
                     </div>
                     <p className="text-xs text-slate-500">
@@ -2243,6 +2469,7 @@ const EmployeePred = () => {
                       {" "}
                       {annualSalaryInr > 0 ? `₹${Math.round(annualSalaryInr).toLocaleString("en-IN")}` : "N/A"}
                     </p>
+                    {fieldErrors.salary_range ? <p className="text-xs text-rose-700">{fieldErrors.salary_range}</p> : null}
                   </label>
 
                   <Field
@@ -2255,6 +2482,7 @@ const EmployeePred = () => {
                     min={String(options.perfMin)}
                     max={String(options.perfMax)}
                     step={String(options.perfStep)}
+                    error={fieldErrors.performance_rating}
                   />
                 </div>
               </div>
@@ -2281,10 +2509,11 @@ const EmployeePred = () => {
             ) : (
               <>
                 <ResultPanel predictionData={predictionData} inputQuality={inputQuality} />
-                <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <section className="rounded-3xl border border-slate-300 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="font-display text-sm font-semibold text-slate-900">Decision Workspace</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Operator Console</p>
+                      <p className="font-display mt-1 text-sm font-semibold text-slate-900">Decision Workspace</p>
                       <p className="mt-1 text-xs text-slate-500">
                         One compact control center for simulation, actions, governance, and quality.
                       </p>
@@ -2303,67 +2532,79 @@ const EmployeePred = () => {
                 </section>
 
                 {workspaceTab === "simulator" ? (
-                  <WhatIfSimulator
-                    whatIfForm={whatIfForm}
-                    setWhatIfForm={setWhatIfForm}
-                    onRun={handleRunWhatIf}
-                    onApplyToInput={handleApplyScenarioToForm}
-                    loading={whatIfLoading}
-                    result={whatIfResult}
-                    baselineRisk={predictionData?.prediction?.layoff_risk}
-                  />
+                  <WorkspacePanelFrame tabId="simulator">
+                    <WhatIfSimulator
+                      whatIfForm={whatIfForm}
+                      setWhatIfForm={setWhatIfForm}
+                      onRun={handleRunWhatIf}
+                      onApplyToInput={handleApplyScenarioToForm}
+                      loading={whatIfLoading}
+                      result={whatIfResult}
+                      baselineRisk={predictionData?.prediction?.layoff_risk}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
 
                 {workspaceTab === "actions" ? (
-                  <ActionTrackerPanel
-                    actions={actionTracker}
-                    onUpdateStatus={handleActionStatusUpdate}
-                    onSave={handleSaveActionTracker}
-                    onRescore={handleRescore}
-                    saving={actionSaving}
-                    rescoreLoading={rescoreLoading}
-                    message={actionMessage}
-                    rescoreSummary={rescoreSummary}
-                  />
+                  <WorkspacePanelFrame tabId="actions">
+                    <ActionTrackerPanel
+                      actions={actionTracker}
+                      onUpdateStatus={handleActionStatusUpdate}
+                      onSave={handleSaveActionTracker}
+                      onRescore={handleRescore}
+                      saving={actionSaving}
+                      rescoreLoading={rescoreLoading}
+                      message={actionMessage}
+                      rescoreSummary={rescoreSummary}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
 
                 {workspaceTab === "review" ? (
-                  <HumanReviewPanel
-                    runId={activeRunId}
-                    reviewForm={reviewForm}
-                    setReviewForm={setReviewForm}
-                    onSubmit={handleSaveReview}
-                    saving={reviewSaving}
-                    savedReview={predictionData?.history_entry?.review || null}
-                    message={reviewMessage}
-                  />
+                  <WorkspacePanelFrame tabId="review">
+                    <HumanReviewPanel
+                      runId={activeRunId}
+                      reviewForm={reviewForm}
+                      setReviewForm={setReviewForm}
+                      onSubmit={handleSaveReview}
+                      saving={reviewSaving}
+                      savedReview={predictionData?.history_entry?.review || null}
+                      message={reviewMessage}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
 
                 {workspaceTab === "guidance" ? (
-                  <AiSuggestions
-                    employeeData={employeeDataForSuggestions}
-                    predictionData={predictionData}
-                    loading={loading}
-                  />
+                  <WorkspacePanelFrame tabId="guidance">
+                    <AiSuggestions
+                      employeeData={employeeDataForSuggestions}
+                      predictionData={predictionData}
+                      loading={loading}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
 
                 {workspaceTab === "history" ? (
-                  <HistoryPanel
-                    historyEntries={historyEntries}
-                    trend={historyTrend}
-                    loading={historyLoading}
-                    onRefresh={handleRefreshHistory}
-                    onLoadRun={handleLoadHistorySnapshot}
-                  />
+                  <WorkspacePanelFrame tabId="history">
+                    <HistoryPanel
+                      historyEntries={historyEntries}
+                      trend={historyTrend}
+                      loading={historyLoading}
+                      onRefresh={handleRefreshHistory}
+                      onLoadRun={handleLoadHistorySnapshot}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
 
                 {workspaceTab === "quality" ? (
-                  <ModelQualityPanel
-                    report={evalReport}
-                    loading={evalLoading}
-                    error={evalError}
-                    onLoad={handleLoadModelEval}
-                  />
+                  <WorkspacePanelFrame tabId="quality">
+                    <ModelQualityPanel
+                      report={evalReport}
+                      loading={evalLoading}
+                      error={evalError}
+                      onLoad={handleLoadModelEval}
+                    />
+                  </WorkspacePanelFrame>
                 ) : null}
               </>
             )}

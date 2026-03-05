@@ -315,5 +315,330 @@
         "updated_at_utc": "2026-03-05T11:56:43.341Z"
       }
     ]
+  },
+  {
+    "run_id": "f30ced47-a00e-402c-90a1-e355e2032ba3",
+    "created_at_utc": "2026-03-05T12:40:32.287Z",
+    "updated_at_utc": "2026-03-05T12:40:32.287Z",
+    "employee_profile": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q2 2024",
+      "job_title": "Cloud Engineer",
+      "department": "Analytics",
+      "remote_work": "No",
+      "years_at_company": 5,
+      "salary_range": 800000,
+      "performance_rating": 5
+    },
+    "normalized_input": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q2 2024",
+      "job_title": "Cloud Engineer",
+      "department": "Analytics",
+      "remote_work": "No",
+      "years_at_company": 5,
+      "salary_range": 800000,
+      "performance_rating": 5
+    },
+    "feature_vector": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q2 2024",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "Cloud Engineer",
+      "department": "Analytics",
+      "remote_work": "No",
+      "industry": "Healthcare",
+      "revenue_growth": 6.93,
+      "profit_margin": 15.54,
+      "stock_price_change": 1.65,
+      "total_employees": 70242,
+      "years_at_company": 5,
+      "salary_range": 800000,
+      "performance_rating": 5,
+      "industry_layoff_rate": 2.077,
+      "unemployment_rate": 6.492,
+      "inflation_rate": 4.894,
+      "employee_stability": 25,
+      "economic_pressure": 4.456
+    },
+    "prediction": {
+      "layoff_risk": "Low",
+      "confidence": 0.8494,
+      "risk_score": 3.66,
+      "probabilities": {
+        "Low": 0.9273,
+        "Medium": 0.0721,
+        "High": 0.0005
+      },
+      "top_factors": [
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.077,
+          "impact": 1.2917,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 0.56 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "performance_rating",
+          "label": "Performance Rating",
+          "value": 5,
+          "impact": 1.2664,
+          "direction": "reduces_risk",
+          "reason": "Performance Rating is currently in a risk-reducing range."
+        },
+        {
+          "feature": "past_layoffs",
+          "label": "Past Layoffs",
+          "value": "No",
+          "impact": 0.9403,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Past Layoffs: No."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 1.65,
+          "impact": 0.8695,
+          "direction": "increases_risk",
+          "reason": "Stock Price Change is 12.46 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "economic_condition_tag",
+          "label": "Economic Condition",
+          "value": "Stable",
+          "impact": 0.8552,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Economic Condition: Stable."
+        },
+        {
+          "feature": "company_name",
+          "label": "Company",
+          "value": "Apollo Hospitals",
+          "impact": 0.7899,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Company: Apollo Hospitals."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-05T09:45:13.151277+00:00"
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.3715,
+      "company_return_90d": 9.901,
+      "market_return_90d": -10.26,
+      "relative_return_90d": 20.161,
+      "company_volatility_90d": 2.2522,
+      "market_volatility_90d": 2.106,
+      "india_vix": 17.86,
+      "nse_index_price": 24765.9,
+      "company_last_price": 7792.5,
+      "company_previous_close": 7666,
+      "market_breadth_ratio": 0.24,
+      "dataSource": "nse_live_api",
+      "proxyMode": false,
+      "derived_window_estimate": true,
+      "symbol_used": "APOLLOHOSP",
+      "symbol_resolution": "alias_match",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "alias_match"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.8615,
+      "model_confidence": 0.8494,
+      "market_data_score": 0.84,
+      "market_data_status": "live_market",
+      "source": "nse_live_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-05T12:40:32.287Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-05T12:40:32.289Z"
+      }
+    ]
+  },
+  {
+    "run_id": "bd82d554-980b-4dcf-9954-7b8229fe3850",
+    "created_at_utc": "2026-03-05T13:21:30.815Z",
+    "updated_at_utc": "2026-03-05T13:21:30.815Z",
+    "employee_profile": {
+      "company_name": "Accenture India Pvt Ltd",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Accountant",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 7,
+      "salary_range": 1050000,
+      "performance_rating": 4
+    },
+    "normalized_input": {
+      "company_name": "Accenture India Pvt Ltd",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Accountant",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 7,
+      "salary_range": 1050000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Accenture India Pvt Ltd",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Recovery",
+      "past_layoffs": "Yes",
+      "job_title": "Accountant",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "industry": "Information Technology",
+      "revenue_growth": -44,
+      "profit_margin": 2.88,
+      "stock_price_change": 5.241,
+      "total_employees": 300143,
+      "years_at_company": 7,
+      "salary_range": 1050000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 3.072,
+      "unemployment_rate": 6.825,
+      "inflation_rate": 5.45,
+      "employee_stability": 28,
+      "economic_pressure": 56.275
+    },
+    "prediction": {
+      "layoff_risk": "High",
+      "confidence": 0.98,
+      "risk_score": 100,
+      "probabilities": {
+        "Low": 0,
+        "Medium": 0,
+        "High": 1
+      },
+      "top_factors": [
+        {
+          "feature": "revenue_growth",
+          "label": "Revenue Growth",
+          "value": -44,
+          "impact": 45.5016,
+          "direction": "increases_risk",
+          "reason": "Revenue Growth is 52.17 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "economic_pressure",
+          "label": "Economic Pressure",
+          "value": 56.275,
+          "impact": 35.9342,
+          "direction": "increases_risk",
+          "reason": "Economic Pressure is 52.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 3.072,
+          "impact": 4.319,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.55 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 2.88,
+          "impact": 4.0176,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 14.43 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "employee_stability",
+          "label": "Employee Stability",
+          "value": 28,
+          "impact": 0.9091,
+          "direction": "reduces_risk",
+          "reason": "Employee Stability is currently in a risk-reducing range."
+        },
+        {
+          "feature": "past_layoffs",
+          "label": "Past Layoffs",
+          "value": "Yes",
+          "impact": 0.8727,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Past Layoffs: Yes."
+        }
+      ],
+      "improvement_tips": [
+        "Focus on cost-saving or efficiency improvements that protect your role during pressure periods.",
+        "Prepare an internal mobility plan and build relationships with adjacent teams."
+      ],
+      "model_version": "2026-03-05T09:45:13.151277+00:00"
+    },
+    "market_signals": {
+      "marketRegime": "Recovery",
+      "marketStressScore": 0.5939,
+      "company_return_90d": -18.326,
+      "market_return_90d": 6.492,
+      "relative_return_90d": -24.818,
+      "company_volatility_90d": 2.2466,
+      "market_volatility_90d": 1.0064,
+      "india_vix": 29.47,
+      "company_last_price": 210,
+      "company_previous_close": 209.89,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "ACN",
+      "market_universe": "us",
+      "us_index_price": 610.72,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "ACN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.9564,
+      "model_confidence": 0.98,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-05T13:21:30.815Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Focus on cost-saving or efficiency improvements that protect your role during pressure periods.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-05T13:21:30.817Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Prepare an internal mobility plan and build relationships with adjacent teams.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-05T13:21:30.817Z"
+      }
+    ]
   }
 ]
