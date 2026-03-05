@@ -1,0 +1,319 @@
+[
+  {
+    "run_id": "ecbc185f-b1e4-46ed-8fc7-811257f54a12",
+    "created_at_utc": "2026-03-05T11:45:00.441Z",
+    "updated_at_utc": "2026-03-05T11:45:00.441Z",
+    "employee_profile": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q2 2023",
+      "job_title": "Sales Executive",
+      "department": "Management",
+      "remote_work": "No",
+      "years_at_company": 6,
+      "salary_range": 700000,
+      "performance_rating": 5
+    },
+    "normalized_input": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q2 2023",
+      "job_title": "Sales Executive",
+      "department": "Management",
+      "remote_work": "No",
+      "years_at_company": 6,
+      "salary_range": 700000,
+      "performance_rating": 5
+    },
+    "feature_vector": {
+      "company_name": "Apollo Hospitals",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q2 2023",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "Sales Executive",
+      "department": "Management",
+      "remote_work": "No",
+      "industry": "Healthcare",
+      "revenue_growth": 6.93,
+      "profit_margin": 15.54,
+      "stock_price_change": 1.65,
+      "total_employees": 70242,
+      "years_at_company": 6,
+      "salary_range": 700000,
+      "performance_rating": 5,
+      "industry_layoff_rate": 2.077,
+      "unemployment_rate": 6.492,
+      "inflation_rate": 4.894,
+      "employee_stability": 30,
+      "economic_pressure": 4.456
+    },
+    "prediction": {
+      "layoff_risk": "Low",
+      "confidence": 0.6483,
+      "risk_score": 11.01,
+      "probabilities": {
+        "Low": 0.7827,
+        "Medium": 0.2143,
+        "High": 0.003
+      },
+      "top_factors": [
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.077,
+          "impact": 1.2917,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 0.56 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "performance_rating",
+          "label": "Performance Rating",
+          "value": 5,
+          "impact": 1.2664,
+          "direction": "reduces_risk",
+          "reason": "Performance Rating is currently in a risk-reducing range."
+        },
+        {
+          "feature": "employee_stability",
+          "label": "Employee Stability",
+          "value": 30,
+          "impact": 1.0235,
+          "direction": "reduces_risk",
+          "reason": "Employee Stability is currently in a risk-reducing range."
+        },
+        {
+          "feature": "past_layoffs",
+          "label": "Past Layoffs",
+          "value": "No",
+          "impact": 0.9403,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Past Layoffs: No."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 1.65,
+          "impact": 0.8695,
+          "direction": "increases_risk",
+          "reason": "Stock Price Change is 12.46 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "economic_condition_tag",
+          "label": "Economic Condition",
+          "value": "Stable",
+          "impact": 0.8552,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Economic Condition: Stable."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-05T09:45:13.151277+00:00"
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.3715,
+      "company_return_90d": 9.901,
+      "market_return_90d": -10.26,
+      "relative_return_90d": 20.161,
+      "company_volatility_90d": 2.2522,
+      "market_volatility_90d": 2.106,
+      "india_vix": 17.86,
+      "nse_index_price": 24765.9,
+      "company_last_price": 7792.5,
+      "company_previous_close": 7666,
+      "market_breadth_ratio": 0.24,
+      "dataSource": "nse_live_api",
+      "proxyMode": false,
+      "derived_window_estimate": true,
+      "symbol_used": "APOLLOHOSP",
+      "symbol_resolution": "alias_match",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "alias_match"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.7448,
+      "model_confidence": 0.6483,
+      "market_data_score": 0.84,
+      "market_data_status": "live_market",
+      "source": "nse_live_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-05T11:45:00.441Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-05T11:45:00.442Z"
+      }
+    ]
+  },
+  {
+    "run_id": "4ba9c064-5ee3-41ef-a73d-703b482cbbe6",
+    "created_at_utc": "2026-03-05T11:56:43.340Z",
+    "updated_at_utc": "2026-03-05T11:56:43.340Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Accountant",
+      "department": "Analytics",
+      "remote_work": "No",
+      "years_at_company": 7,
+      "salary_range": 1000000,
+      "performance_rating": 5
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Accountant",
+      "department": "Analytics",
+      "remote_work": "No",
+      "years_at_company": 7,
+      "salary_range": 1000000,
+      "performance_rating": 5
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Accountant",
+      "department": "Analytics",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 4.09,
+      "profit_margin": 6.77,
+      "stock_price_change": 3.926,
+      "total_employees": 119061,
+      "years_at_company": 7,
+      "salary_range": 1000000,
+      "performance_rating": 5,
+      "industry_layoff_rate": 2.545,
+      "unemployment_rate": 6.389,
+      "inflation_rate": 5.159,
+      "employee_stability": 35,
+      "economic_pressure": 7.458
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.601,
+      "risk_score": 62.47,
+      "probabilities": {
+        "Low": 0.0046,
+        "Medium": 0.7414,
+        "High": 0.254
+      },
+      "top_factors": [
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.545,
+          "impact": 0.8181,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.02 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.77,
+          "impact": 0.7063,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.54 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "economic_condition_tag",
+          "label": "Economic Condition",
+          "value": "Stable",
+          "impact": 0.321,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Economic Condition: Stable."
+        },
+        {
+          "feature": "company_name",
+          "label": "Company",
+          "value": "Amazon India",
+          "impact": 0.3,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Company: Amazon India."
+        },
+        {
+          "feature": "past_layoffs",
+          "label": "Past Layoffs",
+          "value": "Yes",
+          "impact": 0.2407,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Past Layoffs: Yes."
+        },
+        {
+          "feature": "employee_stability",
+          "label": "Employee Stability",
+          "value": 35,
+          "impact": 0.1617,
+          "direction": "reduces_risk",
+          "reason": "Employee Stability is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Prepare an internal mobility plan and build relationships with adjacent teams."
+      ],
+      "model_version": "2026-03-05T09:45:13.151277+00:00"
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4121,
+      "company_return_90d": -5.368,
+      "market_return_90d": 6.492,
+      "relative_return_90d": -11.86,
+      "company_volatility_90d": 1.9691,
+      "market_volatility_90d": 1.0064,
+      "india_vix": 29.47,
+      "company_last_price": 216.82,
+      "company_previous_close": 208.63,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 610.72,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.7366,
+      "model_confidence": 0.601,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-05T11:56:43.340Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Prepare an internal mobility plan and build relationships with adjacent teams.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-05T11:56:43.341Z"
+      }
+    ]
+  }
+]

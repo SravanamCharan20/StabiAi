@@ -1,1 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
 @import "tailwindcss";
+
+:root {
+  --bg-soft: #f6f8fa;
+  --ink-900: #0f172a;
+  --ink-700: #334155;
+  --line-soft: #d9e1e8;
+}
+
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background: var(--bg-soft);
+  color: var(--ink-900);
+}
+
+.font-display {
+  font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+}

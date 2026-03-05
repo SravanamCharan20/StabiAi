@@ -7,6 +7,13 @@ import { getCompanyStats } from './controllers/employee/compantStats.js';
 import getSuggestions from './controllers/employee/suggestionController.js';
 import { buildAndPredict, getEmployeeInputSpec, getRiskModelMetadata } from './services/employeeRiskEngine.js';
 import { evaluateEmployeeModel } from './services/employeeEvaluationService.js';
+import {
+  createPredictionHistoryEntry,
+  listPredictionHistory,
+  summarizeHistoryTrend,
+  updatePredictionActions,
+  updatePredictionReview,
+} from './services/employeeHistoryService.js';
 
 dotenv.config();
 
@@ -224,6 +231,64 @@ const assessPredictionReliability = (prediction = {}, marketSignals = null) => {
   };
 };
 
+const getRiskRank = (riskLabel) => {
+  const risk = String(riskLabel || '').toLowerCase().trim();
+  if (risk === 'high') {
+    return 3;
+  }
+  if (risk === 'medium') {
+    return 2;
+  }
+  if (risk === 'low') {
+    return 1;
+  }
+  return 0;
+};
+
+const buildDefaultActionTracker = (prediction = {}) => {
+  const tips = Array.isArray(prediction?.improvement_tips) ? prediction.improvement_tips : [];
+  return tips
+    .slice(0, 3)
+    .map((tip, idx) => ({
+      id: `tip-${idx + 1}`,
+      title: String(tip || '').trim(),
+      detail: 'Model-generated action item',
+      status: 'not_started',
+    }))
+    .filter((item) => item.title);
+};
+
+const extractMarketContextFromReference = (referencePrediction = {}) => {
+  const source = referencePrediction?.data || {};
+  return {
+    economic_condition_tag: source.economic_condition_tag,
+    past_layoffs: source.past_layoffs,
+    industry: source.industry,
+    revenue_growth: normalizePercentMetric(source.revenue_growth),
+    profit_margin: normalizePercentMetric(source.profit_margin),
+    stock_price_change: normalizePercentMetric(source.stock_price_change),
+    total_employees: source.total_employees,
+    industry_layoff_rate: source.industry_layoff_rate,
+    unemployment_rate: source.unemployment_rate,
+    inflation_rate: source.inflation_rate,
+    market_signals: referencePrediction?.market_signals || null,
+  };
+};
+
+const toHistoryResponseEntry = (entry = {}) => ({
+  run_id: entry.run_id || null,
+  created_at_utc: entry.created_at_utc || null,
+  updated_at_utc: entry.updated_at_utc || null,
+  employee_profile: entry.employee_profile || {},
+  normalized_input: entry.normalized_input || {},
+  feature_vector: entry.feature_vector || {},
+  prediction: entry.prediction || {},
+  market_signals: entry.market_signals || null,
+  reliability: entry.reliability || {},
+  review: entry.review || null,
+  action_tracker: Array.isArray(entry.action_tracker) ? entry.action_tracker : [],
+});
+
 app.post('/api/employee/predict', async (req, res) => {
   try {
     const {
@@ -293,15 +358,31 @@ app.post('/api/employee/predict', async (req, res) => {
 
     const modelResult = buildAndPredict(userData, marketContext);
     const reliability = assessPredictionReliability(modelResult?.prediction, marketContext.market_signals || null);
+    let historyEntry = null;
+    try {
+      historyEntry = createPredictionHistoryEntry({
+        employee_profile: userData,
+        normalized_input: modelResult.normalized_input,
+        feature_vector: modelResult.features,
+        prediction: modelResult.prediction,
+        market_signals: marketContext.market_signals || null,
+        reliability,
+        action_tracker: buildDefaultActionTracker(modelResult.prediction),
+      });
+    } catch (historyError) {
+      console.warn('Unable to persist employee prediction history:', historyError.message);
+    }
 
     return res.status(200).json({
       success: true,
       message: 'Employee layoff risk predicted successfully',
+      run_id: historyEntry?.run_id || null,
       normalized_input: modelResult.normalized_input,
       data: modelResult.features,
       prediction: modelResult.prediction,
       market_signals: marketContext.market_signals || null,
       reliability,
+      history_entry: historyEntry ? toHistoryResponseEntry(historyEntry) : null,
     });
   } catch (error) {
     console.error('Error processing employee prediction request:', error);
@@ -310,6 +391,156 @@ app.post('/api/employee/predict', async (req, res) => {
       message: 'Internal server error',
       error: error.message,
     });
+  }
+});
+
+app.post('/api/employee/what-if', (req, res) => {
+  try {
+    const { employeeData, referencePrediction } = req.body || {};
+    if (!employeeData || typeof employeeData !== 'object') {
+      return res.status(400).json({ success: false, message: 'employeeData is required' });
+    }
+    if (!employeeData.company_name) {
+      return res.status(400).json({ success: false, message: 'employeeData.company_name is required' });
+    }
+
+    const marketContext = extractMarketContextFromReference(referencePrediction || {});
+    const scenarioResult = buildAndPredict(employeeData, marketContext);
+
+    const baselinePrediction = referencePrediction?.prediction || {};
+    const baselineRiskScore = Number(baselinePrediction.risk_score);
+    const scenarioRiskScore = Number(scenarioResult?.prediction?.risk_score);
+    const baselineConfidence = Number(baselinePrediction.confidence);
+    const scenarioConfidence = Number(scenarioResult?.prediction?.confidence);
+    const riskScoreDelta = Number.isFinite(baselineRiskScore) && Number.isFinite(scenarioRiskScore)
+      ? round(scenarioRiskScore - baselineRiskScore, 3)
+      : null;
+    const confidenceDelta = Number.isFinite(baselineConfidence) && Number.isFinite(scenarioConfidence)
+      ? round(scenarioConfidence - baselineConfidence, 4)
+      : null;
+
+    const riskFrom = baselinePrediction.layoff_risk || null;
+    const riskTo = scenarioResult?.prediction?.layoff_risk || null;
+    const fromRank = getRiskRank(riskFrom);
+    const toRank = getRiskRank(riskTo);
+    const riskDirection = fromRank === toRank ? 'flat' : toRank > fromRank ? 'up' : 'down';
+    const narrative = riskDirection === 'flat'
+      ? 'Scenario keeps risk in the same band. Focus on confidence and top factors.'
+      : riskDirection === 'down'
+        ? 'Scenario moves risk toward a safer band. This is a positive directional shift.'
+        : 'Scenario moves risk toward a higher-risk band. Additional controls are recommended.';
+
+    return res.status(200).json({
+      success: true,
+      scenario: {
+        normalized_input: scenarioResult.normalized_input,
+        data: scenarioResult.features,
+        prediction: scenarioResult.prediction,
+        market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
+      },
+      delta: {
+        risk_from: riskFrom,
+        risk_to: riskTo,
+        risk_direction: riskDirection,
+        risk_score_delta: riskScoreDelta,
+        confidence_delta: confidenceDelta,
+        narrative,
+      },
+    });
+  } catch (error) {
+    console.error('Error running employee what-if simulation:', error.message);
+    return res.status(500).json({ success: false, message: error.message || 'What-if simulation failed' });
+  }
+});
+
+app.get('/api/employee/history', (req, res) => {
+  try {
+    const companyName = String(req.query.company_name || '').trim();
+    const limit = Number(req.query.limit || 20);
+    const entries = listPredictionHistory({
+      company_name: companyName,
+      limit,
+    });
+    const trend = summarizeHistoryTrend(entries);
+
+    return res.status(200).json({
+      success: true,
+      company_name: companyName || null,
+      entries: entries.map((entry) => toHistoryResponseEntry(entry)),
+      trend,
+    });
+  } catch (error) {
+    console.error('Error fetching prediction history:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to fetch prediction history',
+      error: error.message,
+    });
+  }
+});
+
+app.post('/api/employee/history/:runId/review', (req, res) => {
+  try {
+    const runId = String(req.params.runId || '').trim();
+    const reviewedBy = String(req.body?.reviewed_by || '').trim();
+    const reviewReason = String(req.body?.review_reason || '').trim();
+    const decision = String(req.body?.decision || '').trim() || 'review_completed';
+
+    if (!runId) {
+      return res.status(400).json({ success: false, message: 'runId is required' });
+    }
+    if (!reviewedBy) {
+      return res.status(400).json({ success: false, message: 'reviewed_by is required' });
+    }
+    if (!reviewReason) {
+      return res.status(400).json({ success: false, message: 'review_reason is required' });
+    }
+
+    const updated = updatePredictionReview(runId, {
+      reviewed_by: reviewedBy,
+      review_reason: reviewReason,
+      decision,
+    });
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'History entry not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Review note saved',
+      entry: toHistoryResponseEntry(updated),
+    });
+  } catch (error) {
+    console.error('Error saving prediction review:', error.message);
+    return res.status(500).json({ success: false, message: error.message || 'Unable to save review note' });
+  }
+});
+
+app.post('/api/employee/history/:runId/actions', (req, res) => {
+  try {
+    const runId = String(req.params.runId || '').trim();
+    const actions = Array.isArray(req.body?.actions) ? req.body.actions : [];
+
+    if (!runId) {
+      return res.status(400).json({ success: false, message: 'runId is required' });
+    }
+    if (!actions.length) {
+      return res.status(400).json({ success: false, message: 'actions array is required' });
+    }
+
+    const updated = updatePredictionActions(runId, actions);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'History entry not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Action tracker saved',
+      entry: toHistoryResponseEntry(updated),
+    });
+  } catch (error) {
+    console.error('Error saving action tracker:', error.message);
+    return res.status(500).json({ success: false, message: error.message || 'Unable to save action tracker' });
   }
 });
 
