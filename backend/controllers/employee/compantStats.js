@@ -1,13 +1,10 @@
 import axios from 'axios';
-import { spawnSync } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const chartCache = new Map();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const NSE_PY_SCRIPT = path.resolve(__dirname, '../../ml/fetch_live_nse_market.py');
+const NSE_COOKIE_TTL_MS = 10 * 60 * 1000;
+let nseCookieHeader = '';
+let nseCookieTs = 0;
 
 const YAHOO_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -21,6 +18,21 @@ function clamp(value, min, max) {
 function round(value, digits = 3) {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
+}
+
+function toNumber(value, fallback = null) {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  const normalized = String(value).replace(/,/g, '').trim();
+  if (!normalized) {
+    return fallback;
+  }
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function sleep(ms) {
@@ -136,23 +148,137 @@ function marketSignalsFallback() {
   };
 }
 
-function fetchFromNsePython(symbol) {
-  const output = spawnSync('python3', [NSE_PY_SCRIPT, symbol], {
-    encoding: 'utf-8',
-    timeout: 14000,
+const NSE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0',
+  Accept: 'application/json,text/plain,*/*',
+  'Accept-Language': 'en-US,en;q=0.9',
+};
+
+async function warmNseCookie() {
+  const response = await axios.get('https://www.nseindia.com', {
+    timeout: 12000,
+    headers: NSE_HEADERS,
+  });
+  const cookies = response?.headers?.['set-cookie'];
+  if (!Array.isArray(cookies) || !cookies.length) {
+    throw new Error('Unable to initialize NSE cookies');
+  }
+  nseCookieHeader = cookies.map((cookie) => String(cookie).split(';')[0]).join('; ');
+  nseCookieTs = Date.now();
+  return nseCookieHeader;
+}
+
+async function getNseCookieHeader(forceRefresh = false) {
+  if (!forceRefresh && nseCookieHeader && (Date.now() - nseCookieTs) < NSE_COOKIE_TTL_MS) {
+    return nseCookieHeader;
+  }
+  return warmNseCookie();
+}
+
+async function fetchNseJson(url, forceRefresh = false) {
+  const cookieHeader = await getNseCookieHeader(forceRefresh);
+  try {
+    const response = await axios.get(url, {
+      timeout: 12000,
+      headers: {
+        ...NSE_HEADERS,
+        Referer: 'https://www.nseindia.com/',
+        Cookie: cookieHeader,
+      },
+    });
+    return response?.data;
+  } catch (error) {
+    const status = Number(error?.response?.status || 0);
+    if ((status === 401 || status === 403) && !forceRefresh) {
+      return fetchNseJson(url, true);
+    }
+    throw error;
+  }
+}
+
+async function fetchFromNseApi(symbol) {
+  const upperSymbol = String(symbol || '').trim().toUpperCase();
+  if (!upperSymbol) {
+    throw new Error('Missing symbol for NSE lookup');
+  }
+
+  const quote = await fetchNseJson(
+    `https://www.nseindia.com/api/quote-equity?symbol=${encodeURIComponent(upperSymbol)}`
+  );
+  const allIndices = await fetchNseJson('https://www.nseindia.com/api/allIndices');
+
+  const indices = Array.isArray(allIndices?.data) ? allIndices.data : [];
+  const nifty = indices.find((item) => String(item?.indexSymbol || '').toUpperCase() === 'NIFTY 50') || {};
+  const indiaVixRow = indices.find((item) => String(item?.indexSymbol || '').toUpperCase() === 'INDIA VIX') || {};
+
+  const priceInfo = quote?.priceInfo || {};
+  const industryInfo = quote?.industryInfo || {};
+
+  const lastPrice = toNumber(priceInfo?.lastPrice);
+  const dayChangePct = toNumber(priceInfo?.pChange, 0) || 0;
+  const prevClose = toNumber(priceInfo?.previousClose);
+
+  const weekHigh = toNumber(priceInfo?.weekHighLow?.max);
+  const drawdownPct = weekHigh && lastPrice && weekHigh > 0
+    ? ((weekHigh - lastPrice) / weekHigh) * 100
+    : 0;
+
+  const niftyDailyChange = toNumber(nifty?.percentChange, 0) || 0;
+  const nifty30d = toNumber(nifty?.perChange30d, 0) || 0;
+  const advances = toNumber(nifty?.advances, 0) || 0;
+  const declines = toNumber(nifty?.declines, 0) || 0;
+  const breadthRatio = (advances + declines) > 0 ? declines / (advances + declines) : 0.5;
+
+  const companyReturn90d = dayChangePct * 6;
+  const marketReturn90d = nifty30d * 3;
+  const relativeReturn90d = companyReturn90d - marketReturn90d;
+
+  const companyVolatility90d = Math.abs(dayChangePct) * 1.25 + Math.max(0, drawdownPct / 20);
+  const marketVolatility90d = Math.abs(niftyDailyChange) * 1.8 + Math.max(0, (breadthRatio - 0.5) * 4);
+  const indiaVix = toNumber(indiaVixRow?.last);
+
+  const marketStressScore = computeMarketStress({
+    companyReturn90d,
+    marketReturn90d,
+    relativeReturn90d,
+    companyVolatility90d,
+    marketVolatility90d,
+    indiaVix,
   });
 
-  if (output.status !== 0) {
-    const stderr = output.stderr ? output.stderr.trim() : '';
-    throw new Error(stderr || 'python NSE fetch failed');
-  }
+  const revenueGrowthPct = clamp(5 + (0.35 * companyReturn90d) + (0.15 * marketReturn90d), -12, 24);
+  const profitMarginPct = clamp(10 + (0.25 * relativeReturn90d) + (0.05 * companyReturn90d), -8, 30);
 
-  const text = (output.stdout || '').trim();
-  if (!text) {
-    throw new Error('empty output from python NSE fetch');
-  }
-
-  return JSON.parse(text);
+  return {
+    stockPriceChange: round(dayChangePct, 3),
+    employees: null,
+    sector: industryInfo?.sector || 'Technology',
+    industry: industryInfo?.industry || industryInfo?.sector || 'Information Technology',
+    financials: {
+      revenueGrowth: round(revenueGrowthPct / 100, 4),
+      profitMargin: round(profitMarginPct / 100, 4),
+    },
+    marketSignals: {
+      marketRegime: classifyMarketRegime(marketStressScore),
+      marketStressScore: round(marketStressScore, 4),
+      company_return_90d: round(companyReturn90d, 3),
+      market_return_90d: round(marketReturn90d, 3),
+      relative_return_90d: round(relativeReturn90d, 3),
+      company_volatility_90d: round(companyVolatility90d, 4),
+      market_volatility_90d: round(marketVolatility90d, 4),
+      india_vix: indiaVix === null ? null : round(indiaVix, 3),
+      nse_index_price: toNumber(nifty?.last),
+      company_last_price: lastPrice,
+      company_previous_close: prevClose,
+      market_breadth_ratio: round(breadthRatio, 4),
+      benchmark_symbol: '^NSEI',
+      company_symbol: `${upperSymbol}.NS`,
+      market_universe: 'india',
+      dataSource: 'nse_live_api',
+      proxyMode: false,
+      derived_window_estimate: true,
+    },
+  };
 }
 
 async function fetchChart(symbol, range = '6mo', interval = '1d') {
@@ -484,10 +610,10 @@ export const getCompanyStats = async (symbol, options = {}) => {
   } catch (error) {
     if (marketPlan.useNsePythonFallback) {
       try {
-        return fetchFromNsePython(symbol);
+        return await fetchFromNseApi(symbol);
       } catch (nseError) {
         console.error('Live market data fetch error:', error.message);
-        console.error('NSE python fallback error:', nseError.message);
+        console.error('NSE API fallback error:', nseError.message);
         return {
           stockPriceChange: null,
           employees: null,
