@@ -1,6 +1,6 @@
- import React, { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { RiRobot2Line } from 'react-icons/ri'
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { RiRobot2Line } from 'react-icons/ri';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -16,65 +16,38 @@ const Navbar = () => {
 
   return (
     <>
-      <div className={`
-        fixed top-0 left-0 right-0 z-50 
-        transition-all duration-300 ease-out
-        rounded-full border border-gray-400/50 w-fit mx-auto mt-10 px-3 py-1
-        ${isScrolled ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200/50' : 'bg-transparent'}
-      `}>
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between gap-10 h-12 px-6">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-5">
-              <RiRobot2Line className="text-3xl mb-1 text-gray-900" />
-              <span className="text-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">StabilityAI</span>
+      <div
+        className={[
+          'fixed top-4 left-0 right-0 z-50 mx-auto w-fit rounded-full border px-3 py-1 transition-all duration-300',
+          isScrolled
+            ? 'border-slate-300/70 bg-white/85 shadow-sm backdrop-blur-xl'
+            : 'border-slate-300/60 bg-white/75 backdrop-blur-lg',
+        ].join(' ')}
+      >
+        <div className="flex h-11 items-center justify-between gap-6 px-4">
+          <Link to="/" className="flex items-center gap-2.5">
+            <RiRobot2Line className="text-2xl text-slate-800" />
+            <span className="text-sm font-semibold tracking-wide text-slate-900">StabiAI</span>
+          </Link>
+
+          <nav className="flex items-center">
+            <Link
+              to="/employee/predict"
+              className={[
+                'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                location.pathname.includes('/employee')
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-700 hover:bg-slate-100',
+              ].join(' ')}
+            >
+              Employee Risk
             </Link>
-
-            {/* Main Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              {[
-                { path: '/employee/predict', label: 'Employee' },
-                // { path: '/student/predict', label: 'Student' },
-                // { path: '/investor/predict', label: 'Investor' }
-              ].map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`
-                    text-md font-medium tracking-tight
-                    transition-colors duration-200
-                    ${location.pathname.includes(item.path) 
-                      ? 'text-blue-600 underline' 
-                      : 'text-gray-600 hover:text-blue-600'
-                    }
-                  `}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Auth Links */}
-{/*             <div className="flex items-center gap-6">
-              <Link
-                to="/signup"
-                className="
-                  text-sm font-medium tracking-tight
-                  bg-gray-900 text-white
-                  px-4 py-1.5 rounded-full
-                  hover:bg-gray-800
-                  transition-all duration-200
-                "
-              >
-                Sign up
-              </Link>
-            </div> */}
-          </div>
+          </nav>
         </div>
       </div>
-      <div className="h-12"></div>
+      <div className="h-16" />
     </>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

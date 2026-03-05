@@ -1,0 +1,342 @@
+[
+  {
+    "id": "eng_high_risk_stabilization",
+    "title": "Engineering Role Stabilization During Cost Cuts",
+    "tags": ["high", "medium", "engineering", "software engineer", "qa engineer", "devops engineer", "site reliability engineer", "information technology"],
+    "summary": "When budgets tighten, engineers with visible business impact and automation ownership are retained first.",
+    "skills": [
+      {
+        "name": "Cost-Aware Engineering",
+        "why": "Teams prioritize engineers who can lower cloud and maintenance costs while preserving uptime.",
+        "how": "Run one cost-optimization sprint. Measure top 3 expensive services. Implement and document fixes.",
+        "impact": "Creates measurable business impact and improves retention odds in restructuring cycles."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Ship One Cost-Reliability Win",
+        "timeline": "2-4 weeks",
+        "steps": [
+          "Select one recurring incident or high-cost workload",
+          "Implement optimization with before and after metrics",
+          "Publish a concise impact note to manager and skip-level"
+        ],
+        "indicators": "Reduced incident rate or cloud spend with clear metric proof."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Platform Engineering Track",
+        "timeline": "2-5 months",
+        "requirements": "Automation, observability, CI/CD governance, cloud fundamentals",
+        "impact": "Moves you to high-leverage infrastructure work that is harder to cut."
+      }
+    ]
+  },
+  {
+    "id": "performance_recovery_playbook",
+    "title": "Performance Recovery and Visibility Plan",
+    "tags": ["high", "medium", "performance", "all_departments"],
+    "summary": "Sustained improvement in performance rating is one of the strongest controllable signals for lower layoff risk.",
+    "skills": [
+      {
+        "name": "Outcome-Oriented Execution",
+        "why": "Ratings improve when work is tied to explicit outcomes rather than task volume.",
+        "how": "Define 3 quarterly outcomes with metrics and weekly status tracking.",
+        "impact": "Raises evaluation quality and lowers perceived replacement risk."
+      }
+    ],
+    "actions": [
+      {
+        "title": "90-Day Performance Reset",
+        "timeline": "1-3 months",
+        "steps": [
+          "Agree on 3 measurable targets with your manager",
+          "Set bi-weekly review checkpoints",
+          "Track delivery and blockers in one dashboard"
+        ],
+        "indicators": "Manager feedback trend improves and performance score target is met."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Internal High-Impact Project Rotation",
+        "timeline": "3-6 months",
+        "requirements": "Consistent delivery, stakeholder communication, problem ownership",
+        "impact": "Improves visibility and creates stronger internal sponsorship."
+      }
+    ]
+  },
+  {
+    "id": "early_tenure_resilience",
+    "title": "Early Tenure Risk Mitigation",
+    "tags": ["high", "medium", "years_at_company_low", "new_joiner"],
+    "summary": "Employees with shorter tenure often face higher risk during workforce optimization unless impact is quickly visible.",
+    "skills": [
+      {
+        "name": "Stakeholder Communication",
+        "why": "Frequent, concise updates increase trust in newer employees.",
+        "how": "Send weekly impact summaries and escalate blockers early.",
+        "impact": "Reduces uncertainty about your contribution and onboarding progress."
+      }
+    ],
+    "actions": [
+      {
+        "title": "First-90-Days Proof Plan",
+        "timeline": "1-2 months",
+        "steps": [
+          "Identify one business-critical workflow",
+          "Deliver at least one measurable improvement",
+          "Document outcomes in a reusable runbook"
+        ],
+        "indicators": "At least one visible metric improvement and positive stakeholder feedback."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Cross-Team Reliability Support",
+        "timeline": "2-4 months",
+        "requirements": "Incident response discipline and collaboration skills",
+        "impact": "Builds quick cross-functional trust and broadens internal network."
+      }
+    ]
+  },
+  {
+    "id": "data_analytics_advantage",
+    "title": "Data and Analytics Career Hedge",
+    "tags": ["medium", "low", "analytics", "data scientist", "machine learning engineer", "data analyst"],
+    "summary": "Analytical roles become safer when linked to revenue, retention, or fraud reduction outcomes.",
+    "skills": [
+      {
+        "name": "Business-Aligned Experimentation",
+        "why": "Data teams are protected when their experiments directly improve core KPIs.",
+        "how": "Run controlled experiments with baseline vs treatment and executive-ready summaries.",
+        "impact": "Positions your role as a revenue and margin contributor."
+      }
+    ],
+    "actions": [
+      {
+        "title": "KPI-Linked Analytics Backlog",
+        "timeline": "1-3 months",
+        "steps": [
+          "Prioritize analyses by business value",
+          "Pair each analysis with a measurable target",
+          "Present outcomes in monthly stakeholder review"
+        ],
+        "indicators": "At least one model or dashboard adopted in a decision-making process."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Decision Science Lead Path",
+        "timeline": "4-8 months",
+        "requirements": "Experiment design, SQL, modeling, storytelling",
+        "impact": "Shifts you toward strategic planning and forecasting roles."
+      }
+    ]
+  },
+  {
+    "id": "management_cost_efficiency",
+    "title": "Management and Operations Continuity",
+    "tags": ["high", "medium", "management", "operations", "project manager", "business analyst", "customer success manager"],
+    "summary": "Managers who cut cycle time and improve utilization are typically retained in downsizing phases.",
+    "skills": [
+      {
+        "name": "Operational Efficiency Design",
+        "why": "Efficiency metrics directly influence workforce planning decisions.",
+        "how": "Map one core process, remove bottlenecks, and standardize handoffs.",
+        "impact": "Improves team productivity and leadership confidence in your role."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Cycle-Time Reduction Initiative",
+        "timeline": "1-2 months",
+        "steps": [
+          "Measure current process cycle time",
+          "Remove one major bottleneck",
+          "Track utilization and throughput weekly"
+        ],
+        "indicators": "Cycle time and rework reduced with audit trail."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Program Management Transition",
+        "timeline": "3-6 months",
+        "requirements": "Portfolio planning, stakeholder governance, budgeting",
+        "impact": "Creates access to strategic roles less exposed to role-level cuts."
+      }
+    ]
+  },
+  {
+    "id": "remote_hybrid_effectiveness",
+    "title": "Remote and Hybrid Work Risk Controls",
+    "tags": ["medium", "high", "remote", "hybrid", "all_departments"],
+    "summary": "Remote employees reduce risk when communication cadence and delivery evidence are highly structured.",
+    "skills": [
+      {
+        "name": "Asynchronous Collaboration",
+        "why": "Transparent async updates prevent visibility gaps in distributed teams.",
+        "how": "Use weekly written status, decision logs, and risk trackers.",
+        "impact": "Strengthens perceived reliability and leadership trust."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Visibility Cadence Upgrade",
+        "timeline": "2-6 weeks",
+        "steps": [
+          "Create weekly delivery and blocker update format",
+          "Maintain decision log for key project moves",
+          "Schedule monthly impact review with manager"
+        ],
+        "indicators": "Faster approvals and fewer escalations due to clearer context."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Distributed Team Enablement Role",
+        "timeline": "3-5 months",
+        "requirements": "Documentation discipline, collaboration tooling, process design",
+        "impact": "Positions you as a force multiplier for remote execution."
+      }
+    ]
+  },
+  {
+    "id": "finance_hr_reskilling",
+    "title": "Finance and HR Risk Diversification",
+    "tags": ["high", "medium", "finance", "hr", "accountant", "finance analyst", "recruiter", "hr specialist"],
+    "summary": "Finance and HR roles become safer when upskilled into analytics, compliance automation, or strategic planning.",
+    "skills": [
+      {
+        "name": "Workflow Automation and Analytics",
+        "why": "Automation skills lower manual workload and increase strategic contribution.",
+        "how": "Learn spreadsheet automation, BI dashboards, and workflow tools.",
+        "impact": "Expands your role beyond operational tasks into decision support."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Process Automation Pilot",
+        "timeline": "1-3 months",
+        "steps": [
+          "Choose one repetitive workflow",
+          "Automate reporting or approval routing",
+          "Quantify time saved and error reduction"
+        ],
+        "indicators": "Documented time savings and improved compliance quality."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "People Analytics or FP&A Path",
+        "timeline": "4-8 months",
+        "requirements": "Data analysis, planning cadence, stakeholder narrative",
+        "impact": "Moves toward strategic roles with stronger long-term demand."
+      }
+    ]
+  },
+  {
+    "id": "salary_value_alignment",
+    "title": "Compensation-to-Impact Alignment",
+    "tags": ["high", "medium", "salary_pressure", "all_departments"],
+    "summary": "Higher compensation requires clear output metrics; perceived mismatch increases layoff exposure.",
+    "skills": [
+      {
+        "name": "Impact Quantification",
+        "why": "Quantified outcomes justify compensation and improve retention decisions.",
+        "how": "Track revenue, savings, quality, or time metrics tied to your work.",
+        "impact": "Strengthens business case for role continuity."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Value Evidence Portfolio",
+        "timeline": "3-8 weeks",
+        "steps": [
+          "List top 5 delivered outcomes",
+          "Attach measurable impact for each",
+          "Review portfolio with manager before performance cycle"
+        ],
+        "indicators": "Clear alignment between compensation and value delivered."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Strategic Program Contributor",
+        "timeline": "3-6 months",
+        "requirements": "Cross-team planning and metric ownership",
+        "impact": "Shifts profile toward mission-critical initiatives."
+      }
+    ]
+  },
+  {
+    "id": "low_risk_growth_path",
+    "title": "Low-Risk Career Growth Playbook",
+    "tags": ["low", "medium", "all_departments"],
+    "summary": "Low-risk employees should convert stability into strategic growth rather than staying static.",
+    "skills": [
+      {
+        "name": "Leadership Through Mentoring",
+        "why": "Mentoring increases internal influence and succession relevance.",
+        "how": "Mentor one junior teammate and document growth outcomes.",
+        "impact": "Builds leadership trajectory while preserving current stability."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Growth-Focused Quarterly Plan",
+        "timeline": "2-3 months",
+        "steps": [
+          "Set one stability goal and one stretch goal",
+          "Take ownership of cross-team initiative",
+          "Present progress in quarterly review"
+        ],
+        "indicators": "Expanded scope with sustained performance quality."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Internal Leadership Pipeline",
+        "timeline": "6-12 months",
+        "requirements": "Consistent delivery, mentoring, stakeholder trust",
+        "impact": "Creates promotion readiness with reduced volatility risk."
+      }
+    ]
+  },
+  {
+    "id": "market_volatility_preparedness",
+    "title": "Preparedness for Volatile Quarters",
+    "tags": ["high", "medium", "q4", "recession", "recovery", "all_departments"],
+    "summary": "Quarterly volatility demands proactive skill stacking and internal mobility readiness.",
+    "skills": [
+      {
+        "name": "Adjacent Skill Stacking",
+        "why": "Adjacent capabilities increase redeployment options when teams are restructured.",
+        "how": "Add one adjacent skill relevant to neighboring teams each quarter.",
+        "impact": "Improves internal mobility and reduces single-role dependency."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Internal Mobility Preparation",
+        "timeline": "1-4 months",
+        "steps": [
+          "Identify 2 adjacent internal roles",
+          "Map skill gaps and close top 2 gaps",
+          "Network with hiring managers in those teams"
+        ],
+        "indicators": "Qualified for at least one adjacent internal opportunity."
+      }
+    ],
+    "opportunities": [
+      {
+        "title": "Cross-Functional Rotation",
+        "timeline": "4-9 months",
+        "requirements": "Transferable skills and manager support",
+        "impact": "Diversifies risk and broadens long-term career options."
+      }
+    ]
+  }
+]

@@ -5,18 +5,22 @@
   "type": "module",
   "scripts": {
     "test": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "generate:employee-data": "python3 ml/generate_enhanced_dataset.py --rows 12000 --seed 42 --output data/enhanced_synthetic_employee_data.csv",
+    "train:employee-model": "python3 ml/train_risk_engine_artifacts.py --input data/enhanced_synthetic_employee_data.csv --output data/employee_risk_artifacts.json",
+    "refresh:employee-model": "npm run generate:employee-data && npm run train:employee-model",
+    "eval:employee-model": "node ml/run_employee_eval.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/generative-ai": "^0.24.0",
-    "axios": "^1.8.4",
+    "axios": "^1.13.6",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonrepair": "^3.13.2",
     "mongoose": "^8.13.2",
     "nodemon": "^3.1.9",
     "yahoo-finance2": "^2.13.3"

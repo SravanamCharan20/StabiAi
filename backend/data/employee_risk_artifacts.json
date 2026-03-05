@@ -1,0 +1,1542 @@
+{
+  "metadata": {
+    "created_at_utc": "2026-03-05T09:45:13.151277+00:00",
+    "input_path": "data/enhanced_synthetic_employee_data.csv",
+    "row_count": 12000,
+    "risk_thresholds": {
+      "low_max": 1.266,
+      "medium_max": 1.96
+    },
+    "class_distribution": {
+      "Low": 0.6200833333333333,
+      "Medium": 0.26,
+      "High": 0.11991666666666667
+    }
+  },
+  "feature_schema": {
+    "categorical": [
+      "company_name",
+      "company_location",
+      "reporting_quarter",
+      "economic_condition_tag",
+      "past_layoffs",
+      "job_title",
+      "department",
+      "remote_work",
+      "industry"
+    ],
+    "numerical": [
+      "revenue_growth",
+      "profit_margin",
+      "stock_price_change",
+      "total_employees",
+      "years_at_company",
+      "salary_range",
+      "performance_rating",
+      "industry_layoff_rate",
+      "unemployment_rate",
+      "inflation_rate",
+      "employee_stability",
+      "economic_pressure"
+    ],
+    "classes": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "priors": {
+    "Low": 0.6200833333333333,
+    "Medium": 0.26,
+    "High": 0.11991666666666667
+  },
+  "categorical_likelihoods": {
+    "company_name": {
+      "Low": {
+        "Accenture India Pvt Ltd": 0.05503606732567459,
+        "Amazon Development Centre India Pvt Ltd": 0.017766497461928935,
+        "Amazon India": 0.0168314186481432,
+        "Apollo Hospitals": 0.03018968741651082,
+        "Apple India": 0.01015228426395939,
+        "Axis Bank": 0.028987443227357735,
+        "Bajaj Auto": 0.008682874699438953,
+        "Bharti Airtel": 0.01509484370825541,
+        "Capgemini India": 0.042078546620358,
+        "Cipla": 0.017365749398877906,
+        "Coforge": 0.015629174458990116,
+        "Cognizant India": 0.03686882180069463,
+        "Deloitte India": 0.031391931605663906,
+        "EY India": 0.027250868287469945,
+        "Facebook India": 0.006411969008816457,
+        "Flipkart Internet Pvt Ltd": 0.006278386321132781,
+        "Fortis Healthcare": 0.014426930269837029,
+        "Google India": 0.013625434143734972,
+        "HCL Technologies": 0.04448303499866417,
+        "HDFC Bank": 0.04167779855730697,
+        "IBM India": 0.029655356665776116,
+        "ICICI Bank": 0.03686882180069463,
+        "Infosys": 0.05650547689019503,
+        "Jio Platforms": 0.017766497461928935,
+        "LTIMindtree": 0.021506812717071867,
+        "Larsen & Toubro": 0.016965001335826877,
+        "Mahindra & Mahindra": 0.019503072401816725,
+        "Meesho": 0.0032059845044082286,
+        "Meta India": 0.006144803633449105,
+        "Microsoft India": 0.01509484370825541,
+        "Mphasis": 0.017365749398877906,
+        "Myntra": 0.0030724018167245523,
+        "Netflix India": 0.0032059845044082286,
+        "Oracle Financial Services Software Ltd.": 0.01616350520972482,
+        "Paytm": 0.012423189954581887,
+        "Persistent Systems": 0.01228960726689821,
+        "PwC India": 0.025380710659898477,
+        "Razorpay": 0.010820197702377772,
+        "Sun Pharma": 0.02003740315255143,
+        "Tata Consultancy Services (TCS)": 0.07306973016297087,
+        "Tata Motors": 0.020838899278653487,
+        "Tech Mahindra Ltd.": 0.03513224686080684,
+        "Vodafone Idea": 0.0037403152551429334,
+        "Wipro Limited": 0.04288004274646006,
+        "__default__": 0.0001335826876836762
+      },
+      "Medium": {
+        "Accenture India Pvt Ltd": 0.0353870458135861,
+        "Amazon Development Centre India Pvt Ltd": 0.045813586097946286,
+        "Amazon India": 0.043601895734597156,
+        "Apollo Hospitals": 0.015481832543443918,
+        "Apple India": 0.007898894154818325,
+        "Axis Bank": 0.025592417061611375,
+        "Bajaj Auto": 0.007582938388625593,
+        "Bharti Airtel": 0.02812006319115324,
+        "Capgemini India": 0.030015797788309637,
+        "Cipla": 0.009478672985781991,
+        "Coforge": 0.013902053712480253,
+        "Cognizant India": 0.046445497630331754,
+        "Deloitte India": 0.024644549763033177,
+        "EY India": 0.022432859399684046,
+        "Facebook India": 0.008530805687203791,
+        "Flipkart Internet Pvt Ltd": 0.021169036334913113,
+        "Fortis Healthcare": 0.007582938388625593,
+        "Google India": 0.008530805687203791,
+        "HCL Technologies": 0.03380726698262243,
+        "HDFC Bank": 0.022116903633491312,
+        "IBM India": 0.03380726698262243,
+        "ICICI Bank": 0.021800947867298578,
+        "Infosys": 0.04454976303317536,
+        "Jio Platforms": 0.029067930489731438,
+        "LTIMindtree": 0.029383886255924172,
+        "Larsen & Toubro": 0.018325434439178515,
+        "Mahindra & Mahindra": 0.030015797788309637,
+        "Meesho": 0.01042654028436019,
+        "Meta India": 0.0072669826224328595,
+        "Microsoft India": 0.014218009478672985,
+        "Mphasis": 0.017377567140600316,
+        "Myntra": 0.011058451816745656,
+        "Netflix India": 0.006635071090047393,
+        "Oracle Financial Services Software Ltd.": 0.009794628751974723,
+        "Paytm": 0.013902053712480253,
+        "Persistent Systems": 0.014218009478672985,
+        "PwC India": 0.022432859399684046,
+        "Razorpay": 0.010742496050552922,
+        "Sun Pharma": 0.008846761453396525,
+        "Tata Consultancy Services (TCS)": 0.06192733017377567,
+        "Tata Motors": 0.02812006319115324,
+        "Tech Mahindra Ltd.": 0.041390205371248025,
+        "Vodafone Idea": 0.011058451816745656,
+        "Wipro Limited": 0.04518167456556082,
+        "__default__": 0.000315955766192733
+      },
+      "High": {
+        "Accenture India Pvt Ltd": 0.03167115902964959,
+        "Amazon Development Centre India Pvt Ltd": 0.0862533692722372,
+        "Amazon India": 0.06199460916442048,
+        "Apollo Hospitals": 0.012129380053908356,
+        "Apple India": 0.007412398921832884,
+        "Axis Bank": 0.008086253369272238,
+        "Bajaj Auto": 0.008086253369272238,
+        "Bharti Airtel": 0.0431266846361186,
+        "Capgemini India": 0.0215633423180593,
+        "Cipla": 0.007412398921832884,
+        "Coforge": 0.011455525606469003,
+        "Cognizant India": 0.03638814016172507,
+        "Deloitte India": 0.02021563342318059,
+        "EY India": 0.016846361185983826,
+        "Facebook India": 0.006064690026954178,
+        "Flipkart Internet Pvt Ltd": 0.04043126684636118,
+        "Fortis Healthcare": 0.008086253369272238,
+        "Google India": 0.007412398921832884,
+        "HCL Technologies": 0.02358490566037736,
+        "HDFC Bank": 0.016846361185983826,
+        "IBM India": 0.03504043126684636,
+        "ICICI Bank": 0.014150943396226415,
+        "Infosys": 0.02628032345013477,
+        "Jio Platforms": 0.0444743935309973,
+        "LTIMindtree": 0.026954177897574125,
+        "Larsen & Toubro": 0.02628032345013477,
+        "Mahindra & Mahindra": 0.026954177897574125,
+        "Meesho": 0.02425876010781671,
+        "Meta India": 0.006064690026954178,
+        "Microsoft India": 0.008086253369272238,
+        "Mphasis": 0.0215633423180593,
+        "Myntra": 0.018194070080862535,
+        "Netflix India": 0.012129380053908356,
+        "Oracle Financial Services Software Ltd.": 0.014150943396226415,
+        "Paytm": 0.013477088948787063,
+        "Persistent Systems": 0.00876010781671159,
+        "PwC India": 0.01549865229110512,
+        "Razorpay": 0.008086253369272238,
+        "Sun Pharma": 0.008086253369272238,
+        "Tata Consultancy Services (TCS)": 0.03571428571428571,
+        "Tata Motors": 0.02830188679245283,
+        "Tech Mahindra Ltd.": 0.03638814016172507,
+        "Vodafone Idea": 0.024932614555256066,
+        "Wipro Limited": 0.04043126684636118,
+        "__default__": 0.0006738544474393531
+      }
+    },
+    "company_location": {
+      "Low": {
+        "Ahmedabad": 0.03152669707539576,
+        "Bengaluru": 0.2106251676951972,
+        "Chennai": 0.11054467400053662,
+        "Coimbatore": 0.018781862087469816,
+        "Delhi": 0.019452642876308022,
+        "Gurugram": 0.06452911188623559,
+        "Hyderabad": 0.13710759323852964,
+        "Kochi": 0.02790448081566944,
+        "Kolkata": 0.043064126643412935,
+        "Mumbai": 0.16299973168768447,
+        "Noida": 0.07029782667024416,
+        "Pune": 0.1030319291655487,
+        "__default__": 0.00013415615776764153
+      },
+      "Medium": {
+        "Ahmedabad": 0.036386849664857966,
+        "Bengaluru": 0.21193744015320778,
+        "Chennai": 0.12001276731567188,
+        "Coimbatore": 0.01947015639961698,
+        "Delhi": 0.022342802425789978,
+        "Gurugram": 0.06351739546760293,
+        "Hyderabad": 0.12671560804340887,
+        "Kochi": 0.028088094478135973,
+        "Kolkata": 0.03925949569103096,
+        "Mumbai": 0.15735716565592084,
+        "Noida": 0.07532716246409192,
+        "Pune": 0.0992658793488669,
+        "__default__": 0.0003191828917969997
+      },
+      "High": {
+        "Ahmedabad": 0.03168044077134986,
+        "Bengaluru": 0.2066115702479339,
+        "Chennai": 0.1046831955922865,
+        "Coimbatore": 0.023415977961432508,
+        "Delhi": 0.02066115702479339,
+        "Gurugram": 0.06818181818181818,
+        "Hyderabad": 0.1418732782369146,
+        "Kochi": 0.026170798898071626,
+        "Kolkata": 0.04201101928374656,
+        "Mumbai": 0.18044077134986225,
+        "Noida": 0.05922865013774105,
+        "Pune": 0.0943526170798898,
+        "__default__": 0.0006887052341597796
+      }
+    },
+    "reporting_quarter": {
+      "Low": {
+        "Q1 2023": 0.05165012074054199,
+        "Q1 2024": 0.07794472766299973,
+        "Q1 2025": 0.09377515427958143,
+        "Q2 2023": 0.05835792862892407,
+        "Q2 2024": 0.09565334048832841,
+        "Q2 2025": 0.10034880601019587,
+        "Q3 2023": 0.07056613898577944,
+        "Q3 2024": 0.09766568285484303,
+        "Q3 2025": 0.09390931043734907,
+        "Q4 2023": 0.08049369466058492,
+        "Q4 2024": 0.09068956265092568,
+        "Q4 2025": 0.0888113764421787,
+        "__default__": 0.00013415615776764153
+      },
+      "Medium": {
+        "Q1 2023": 0.09000957548675391,
+        "Q1 2024": 0.08011490584104693,
+        "Q1 2025": 0.07724225981487393,
+        "Q2 2023": 0.1008617938078519,
+        "Q2 2024": 0.07468879668049792,
+        "Q2 2025": 0.07628471113948293,
+        "Q3 2023": 0.08841366102776892,
+        "Q3 2024": 0.07788062559846792,
+        "Q3 2025": 0.07756144270667092,
+        "Q4 2023": 0.08649856367698691,
+        "Q4 2024": 0.07628471113948293,
+        "Q4 2025": 0.0938397701883179,
+        "__default__": 0.0003191828917969997
+      },
+      "High": {
+        "Q1 2023": 0.19421487603305784,
+        "Q1 2024": 0.05991735537190083,
+        "Q1 2025": 0.05785123966942149,
+        "Q2 2023": 0.1418732782369146,
+        "Q2 2024": 0.05647382920110193,
+        "Q2 2025": 0.05234159779614325,
+        "Q3 2023": 0.10055096418732783,
+        "Q3 2024": 0.048209366391184574,
+        "Q3 2025": 0.06611570247933884,
+        "Q4 2023": 0.08264462809917356,
+        "Q4 2024": 0.05440771349862259,
+        "Q4 2025": 0.08471074380165289,
+        "__default__": 0.0006887052341597796
+      }
+    },
+    "economic_condition_tag": {
+      "Low": {
+        "Growth": 0.3044587698092936,
+        "Recession": 0.032097770615095354,
+        "Recovery": 0.22334139135106099,
+        "Stable": 0.4399677679290894,
+        "__default__": 0.00013430029546065002
+      },
+      "Medium": {
+        "Growth": 0.12032,
+        "Recession": 0.22528,
+        "Recovery": 0.34592,
+        "Stable": 0.30816,
+        "__default__": 0.00032
+      },
+      "High": {
+        "Growth": 0.025623268698060944,
+        "Recession": 0.6308864265927978,
+        "Recovery": 0.22922437673130194,
+        "Stable": 0.11357340720221606,
+        "__default__": 0.0006925207756232687
+      }
+    },
+    "past_layoffs": {
+      "Low": {
+        "No": 0.7869425040300914,
+        "Yes": 0.21292315959161742,
+        "__default__": 0.00013433637829124128
+      },
+      "Medium": {
+        "No": 0.4745437079731028,
+        "Yes": 0.5251360870957412,
+        "__default__": 0.0003202049311559398
+      },
+      "High": {
+        "No": 0.19902912621359223,
+        "Yes": 0.8002773925104022,
+        "__default__": 0.0006934812760055479
+      }
+    },
+    "job_title": {
+      "Low": {
+        "Accountant": 0.019421376908652557,
+        "Business Analyst": 0.027323868202518083,
+        "Cloud Engineer": 0.051299223144923654,
+        "Customer Success Manager": 0.024243236003214572,
+        "Cybersecurity Analyst": 0.04098580230377712,
+        "Data Analyst": 0.04714706670238414,
+        "Data Scientist": 0.051567104205732656,
+        "DevOps Engineer": 0.0640235735333512,
+        "Engineering Manager": 0.031074203053844094,
+        "Finance Analyst": 0.020894722743102064,
+        "HR Specialist": 0.01379587463166354,
+        "Machine Learning Engineer": 0.03160996517546209,
+        "Product Manager": 0.02946691668899009,
+        "Project Manager": 0.03576212161800161,
+        "QA Engineer": 0.050897401553710156,
+        "Recruiter": 0.014465577283686044,
+        "Sales Executive": 0.018751674256630057,
+        "Senior Software Engineer": 0.11157246182694884,
+        "Site Reliability Engineer": 0.04741494776319314,
+        "Software Engineer": 0.1301901955531744,
+        "Solution Architect": 0.02370747388159657,
+        "Support Engineer": 0.0320117867666756,
+        "Technical Lead": 0.062282346638092685,
+        "UI/UX Designer": 0.01995713903027056,
+        "__default__": 0.0001339405304045004
+      },
+      "Medium": {
+        "Accountant": 0.021303656597774244,
+        "Business Analyst": 0.028298887122416534,
+        "Cloud Engineer": 0.03656597774244833,
+        "Customer Success Manager": 0.02702702702702703,
+        "Cybersecurity Analyst": 0.029888712241653417,
+        "Data Analyst": 0.05532591414944356,
+        "Data Scientist": 0.04769475357710652,
+        "DevOps Engineer": 0.05468998410174881,
+        "Engineering Manager": 0.023529411764705882,
+        "Finance Analyst": 0.028934817170111288,
+        "HR Specialist": 0.02066772655007949,
+        "Machine Learning Engineer": 0.02448330683624801,
+        "Product Manager": 0.03179650238473768,
+        "Project Manager": 0.042289348171701116,
+        "QA Engineer": 0.065818759936407,
+        "Recruiter": 0.025437201907790145,
+        "Sales Executive": 0.032750397456279806,
+        "Senior Software Engineer": 0.0848966613672496,
+        "Site Reliability Engineer": 0.048012718600953894,
+        "Software Engineer": 0.13736089030206677,
+        "Solution Architect": 0.013672496025437202,
+        "Support Engineer": 0.0492845786963434,
+        "Technical Lead": 0.04960254372019078,
+        "UI/UX Designer": 0.020349761526232114,
+        "__default__": 0.0003179650238473768
+      },
+      "High": {
+        "Accountant": 0.0273224043715847,
+        "Business Analyst": 0.036885245901639344,
+        "Cloud Engineer": 0.03210382513661202,
+        "Customer Success Manager": 0.03825136612021858,
+        "Cybersecurity Analyst": 0.03551912568306011,
+        "Data Analyst": 0.03551912568306011,
+        "Data Scientist": 0.031420765027322405,
+        "DevOps Engineer": 0.06147540983606557,
+        "Engineering Manager": 0.02663934426229508,
+        "Finance Analyst": 0.025956284153005466,
+        "HR Specialist": 0.028005464480874317,
+        "Machine Learning Engineer": 0.02185792349726776,
+        "Product Manager": 0.025956284153005466,
+        "Project Manager": 0.04439890710382514,
+        "QA Engineer": 0.06489071038251366,
+        "Recruiter": 0.030737704918032786,
+        "Sales Executive": 0.03483606557377049,
+        "Senior Software Engineer": 0.06762295081967214,
+        "Site Reliability Engineer": 0.0430327868852459,
+        "Software Engineer": 0.1523224043715847,
+        "Solution Architect": 0.01639344262295082,
+        "Support Engineer": 0.0546448087431694,
+        "Technical Lead": 0.04439890710382514,
+        "UI/UX Designer": 0.01912568306010929,
+        "__default__": 0.0006830601092896175
+      }
+    },
+    "department": {
+      "Low": {
+        "Analytics": 0.12749966447456718,
+        "Engineering": 0.5183196886323983,
+        "Finance": 0.043215675748221716,
+        "HR": 0.03314991276338747,
+        "IT": 0.07341296470272447,
+        "Management": 0.09622869413501543,
+        "Operations": 0.029928868608240504,
+        "Product": 0.053818279425580456,
+        "Sales": 0.024292041336733326,
+        "__default__": 0.00013421017313112335
+      },
+      "Medium": {
+        "Analytics": 0.12715654952076677,
+        "Engineering": 0.4686900958466454,
+        "Finance": 0.05463258785942492,
+        "HR": 0.04792332268370607,
+        "IT": 0.08083067092651758,
+        "Management": 0.09616613418530351,
+        "Operations": 0.034185303514377,
+        "Product": 0.054313099041533544,
+        "Sales": 0.03578274760383387,
+        "__default__": 0.0003194888178913738
+      },
+      "High": {
+        "Analytics": 0.09178743961352658,
+        "Engineering": 0.463768115942029,
+        "Finance": 0.055900621118012424,
+        "HR": 0.06349206349206349,
+        "IT": 0.08971704623878538,
+        "Management": 0.1090407177363699,
+        "Operations": 0.041407867494824016,
+        "Product": 0.04692891649413389,
+        "Sales": 0.037267080745341616,
+        "__default__": 0.0006901311249137336
+      }
+    },
+    "remote_work": {
+      "Low": {
+        "No": 0.37318645889306823,
+        "Yes": 0.6266792047286405,
+        "__default__": 0.00013433637829124128
+      },
+      "Medium": {
+        "No": 0.4338776817162984,
+        "Yes": 0.5658021133525456,
+        "__default__": 0.0003202049311559398
+      },
+      "High": {
+        "No": 0.44382801664355065,
+        "Yes": 0.5554785020804438,
+        "__default__": 0.0006934812760055479
+      }
+    },
+    "industry": {
+      "Low": {
+        "Consulting": 0.18150087260034903,
+        "E-commerce": 0.04685192643307826,
+        "Financial Services": 0.14699959726137737,
+        "Healthcare": 0.08202443280977312,
+        "Information Technology": 0.44005906833131964,
+        "Manufacturing": 0.0659148879044167,
+        "Telecommunications": 0.03651496845214123,
+        "__default__": 0.00013424620754463686
+      },
+      "Medium": {
+        "Consulting": 0.135230179028133,
+        "E-commerce": 0.1323529411764706,
+        "Financial Services": 0.10358056265984655,
+        "Healthcare": 0.04092071611253197,
+        "Information Technology": 0.4351023017902813,
+        "Manufacturing": 0.08407928388746803,
+        "Telecommunications": 0.06841432225063938,
+        "__default__": 0.00031969309462915604
+      },
+      "High": {
+        "Consulting": 0.10573600552868002,
+        "E-commerce": 0.23427781617138907,
+        "Financial Services": 0.07325501036627505,
+        "Healthcare": 0.03455425017277125,
+        "Information Technology": 0.34761575673807876,
+        "Manufacturing": 0.08984105044920525,
+        "Telecommunications": 0.11402902557014513,
+        "__default__": 0.000691085003455425
+      }
+    }
+  },
+  "numerical_stats": {
+    "revenue_growth": {
+      "Low": {
+        "mean": 8.86379384491332,
+        "std": 3.159651973127082
+      },
+      "Medium": {
+        "mean": 7.661400641025641,
+        "std": 3.6681655610231814
+      },
+      "High": {
+        "mean": 5.689923558026407,
+        "std": 4.087692428445431
+      }
+    },
+    "profit_margin": {
+      "Low": {
+        "mean": 17.998578148098375,
+        "std": 3.075767082696168
+      },
+      "Medium": {
+        "mean": 16.627778846153845,
+        "std": 3.522358489605524
+      },
+      "High": {
+        "mean": 15.204843641417648,
+        "std": 3.640671205156804
+      }
+    },
+    "stock_price_change": {
+      "Low": {
+        "mean": 14.987930385700848,
+        "std": 6.312499556875149
+      },
+      "Medium": {
+        "mean": 13.404967948717948,
+        "std": 6.555203971009355
+      },
+      "High": {
+        "mean": 11.128992355802641,
+        "std": 6.574707567351491
+      }
+    },
+    "total_employees": {
+      "Low": {
+        "mean": 170886.5402499664,
+        "std": 159360.76790301932
+      },
+      "Medium": {
+        "mean": 157854.0092948718,
+        "std": 150813.34534409252
+      },
+      "High": {
+        "mean": 133227.28422515636,
+        "std": 129240.51935745115
+      }
+    },
+    "years_at_company": {
+      "Low": {
+        "mean": 4.9955651122161,
+        "std": 3.1459343267826485
+      },
+      "Medium": {
+        "mean": 4.136858974358974,
+        "std": 2.8107258631086145
+      },
+      "High": {
+        "mean": 3.673384294649062,
+        "std": 2.516449098563335
+      }
+    },
+    "salary_range": {
+      "Low": {
+        "mean": 2651775.4057250367,
+        "std": 1154580.43883672
+      },
+      "Medium": {
+        "mean": 2355328.497115385,
+        "std": 1079304.405502429
+      },
+      "High": {
+        "mean": 2228849.6108408617,
+        "std": 1014373.6354148899
+      }
+    },
+    "performance_rating": {
+      "Low": {
+        "mean": 3.9084800430049724,
+        "std": 0.7995324286481046
+      },
+      "Medium": {
+        "mean": 3.4125,
+        "std": 0.833611331835228
+      },
+      "High": {
+        "mean": 3.1125781792911744,
+        "std": 0.8467582523023518
+      }
+    },
+    "industry_layoff_rate": {
+      "Low": {
+        "mean": 1.2517134793710523,
+        "std": 0.46629698590819074
+      },
+      "Medium": {
+        "mean": 1.774073717948718,
+        "std": 0.5332324392882093
+      },
+      "High": {
+        "mean": 2.369360667129951,
+        "std": 0.5098055958179377
+      }
+    },
+    "unemployment_rate": {
+      "Low": {
+        "mean": 6.2361403037226175,
+        "std": 0.791358748905671
+      },
+      "Medium": {
+        "mean": 6.416964743589744,
+        "std": 0.8802269076853967
+      },
+      "High": {
+        "mean": 6.712425295343989,
+        "std": 0.9694357040250443
+      }
+    },
+    "inflation_rate": {
+      "Low": {
+        "mean": 5.679188281145008,
+        "std": 0.557511810690153
+      },
+      "Medium": {
+        "mean": 5.821105769230769,
+        "std": 0.6155799030329028
+      },
+      "High": {
+        "mean": 6.034996525364837,
+        "std": 0.6750743273532502
+      }
+    },
+    "employee_stability": {
+      "Low": {
+        "mean": 19.770192178470637,
+        "std": 13.745517790296896
+      },
+      "Medium": {
+        "mean": 14.175320512820512,
+        "std": 10.551447520083034
+      },
+      "High": {
+        "mean": 11.480194579569146,
+        "std": 8.872315851305986
+      }
+    },
+    "economic_pressure": {
+      "Low": {
+        "mean": 3.0515347399543074,
+        "std": 3.72720059212004
+      },
+      "Medium": {
+        "mean": 4.576669871794872,
+        "std": 4.395253905181743
+      },
+      "High": {
+        "mean": 7.057498262682418,
+        "std": 4.950036816517865
+      }
+    }
+  },
+  "global_defaults": {
+    "numerical_medians": {
+      "revenue_growth": 8.36,
+      "profit_margin": 17.76,
+      "stock_price_change": 14.135000000000002,
+      "total_employees": 120064.5,
+      "years_at_company": 4.0,
+      "salary_range": 2271508.5,
+      "performance_rating": 4.0,
+      "industry_layoff_rate": 1.44,
+      "unemployment_rate": 6.15,
+      "inflation_rate": 5.62,
+      "employee_stability": 15.0,
+      "economic_pressure": 3.54
+    },
+    "categorical_modes": {
+      "company_name": "Tata Consultancy Services (TCS)",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "Software Engineer",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "industry": "Information Technology"
+    }
+  },
+  "profiles": {
+    "categorical_risk": {
+      "company_name": {
+        "Accenture India Pvt Ltd": 0.3573943661971831,
+        "Amazon Development Centre India Pvt Ltd": 0.9875930521091811,
+        "Amazon India": 0.9036827195467422,
+        "Apollo Hospitals": 0.2827586206896552,
+        "Apple India": 0.4036697247706422,
+        "Axis Bank": 0.3322475570032573,
+        "Bajaj Auto": 0.45918367346938777,
+        "Bharti Airtel": 0.8136882129277566,
+        "Capgemini India": 0.3553530751708428,
+        "Cipla": 0.2916666666666667,
+        "Coforge": 0.42857142857142855,
+        "Cognizant India": 0.5316455696202531,
+        "Deloitte India": 0.39705882352941174,
+        "EY India": 0.39730639730639733,
+        "Facebook India": 0.5185185185185185,
+        "Flipkart Internet Pvt Ltd": 1.0760233918128654,
+        "Fortis Healthcare": 0.3191489361702128,
+        "Google India": 0.3357664233576642,
+        "HCL Technologies": 0.3686440677966102,
+        "HDFC Bank": 0.2896039603960396,
+        "IBM India": 0.5502645502645502,
+        "ICICI Bank": 0.2975206611570248,
+        "Infosys": 0.36,
+        "Jio Platforms": 0.7673611111111112,
+        "LTIMindtree": 0.584192439862543,
+        "Larsen & Toubro": 0.6018099547511312,
+        "Mahindra & Mahindra": 0.6187050359712231,
+        "Meesho": 1.1333333333333333,
+        "Meta India": 0.5066666666666667,
+        "Microsoft India": 0.39520958083832336,
+        "Mphasis": 0.5420560747663551,
+        "Myntra": 1.048780487804878,
+        "Netflix India": 0.9,
+        "Oracle Financial Services Software Ltd.": 0.4117647058823529,
+        "Paytm": 0.525974025974026,
+        "Persistent Systems": 0.46258503401360546,
+        "PwC India": 0.40569395017793597,
+        "Razorpay": 0.4435483870967742,
+        "Sun Pharma": 0.2620320855614973,
+        "Tata Consultancy Services (TCS)": 0.3770491803278688,
+        "Tata Motors": 0.5985915492957746,
+        "Tech Mahindra Ltd.": 0.5303370786516854,
+        "Vodafone Idea": 1.092783505154639,
+        "Wipro Limited": 0.4990403071017274
+      },
+      "company_location": {
+        "Ahmedabad": 0.5178571428571429,
+        "Bengaluru": 0.49822204662188857,
+        "Chennai": 0.5018532246108228,
+        "Coimbatore": 0.5431034482758621,
+        "Delhi": 0.5247933884297521,
+        "Gurugram": 0.5077319587628866,
+        "Hyderabad": 0.4969173859432799,
+        "Kochi": 0.486404833836858,
+        "Kolkata": 0.4820717131474104,
+        "Mumbai": 0.5155058464667006,
+        "Noida": 0.4804270462633452,
+        "Pune": 0.47980214344600164
+      },
+      "reporting_quarter": {
+        "Q1 2023": 0.8911205073995772,
+        "Q1 2024": 0.4606986899563319,
+        "Q1 2025": 0.39823874755381605,
+        "Q2 2023": 0.759958071278826,
+        "Q2 2024": 0.38499025341130605,
+        "Q2 2025": 0.3660377358490566,
+        "Q3 2023": 0.5983086680761099,
+        "Q3 2024": 0.3666987487969201,
+        "Q3 2025": 0.416988416988417,
+        "Q4 2023": 0.5141700404858299,
+        "Q4 2024": 0.3975782038345106,
+        "Q4 2025": 0.49907063197026025
+      },
+      "economic_condition_tag": {
+        "Growth": 0.16697796040343668,
+        "Recession": 1.3630470016207454,
+        "Recovery": 0.56640625,
+        "Stable": 0.2927272727272727
+      },
+      "past_layoffs": {
+        "No": 0.26928121720881426,
+        "Yes": 0.901508226691042
+      },
+      "job_title": {
+        "Accountant": 0.5783132530120482,
+        "Business Analyst": 0.563953488372093,
+        "Cloud Engineer": 0.3800738007380074,
+        "Customer Success Manager": 0.6081504702194357,
+        "Cybersecurity Analyst": 0.43429844097995546,
+        "Data Analyst": 0.4782608695652174,
+        "Data Scientist": 0.4134948096885813,
+        "DevOps Engineer": 0.4735413839891452,
+        "Engineering Manager": 0.43567251461988304,
+        "Finance Analyst": 0.5815602836879432,
+        "HR Specialist": 0.6990291262135923,
+        "Machine Learning Engineer": 0.40350877192982454,
+        "Product Manager": 0.48732394366197185,
+        "Project Manager": 0.5627705627705628,
+        "QA Engineer": 0.5802650957290133,
+        "Recruiter": 0.7260869565217392,
+        "Sales Executive": 0.6941580756013745,
+        "Senior Software Engineer": 0.3862876254180602,
+        "Site Reliability Engineer": 0.4849557522123894,
+        "Software Engineer": 0.5387931034482759,
+        "Solution Architect": 0.3651452282157676,
+        "Support Engineer": 0.6624203821656051,
+        "Technical Lead": 0.4143484626647145,
+        "UI/UX Designer": 0.49159663865546216
+      },
+      "department": {
+        "Analytics": 0.4472259810554804,
+        "Engineering": 0.4681560520173391,
+        "Finance": 0.5779334500875657,
+        "HR": 0.6810699588477366,
+        "IT": 0.5501618122977346,
+        "Management": 0.5234441602728048,
+        "Operations": 0.5788113695090439,
+        "Product": 0.47641509433962265,
+        "Sales": 0.6308139534883721
+      },
+      "remote_work": {
+        "No": 0.5517819706498952,
+        "Yes": 0.46556016597510375
+      },
+      "industry": {
+        "Consulting": 0.37714285714285717,
+        "E-commerce": 0.9909008189262967,
+        "Financial Services": 0.35019710906701706,
+        "Healthcare": 0.2862595419847328,
+        "Information Technology": 0.46001167542323407,
+        "Manufacturing": 0.5902383654937571,
+        "Telecommunications": 0.8348765432098766
+      }
+    },
+    "numeric_direction": {
+      "revenue_growth": -0.2905149494931696,
+      "profit_margin": -0.2852802123717027,
+      "stock_price_change": -0.19671646247470695,
+      "total_employees": -0.0784152410839023,
+      "years_at_company": -0.16459561084857696,
+      "salary_range": -0.14472365744383622,
+      "performance_rating": -0.3420421747748298,
+      "industry_layoff_rate": 0.6171365850790642,
+      "unemployment_rate": 0.18294344006422922,
+      "inflation_rate": 0.19637673966503244,
+      "employee_stability": -0.24612468924638975,
+      "economic_pressure": 0.30664738750629544
+    },
+    "numeric_baselines": {
+      "revenue_growth": {
+        "mean": 8.170571666666666,
+        "std": 3.5771472092339947,
+        "low_mean": 8.86379384491332,
+        "high_mean": 5.689923558026407
+      },
+      "profit_margin": {
+        "mean": 17.307154999999998,
+        "std": 3.4099705163889125,
+        "low_mean": 17.998578148098375,
+        "high_mean": 15.204843641417648
+      },
+      "stock_price_change": {
+        "mean": 14.113609166666667,
+        "std": 6.537403699653962,
+        "low_mean": 14.987930385700848,
+        "high_mean": 11.128992355802641
+      },
+      "total_employees": {
+        "mean": 162982.10975,
+        "std": 154323.97341897566,
+        "low_mean": 170886.5402499664,
+        "high_mean": 133227.28422515636
+      },
+      "years_at_company": {
+        "mean": 4.61375,
+        "std": 3.0341216638153017,
+        "low_mean": 4.9955651122161,
+        "high_mean": 3.673384294649062
+      },
+      "salary_range": {
+        "mean": 2523983.3579166667,
+        "std": 1131739.914706947,
+        "low_mean": 2651775.4057250367,
+        "high_mean": 2228849.6108408617
+      },
+      "performance_rating": {
+        "mean": 3.684083333333333,
+        "std": 0.8675328964303826,
+        "low_mean": 3.9084800430049724,
+        "high_mean": 3.1125781792911744
+      },
+      "industry_layoff_rate": {
+        "mean": 1.5215516666666666,
+        "std": 0.6227710459421575,
+        "low_mean": 1.2517134793710523,
+        "high_mean": 2.369360667129951
+      },
+      "unemployment_rate": {
+        "mean": 6.340269166666666,
+        "std": 0.8528387123108168,
+        "low_mean": 6.2361403037226175,
+        "high_mean": 6.712425295343989
+      },
+      "inflation_rate": {
+        "mean": 5.758754166666667,
+        "std": 0.599995213508107,
+        "low_mean": 5.679188281145008,
+        "high_mean": 6.034996525364837
+      },
+      "employee_stability": {
+        "mean": 17.321416666666668,
+        "std": 12.88128906565859,
+        "low_mean": 19.770192178470637,
+        "high_mean": 11.480194579569146
+      },
+      "economic_pressure": {
+        "mean": 3.9284516666666667,
+        "std": 4.28199014898414,
+        "low_mean": 3.0515347399543074,
+        "high_mean": 7.057498262682418
+      }
+    },
+    "company_defaults": [
+      {
+        "company_name": "Accenture India Pvt Ltd",
+        "industry": "Consulting",
+        "revenue_growth": 8.375,
+        "profit_margin": 18.715,
+        "stock_price_change": 15.39,
+        "total_employees": 300142.5,
+        "industry_layoff_rate": 1.22
+      },
+      {
+        "company_name": "Amazon Development Centre India Pvt Ltd",
+        "industry": "E-commerce",
+        "revenue_growth": 11.22,
+        "profit_margin": 11.75,
+        "stock_price_change": 14.54,
+        "total_employees": 155759.0,
+        "industry_layoff_rate": 2.05
+      },
+      {
+        "company_name": "Amazon India",
+        "industry": "E-commerce",
+        "revenue_growth": 11.66,
+        "profit_margin": 11.84,
+        "stock_price_change": 14.39,
+        "total_employees": 119061.0,
+        "industry_layoff_rate": 2.03
+      },
+      {
+        "company_name": "Apollo Hospitals",
+        "industry": "Healthcare",
+        "revenue_growth": 5.890000000000001,
+        "profit_margin": 17.405,
+        "stock_price_change": 11.79,
+        "total_employees": 70241.5,
+        "industry_layoff_rate": 0.93
+      },
+      {
+        "company_name": "Apple India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.78,
+        "profit_margin": 18.08,
+        "stock_price_change": 16.08,
+        "total_employees": 8891.0,
+        "industry_layoff_rate": 1.39
+      },
+      {
+        "company_name": "Axis Bank",
+        "industry": "Financial Services",
+        "revenue_growth": 7.02,
+        "profit_margin": 20.69,
+        "stock_price_change": 13.28,
+        "total_employees": 90045.0,
+        "industry_layoff_rate": 1.09
+      },
+      {
+        "company_name": "Bajaj Auto",
+        "industry": "Manufacturing",
+        "revenue_growth": 5.39,
+        "profit_margin": 12.93,
+        "stock_price_change": 8.975000000000001,
+        "total_employees": 9019.0,
+        "industry_layoff_rate": 1.585
+      },
+      {
+        "company_name": "Bharti Airtel",
+        "industry": "Telecommunications",
+        "revenue_growth": 5.7,
+        "profit_margin": 14.3,
+        "stock_price_change": 10.47,
+        "total_employees": 67702.0,
+        "industry_layoff_rate": 1.89
+      },
+      {
+        "company_name": "Capgemini India",
+        "industry": "Consulting",
+        "revenue_growth": 8.25,
+        "profit_margin": 18.92,
+        "stock_price_change": 13.87,
+        "total_employees": 174979.0,
+        "industry_layoff_rate": 1.18
+      },
+      {
+        "company_name": "Cipla",
+        "industry": "Healthcare",
+        "revenue_growth": 6.195,
+        "profit_margin": 17.755000000000003,
+        "stock_price_change": 12.295,
+        "total_employees": 26171.0,
+        "industry_layoff_rate": 0.98
+      },
+      {
+        "company_name": "Coforge",
+        "industry": "Information Technology",
+        "revenue_growth": 8.92,
+        "profit_margin": 18.38,
+        "stock_price_change": 16.64,
+        "total_employees": 28140.0,
+        "industry_layoff_rate": 1.43
+      },
+      {
+        "company_name": "Cognizant India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.24,
+        "profit_margin": 17.925,
+        "stock_price_change": 15.03,
+        "total_employees": 255326.0,
+        "industry_layoff_rate": 1.43
+      },
+      {
+        "company_name": "Deloitte India",
+        "industry": "Consulting",
+        "revenue_growth": 7.8,
+        "profit_margin": 18.435000000000002,
+        "stock_price_change": 13.865,
+        "total_employees": 108636.0,
+        "industry_layoff_rate": 1.29
+      },
+      {
+        "company_name": "EY India",
+        "industry": "Consulting",
+        "revenue_growth": 8.15,
+        "profit_margin": 18.5,
+        "stock_price_change": 13.58,
+        "total_employees": 80207.0,
+        "industry_layoff_rate": 1.2
+      },
+      {
+        "company_name": "Facebook India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.16,
+        "profit_margin": 18.4,
+        "stock_price_change": 17.91,
+        "total_employees": 6454.0,
+        "industry_layoff_rate": 1.3
+      },
+      {
+        "company_name": "Flipkart Internet Pvt Ltd",
+        "industry": "E-commerce",
+        "revenue_growth": 11.09,
+        "profit_margin": 11.7,
+        "stock_price_change": 13.25,
+        "total_employees": 40182.0,
+        "industry_layoff_rate": 2.1
+      },
+      {
+        "company_name": "Fortis Healthcare",
+        "industry": "Healthcare",
+        "revenue_growth": 5.89,
+        "profit_margin": 17.16,
+        "stock_price_change": 11.32,
+        "total_employees": 25361.0,
+        "industry_layoff_rate": 0.99
+      },
+      {
+        "company_name": "Google India",
+        "industry": "Information Technology",
+        "revenue_growth": 10.22,
+        "profit_margin": 18.29,
+        "stock_price_change": 17.18,
+        "total_employees": 18039.0,
+        "industry_layoff_rate": 1.37
+      },
+      {
+        "company_name": "HCL Technologies",
+        "industry": "Information Technology",
+        "revenue_growth": 9.695,
+        "profit_margin": 18.375,
+        "stock_price_change": 16.270000000000003,
+        "total_employees": 226808.5,
+        "industry_layoff_rate": 1.44
+      },
+      {
+        "company_name": "HDFC Bank",
+        "industry": "Financial Services",
+        "revenue_growth": 6.54,
+        "profit_margin": 20.445,
+        "stock_price_change": 14.085,
+        "total_employees": 170599.0,
+        "industry_layoff_rate": 1.09
+      },
+      {
+        "company_name": "IBM India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.105,
+        "profit_margin": 17.91,
+        "stock_price_change": 14.955,
+        "total_employees": 139619.5,
+        "industry_layoff_rate": 1.5150000000000001
+      },
+      {
+        "company_name": "ICICI Bank",
+        "industry": "Financial Services",
+        "revenue_growth": 7.06,
+        "profit_margin": 20.99,
+        "stock_price_change": 14.33,
+        "total_employees": 129868.0,
+        "industry_layoff_rate": 1.13
+      },
+      {
+        "company_name": "Infosys",
+        "industry": "Information Technology",
+        "revenue_growth": 9.99,
+        "profit_margin": 18.21,
+        "stock_price_change": 16.39,
+        "total_employees": 344973.5,
+        "industry_layoff_rate": 1.435
+      },
+      {
+        "company_name": "Jio Platforms",
+        "industry": "Telecommunications",
+        "revenue_growth": 5.529999999999999,
+        "profit_margin": 14.31,
+        "stock_price_change": 10.34,
+        "total_employees": 89666.5,
+        "industry_layoff_rate": 1.8250000000000002
+      },
+      {
+        "company_name": "LTIMindtree",
+        "industry": "Information Technology",
+        "revenue_growth": 9.07,
+        "profit_margin": 17.97,
+        "stock_price_change": 13.75,
+        "total_employees": 82187.0,
+        "industry_layoff_rate": 1.48
+      },
+      {
+        "company_name": "Larsen & Toubro",
+        "industry": "Manufacturing",
+        "revenue_growth": 5.26,
+        "profit_margin": 13.02,
+        "stock_price_change": 9.27,
+        "total_employees": 49807.0,
+        "industry_layoff_rate": 1.61
+      },
+      {
+        "company_name": "Mahindra & Mahindra",
+        "industry": "Manufacturing",
+        "revenue_growth": 5.045,
+        "profit_margin": 12.97,
+        "stock_price_change": 9.64,
+        "total_employees": 82037.5,
+        "industry_layoff_rate": 1.6150000000000002
+      },
+      {
+        "company_name": "Meesho",
+        "industry": "E-commerce",
+        "revenue_growth": 11.265,
+        "profit_margin": 11.985,
+        "stock_price_change": 13.425,
+        "total_employees": 6998.5,
+        "industry_layoff_rate": 2.02
+      },
+      {
+        "company_name": "Meta India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.33,
+        "profit_margin": 17.96,
+        "stock_price_change": 15.36,
+        "total_employees": 7066.0,
+        "industry_layoff_rate": 1.47
+      },
+      {
+        "company_name": "Microsoft India",
+        "industry": "Information Technology",
+        "revenue_growth": 10.1,
+        "profit_margin": 18.29,
+        "stock_price_change": 17.74,
+        "total_employees": 23903.0,
+        "industry_layoff_rate": 1.47
+      },
+      {
+        "company_name": "Mphasis",
+        "industry": "Information Technology",
+        "revenue_growth": 8.965,
+        "profit_margin": 17.925,
+        "stock_price_change": 13.864999999999998,
+        "total_employees": 34826.5,
+        "industry_layoff_rate": 1.4
+      },
+      {
+        "company_name": "Myntra",
+        "industry": "E-commerce",
+        "revenue_growth": 10.68,
+        "profit_margin": 11.47,
+        "stock_price_change": 11.96,
+        "total_employees": 5098.0,
+        "industry_layoff_rate": 2.12
+      },
+      {
+        "company_name": "Netflix India",
+        "industry": "Information Technology",
+        "revenue_growth": 9.355,
+        "profit_margin": 18.37,
+        "stock_price_change": 14.235,
+        "total_employees": 2986.0,
+        "industry_layoff_rate": 1.5350000000000001
+      },
+      {
+        "company_name": "Oracle Financial Services Software Ltd.",
+        "industry": "Financial Services",
+        "revenue_growth": 6.904999999999999,
+        "profit_margin": 20.43,
+        "stock_price_change": 15.225,
+        "total_employees": 28061.0,
+        "industry_layoff_rate": 1.21
+      },
+      {
+        "company_name": "Paytm",
+        "industry": "Financial Services",
+        "revenue_growth": 7.46,
+        "profit_margin": 20.755000000000003,
+        "stock_price_change": 14.405000000000001,
+        "total_employees": 18161.0,
+        "industry_layoff_rate": 1.0
+      },
+      {
+        "company_name": "Persistent Systems",
+        "industry": "Information Technology",
+        "revenue_growth": 9.51,
+        "profit_margin": 18.26,
+        "stock_price_change": 14.26,
+        "total_employees": 26374.0,
+        "industry_layoff_rate": 1.47
+      },
+      {
+        "company_name": "PwC India",
+        "industry": "Consulting",
+        "revenue_growth": 8.13,
+        "profit_margin": 18.64,
+        "stock_price_change": 13.57,
+        "total_employees": 69596.0,
+        "industry_layoff_rate": 1.24
+      },
+      {
+        "company_name": "Razorpay",
+        "industry": "Financial Services",
+        "revenue_growth": 7.68,
+        "profit_margin": 21.125,
+        "stock_price_change": 14.5,
+        "total_employees": 11936.0,
+        "industry_layoff_rate": 1.0750000000000002
+      },
+      {
+        "company_name": "Sun Pharma",
+        "industry": "Healthcare",
+        "revenue_growth": 6.13,
+        "profit_margin": 17.76,
+        "stock_price_change": 12.15,
+        "total_employees": 37928.0,
+        "industry_layoff_rate": 0.99
+      },
+      {
+        "company_name": "Tata Consultancy Services (TCS)",
+        "industry": "Information Technology",
+        "revenue_growth": 10.33,
+        "profit_margin": 18.35,
+        "stock_price_change": 18.09,
+        "total_employees": 616381.0,
+        "industry_layoff_rate": 1.45
+      },
+      {
+        "company_name": "Tata Motors",
+        "industry": "Manufacturing",
+        "revenue_growth": 4.835,
+        "profit_margin": 12.66,
+        "stock_price_change": 9.635,
+        "total_employees": 75427.0,
+        "industry_layoff_rate": 1.6
+      },
+      {
+        "company_name": "Tech Mahindra Ltd.",
+        "industry": "Information Technology",
+        "revenue_growth": 8.46,
+        "profit_margin": 17.99,
+        "stock_price_change": 14.11,
+        "total_employees": 151496.0,
+        "industry_layoff_rate": 1.4
+      },
+      {
+        "company_name": "Vodafone Idea",
+        "industry": "Telecommunications",
+        "revenue_growth": 4.65,
+        "profit_margin": 13.93,
+        "stock_price_change": 7.88,
+        "total_employees": 9875.0,
+        "industry_layoff_rate": 1.88
+      },
+      {
+        "company_name": "Wipro Limited",
+        "industry": "Information Technology",
+        "revenue_growth": 9.2,
+        "profit_margin": 18.17,
+        "stock_price_change": 15.19,
+        "total_employees": 240522.0,
+        "industry_layoff_rate": 1.44
+      }
+    ],
+    "industry_defaults": [
+      {
+        "industry": "Consulting",
+        "industry_layoff_rate": 1.22,
+        "revenue_growth": 8.18,
+        "profit_margin": 18.65,
+        "stock_price_change": 14.23
+      },
+      {
+        "industry": "E-commerce",
+        "industry_layoff_rate": 2.05,
+        "revenue_growth": 11.29,
+        "profit_margin": 11.73,
+        "stock_price_change": 14.01
+      },
+      {
+        "industry": "Financial Services",
+        "industry_layoff_rate": 1.1,
+        "revenue_growth": 7.0,
+        "profit_margin": 20.7,
+        "stock_price_change": 14.235
+      },
+      {
+        "industry": "Healthcare",
+        "industry_layoff_rate": 0.975,
+        "revenue_growth": 6.06,
+        "profit_margin": 17.564999999999998,
+        "stock_price_change": 11.915
+      },
+      {
+        "industry": "Information Technology",
+        "industry_layoff_rate": 1.44,
+        "revenue_growth": 9.54,
+        "profit_margin": 18.17,
+        "stock_price_change": 15.82
+      },
+      {
+        "industry": "Manufacturing",
+        "industry_layoff_rate": 1.61,
+        "revenue_growth": 5.04,
+        "profit_margin": 12.86,
+        "stock_price_change": 9.47
+      },
+      {
+        "industry": "Telecommunications",
+        "industry_layoff_rate": 1.87,
+        "revenue_growth": 5.505,
+        "profit_margin": 14.245000000000001,
+        "stock_price_change": 10.29
+      }
+    ],
+    "quarter_defaults": [
+      {
+        "reporting_quarter": "Q1 2023",
+        "unemployment_rate": 7.875,
+        "inflation_rate": 6.9,
+        "economic_condition_tag": "Recession"
+      },
+      {
+        "reporting_quarter": "Q1 2024",
+        "unemployment_rate": 6.4,
+        "inflation_rate": 5.8,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q1 2025",
+        "unemployment_rate": 5.69,
+        "inflation_rate": 5.2,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q2 2023",
+        "unemployment_rate": 7.6,
+        "inflation_rate": 6.7,
+        "economic_condition_tag": "Recovery"
+      },
+      {
+        "reporting_quarter": "Q2 2024",
+        "unemployment_rate": 6.18,
+        "inflation_rate": 5.7,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q2 2025",
+        "unemployment_rate": 5.56,
+        "inflation_rate": 5.08,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q3 2023",
+        "unemployment_rate": 7.045,
+        "inflation_rate": 6.3,
+        "economic_condition_tag": "Recovery"
+      },
+      {
+        "reporting_quarter": "Q3 2024",
+        "unemployment_rate": 5.85,
+        "inflation_rate": 5.48,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q3 2025",
+        "unemployment_rate": 5.68,
+        "inflation_rate": 5.29,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q4 2023",
+        "unemployment_rate": 6.66,
+        "inflation_rate": 5.99,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q4 2024",
+        "unemployment_rate": 5.76,
+        "inflation_rate": 5.41,
+        "economic_condition_tag": "Stable"
+      },
+      {
+        "reporting_quarter": "Q4 2025",
+        "unemployment_rate": 5.84,
+        "inflation_rate": 5.5,
+        "economic_condition_tag": "Stable"
+      }
+    ]
+  },
+  "aliases": {
+    "company": {
+      "accenture india pvt ltd": "Accenture India Pvt Ltd",
+      "amazon development centre india pvt ltd": "Amazon Development Centre India Pvt Ltd",
+      "amazon india": "Amazon India",
+      "apollo hospitals": "Apollo Hospitals",
+      "apple india": "Apple India",
+      "axis bank": "Axis Bank",
+      "bajaj auto": "Bajaj Auto",
+      "bharti airtel": "Bharti Airtel",
+      "capgemini india": "Capgemini India",
+      "cipla": "Cipla",
+      "coforge": "Coforge",
+      "cognizant india": "Cognizant India",
+      "deloitte india": "Deloitte India",
+      "ey india": "EY India",
+      "facebook india": "Facebook India",
+      "flipkart internet pvt ltd": "Flipkart Internet Pvt Ltd",
+      "fortis healthcare": "Fortis Healthcare",
+      "google india": "Google India",
+      "hcl technologies": "HCL Technologies",
+      "hdfc bank": "HDFC Bank",
+      "ibm india": "IBM India",
+      "icici bank": "ICICI Bank",
+      "infosys": "Infosys",
+      "jio platforms": "Jio Platforms",
+      "ltimindtree": "LTIMindtree",
+      "larsen & toubro": "Larsen & Toubro",
+      "larsen  toubro": "Larsen & Toubro",
+      "mahindra & mahindra": "Mahindra & Mahindra",
+      "mahindra  mahindra": "Mahindra & Mahindra",
+      "meesho": "Meesho",
+      "meta india": "Meta India",
+      "microsoft india": "Microsoft India",
+      "mphasis": "Mphasis",
+      "myntra": "Myntra",
+      "netflix india": "Netflix India",
+      "oracle financial services software ltd.": "Oracle Financial Services Software Ltd.",
+      "oracle financial services software ltd": "Oracle Financial Services Software Ltd.",
+      "paytm": "Paytm",
+      "persistent systems": "Persistent Systems",
+      "pwc india": "PwC India",
+      "razorpay": "Razorpay",
+      "sun pharma": "Sun Pharma",
+      "tata consultancy services (tcs)": "Tata Consultancy Services (TCS)",
+      "tata consultancy services tcs": "Tata Consultancy Services (TCS)",
+      "tata consultancy services": "Tata Consultancy Services (TCS)",
+      "tata motors": "Tata Motors",
+      "tech mahindra ltd.": "Tech Mahindra Ltd.",
+      "tech mahindra ltd": "Tech Mahindra Ltd.",
+      "vodafone idea": "Vodafone Idea",
+      "wipro limited": "Wipro Limited"
+    },
+    "location": {
+      "bangalore": "Bengaluru",
+      "bengaluru": "Bengaluru",
+      "mumbai": "Mumbai",
+      "hyderabad": "Hyderabad",
+      "chennai": "Chennai",
+      "pune": "Pune",
+      "gurgaon": "Gurugram",
+      "gurugram": "Gurugram",
+      "delhi": "Delhi",
+      "new delhi": "Delhi",
+      "kolkata": "Kolkata",
+      "noida": "Noida"
+    },
+    "reporting_quarter": {
+      "q1 2023": "Q1 2023",
+      "q1-2023": "Q1 2023",
+      "q1 2024": "Q1 2024",
+      "q1-2024": "Q1 2024",
+      "q1 2025": "Q1 2025",
+      "q1-2025": "Q1 2025",
+      "q2 2023": "Q2 2023",
+      "q2-2023": "Q2 2023",
+      "q2 2024": "Q2 2024",
+      "q2-2024": "Q2 2024",
+      "q2 2025": "Q2 2025",
+      "q2-2025": "Q2 2025",
+      "q3 2023": "Q3 2023",
+      "q3-2023": "Q3 2023",
+      "q3 2024": "Q3 2024",
+      "q3-2024": "Q3 2024",
+      "q3 2025": "Q3 2025",
+      "q3-2025": "Q3 2025",
+      "q4 2023": "Q4 2023",
+      "q4-2023": "Q4 2023",
+      "q4 2024": "Q4 2024",
+      "q4-2024": "Q4 2024",
+      "q4 2025": "Q4 2025",
+      "q4-2025": "Q4 2025"
+    }
+  }
+}
