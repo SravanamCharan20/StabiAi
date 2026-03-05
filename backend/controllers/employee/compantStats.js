@@ -1,10 +1,18 @@
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const chartCache = new Map();
 const NSE_COOKIE_TTL_MS = 10 * 60 * 1000;
 let nseCookieHeader = '';
 let nseCookieTs = 0;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const NSE_PY_SCRIPT = path.resolve(__dirname, '../../ml/fetch_live_nse_market.py');
+const ENABLE_NSE_PY_FALLBACK = String(process.env.ENABLE_NSE_PYTHON_FALLBACK || '1') !== '0';
 
 const YAHOO_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -279,6 +287,40 @@ async function fetchFromNseApi(symbol) {
       derived_window_estimate: true,
     },
   };
+}
+
+function fetchFromNsePython(symbol) {
+  if (!ENABLE_NSE_PY_FALLBACK) {
+    throw new Error('Python fallback disabled by ENABLE_NSE_PYTHON_FALLBACK=0');
+  }
+  if (!fs.existsSync(NSE_PY_SCRIPT)) {
+    throw new Error(`Python fallback script not found: ${NSE_PY_SCRIPT}`);
+  }
+
+  const upperSymbol = String(symbol || '').trim().toUpperCase();
+  const output = spawnSync('python3', [NSE_PY_SCRIPT, upperSymbol], {
+    encoding: 'utf-8',
+    timeout: 16000,
+  });
+
+  if (output.error) {
+    throw output.error;
+  }
+  if (output.status !== 0) {
+    const stderr = String(output.stderr || '').trim();
+    throw new Error(stderr || 'python NSE fetch failed');
+  }
+
+  const text = String(output.stdout || '').trim();
+  if (!text) {
+    throw new Error('empty output from python NSE fetch');
+  }
+
+  const parsed = JSON.parse(text);
+  if (!parsed?.marketSignals) {
+    throw new Error('python NSE payload missing marketSignals');
+  }
+  return parsed;
 }
 
 async function fetchChart(symbol, range = '6mo', interval = '1d') {
@@ -611,9 +653,13 @@ export const getCompanyStats = async (symbol, options = {}) => {
     if (marketPlan.useNsePythonFallback) {
       try {
         return await fetchFromNseApi(symbol);
-      } catch (nseError) {
+      } catch (nseApiError) {
+        try {
+          return fetchFromNsePython(symbol);
+        } catch (nsePyError) {
         console.error('Live market data fetch error:', error.message);
-        console.error('NSE API fallback error:', nseError.message);
+          console.error('NSE API fallback error:', nseApiError.message);
+          console.error('NSE Python fallback error:', nsePyError.message);
         return {
           stockPriceChange: null,
           employees: null,
@@ -629,6 +675,7 @@ export const getCompanyStats = async (symbol, options = {}) => {
           },
           error: 'Detailed market data temporarily unavailable',
         };
+        }
       }
     }
 

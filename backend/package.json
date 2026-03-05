@@ -7,6 +7,7 @@
     "start": "node index.js",
     "test": "node index.js",
     "dev": "nodemon index.js",
+    "install:py-runtime": "python3 -m pip install -r ml/requirements-runtime.txt",
     "generate:employee-data": "python3 ml/generate_enhanced_dataset.py --rows 12000 --seed 42 --output data/enhanced_synthetic_employee_data.csv",
     "train:employee-model": "python3 ml/train_risk_engine_artifacts.py --input data/enhanced_synthetic_employee_data.csv --output data/employee_risk_artifacts.json",
     "refresh:employee-model": "npm run generate:employee-data && npm run train:employee-model",
