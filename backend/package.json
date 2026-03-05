@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node index.js",
     "test": "node index.js",
     "dev": "nodemon index.js",
     "generate:employee-data": "python3 ml/generate_enhanced_dataset.py --rows 12000 --seed 42 --output data/enhanced_synthetic_employee_data.csv",

@@ -18,9 +18,41 @@ import {
 dotenv.config();
 
 const PORT = process.env.PORT || 9000;
+const rawCorsOrigins = process.env.CORS_ORIGINS || '';
+const allowedCorsOrigins = rawCorsOrigins
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const wildcardToRegExp = (rule) => new RegExp(`^${escapeRegExp(rule).replace(/\\\*/g, '.*')}$`);
+const corsMatchers = allowedCorsOrigins.map((origin) => ({
+  raw: origin,
+  matcher: origin.includes('*') ? wildcardToRegExp(origin) : origin,
+}));
+
+const isOriginAllowed = (origin) => {
+  if (!origin) {
+    return true;
+  }
+  if (!corsMatchers.length) {
+    return true;
+  }
+  return corsMatchers.some(({ matcher }) => (
+    typeof matcher === 'string' ? matcher === origin : matcher.test(origin)
+  ));
+};
+
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Origin not allowed by CORS'));
+  },
+}));
 
 app.get('/', (req, res) => {
   res.send('StabiAI Employee API is running');
