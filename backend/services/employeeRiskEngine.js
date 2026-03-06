@@ -63,6 +63,22 @@ const stackDefaultsByName = new Map();
 
 const averageCategoricalRisk = {};
 
+const SEMANTIC_NUMERIC_DIRECTION = {
+  revenue_growth: -1,
+  profit_margin: -1,
+  stock_price_change: -1,
+  role_demand_index: -1,
+  department_resilience_index: -1,
+  tech_stack_trend_score: -1,
+  years_at_company: -1,
+  performance_rating: -1,
+  employee_stability: -1,
+  industry_layoff_rate: 1,
+  unemployment_rate: 1,
+  inflation_rate: 1,
+  economic_pressure: 1,
+};
+
 function round(value, digits = 4) {
   const scale = 10 ** digits;
   return Math.round(value * scale) / scale;
@@ -165,8 +181,7 @@ function normalizeCategoryFeature(feature, value) {
   const fallback = artifacts.global_defaults.categorical_modes[feature] || 'unknown';
 
   if (feature === 'company_name') {
-    const text = String(value || '').trim();
-    return text || fallback;
+    return normalizeAliasGroup('company', value, fallback);
   }
 
   if (feature === 'company_location') {
@@ -175,6 +190,22 @@ function normalizeCategoryFeature(feature, value) {
 
   if (feature === 'reporting_quarter') {
     return normalizeAliasGroup('reporting_quarter', value, fallback);
+  }
+
+  if (feature === 'job_title') {
+    return normalizeAliasGroup('job_title', value, fallback);
+  }
+
+  if (feature === 'department') {
+    return normalizeAliasGroup('department', value, fallback);
+  }
+
+  if (feature === 'tech_stack') {
+    return normalizeAliasGroup('tech_stack', value, fallback);
+  }
+
+  if (feature === 'remote_work') {
+    return normalizeAliasGroup('remote_work', value, fallback);
   }
 
   const text = String(value || '').trim();
@@ -256,6 +287,10 @@ function normalizeUserInput(employeeInput = {}) {
       5
     ),
   };
+}
+
+export function canonicalizeEmployeeInput(employeeInput = {}) {
+  return normalizeUserInput(employeeInput);
 }
 
 function getCategoryValues(feature) {
@@ -542,7 +577,10 @@ function deriveDirection(feature, value) {
     return riskLevel >= baseline ? 'increases_risk' : 'reduces_risk';
   }
 
-  const direction = Number(artifacts.profiles.numeric_direction[feature] || 0);
+  const semanticDirection = Number(SEMANTIC_NUMERIC_DIRECTION[feature]);
+  const direction = Number.isFinite(semanticDirection)
+    ? semanticDirection
+    : Number(artifacts.profiles.numeric_direction[feature] || 0);
   if (direction === 0) {
     return 'neutral';
   }
@@ -590,7 +628,8 @@ function buildStackSurvivalSnapshot(features) {
 
   const quarter = String(features?.reporting_quarter || '').trim();
   const role = String(features?.job_title || '').trim();
-  const selectedStack = String(features?.tech_stack || '').trim();
+  const selectedStackRaw = String(features?.tech_stack || '').trim();
+  const selectedStack = normalizeCategoryFeature('tech_stack', selectedStackRaw);
   if (!role) {
     return null;
   }
@@ -646,8 +685,19 @@ function buildStackSurvivalSnapshot(features) {
   let currentStackSignal = 'unknown';
   let narrative = 'Stack survival signal is unavailable for this profile.';
   if (selectedProfile) {
-    const topCutoff = Math.max(1, Math.ceil(totalStacks * 0.35));
-    const midCutoff = Math.max(topCutoff + 1, Math.ceil(totalStacks * 0.7));
+    let topCutoff = 1;
+    let midCutoff = 1;
+
+    if (totalStacks <= 2) {
+      topCutoff = 1;
+      midCutoff = 1;
+    } else if (totalStacks <= 4) {
+      topCutoff = 1;
+      midCutoff = 2;
+    } else {
+      topCutoff = Math.max(1, Math.floor(totalStacks * 0.35));
+      midCutoff = Math.max(topCutoff + 1, Math.floor(totalStacks * 0.7));
+    }
 
     if (rank <= topCutoff) {
       currentStackSignal = 'strong';

@@ -106,19 +106,57 @@ def validate_schema(df: pd.DataFrame) -> None:
 
 
 def build_alias_maps(df: pd.DataFrame) -> Dict[str, Dict[str, str]]:
+    def loose(value: str) -> str:
+        cleaned = "".join(ch if (ch.isalnum() or ch.isspace()) else " " for ch in value.lower())
+        return " ".join(cleaned.split())
+
+    def build_value_aliases(values, extra_aliases=None):
+        mapping = {}
+        for item in sorted(values):
+            canonical = str(item).strip()
+            if not canonical:
+                continue
+            lower = canonical.lower()
+            mapping[lower] = canonical
+
+            normalized = loose(canonical)
+            if normalized:
+                mapping[normalized] = canonical
+
+            compact = normalized.replace(" ", "")
+            if compact:
+                mapping[compact] = canonical
+
+            slash_variant = lower.replace("/", " ").replace("&", " and ")
+            slash_normalized = loose(slash_variant)
+            if slash_normalized:
+                mapping[slash_normalized] = canonical
+
+        for key, value in (extra_aliases or {}).items():
+            k = loose(str(key).strip())
+            if k:
+                mapping[k] = value
+            compact_key = k.replace(" ", "")
+            if compact_key:
+                mapping[compact_key] = value
+            mapping[str(key).strip().lower()] = value
+
+        return mapping
+
     company_aliases = {}
     for name in sorted(df["company_name"].dropna().unique()):
         canonical = str(name).strip()
         lower = canonical.lower()
         company_aliases[lower] = canonical
 
-        normalized = "".join(ch for ch in lower if ch.isalnum() or ch.isspace()).strip()
+        normalized = loose(canonical)
         if normalized:
             company_aliases[normalized] = canonical
 
         if "(" in canonical:
             base = canonical.split("(", 1)[0].strip().lower()
             company_aliases[base] = canonical
+            company_aliases[loose(base)] = canonical
 
     location_aliases = {
         "bangalore": "Bengaluru",
@@ -141,11 +179,72 @@ def build_alias_maps(df: pd.DataFrame) -> Dict[str, Dict[str, str]]:
         lower = canonical.lower()
         quarter_aliases[lower] = canonical
         quarter_aliases[lower.replace(" ", "-")] = canonical
+        quarter_aliases[lower.replace(" ", "")] = canonical
+
+    job_title_aliases = build_value_aliases(
+        df["job_title"].dropna().unique(),
+        extra_aliases={
+            "software developer": "Software Engineer",
+            "developer": "Software Engineer",
+            "sdet": "QA Engineer",
+            "qa tester": "QA Engineer",
+            "ml engineer": "Machine Learning Engineer",
+            "machine learning scientist": "Machine Learning Engineer",
+            "sr software engineer": "Senior Software Engineer",
+            "ux designer": "UI/UX Designer",
+            "ui designer": "UI/UX Designer",
+            "customer success": "Customer Success Manager",
+        },
+    )
+
+    department_aliases = build_value_aliases(
+        df["department"].dropna().unique(),
+        extra_aliases={
+            "human resources": "HR",
+            "people operations": "HR",
+            "information technology": "IT",
+            "information systems": "IT",
+            "engineering and development": "Engineering",
+            "product management": "Product",
+            "sales and marketing": "Sales",
+        },
+    )
+
+    tech_stack_aliases = build_value_aliases(
+        df["tech_stack"].dropna().unique(),
+        extra_aliases={
+            "manual testing": "Manual QA + Regression Testing",
+            "manual qa": "Manual QA + Regression Testing",
+            "automation testing": "Selenium + Cypress + API Testing",
+            "selenium testing": "Selenium + Cypress + API Testing",
+            "playwright testing": "Playwright + CI Test Automation",
+            "python mlops": "Python + TensorFlow + MLOps",
+            "llmops": "LLM Ops + Vector DB + Python",
+            "java spring": "Java + Spring Boot",
+            "node react": "Node.js + React",
+            "devops aws kubernetes": "AWS + Terraform + Kubernetes",
+        },
+    )
+
+    remote_work_aliases = {
+        "yes": "Yes",
+        "y": "Yes",
+        "true": "Yes",
+        "1": "Yes",
+        "no": "No",
+        "n": "No",
+        "false": "No",
+        "0": "No",
+    }
 
     return {
         "company": company_aliases,
         "location": location_aliases,
         "reporting_quarter": quarter_aliases,
+        "job_title": job_title_aliases,
+        "department": department_aliases,
+        "tech_stack": tech_stack_aliases,
+        "remote_work": remote_work_aliases,
     }
 
 

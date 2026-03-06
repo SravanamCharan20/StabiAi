@@ -5,7 +5,12 @@ import cors from 'cors';
 import { resolveCompanySymbol } from './controllers/employee/SymbolConvertor.js';
 import { getCompanyStats } from './controllers/employee/compantStats.js';
 import getSuggestions from './controllers/employee/suggestionController.js';
-import { buildAndPredict, getEmployeeInputSpec, getRiskModelMetadata } from './services/employeeRiskEngine.js';
+import {
+  buildAndPredict,
+  canonicalizeEmployeeInput,
+  getEmployeeInputSpec,
+  getRiskModelMetadata,
+} from './services/employeeRiskEngine.js';
 import { evaluateEmployeeModel } from './services/employeeEvaluationService.js';
 import {
   createPredictionHistoryEntry,
@@ -371,29 +376,7 @@ app.post('/api/employee/predict', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Department is required' });
     }
 
-    if (!isAllowedValue('company_name', company_name)) {
-      return res.status(400).json({ success: false, message: 'Select a valid company name from the list' });
-    }
-    if (!isAllowedValue('company_location', company_location)) {
-      return res.status(400).json({ success: false, message: 'Select a valid location from the list' });
-    }
-    if (!isAllowedValue('reporting_quarter', reporting_quarter)) {
-      return res.status(400).json({ success: false, message: 'Select a valid reporting quarter from the list' });
-    }
-    if (!isAllowedValue('job_title', job_title)) {
-      return res.status(400).json({ success: false, message: 'Select a valid job title from the list' });
-    }
-    if (!isAllowedValue('tech_stack', tech_stack)) {
-      return res.status(400).json({ success: false, message: 'Select a valid tech stack from the list' });
-    }
-    if (!isAllowedValue('department', department)) {
-      return res.status(400).json({ success: false, message: 'Select a valid department from the list' });
-    }
-    if (!isAllowedValue('remote_work', remote_work)) {
-      return res.status(400).json({ success: false, message: 'Select valid remote work status (Yes/No)' });
-    }
-
-    const userData = {
+    const canonicalInput = canonicalizeEmployeeInput({
       company_name,
       company_location,
       reporting_quarter,
@@ -401,6 +384,41 @@ app.post('/api/employee/predict', async (req, res) => {
       tech_stack,
       department,
       remote_work,
+      years_at_company,
+      salary_range,
+      performance_rating,
+    });
+
+    if (!isAllowedValue('company_name', canonicalInput.company_name)) {
+      return res.status(400).json({ success: false, message: 'Select a valid company name from the list' });
+    }
+    if (!isAllowedValue('company_location', canonicalInput.company_location)) {
+      return res.status(400).json({ success: false, message: 'Select a valid location from the list' });
+    }
+    if (!isAllowedValue('reporting_quarter', canonicalInput.reporting_quarter)) {
+      return res.status(400).json({ success: false, message: 'Select a valid reporting quarter from the list' });
+    }
+    if (!isAllowedValue('job_title', canonicalInput.job_title)) {
+      return res.status(400).json({ success: false, message: 'Select a valid job title from the list' });
+    }
+    if (!isAllowedValue('tech_stack', canonicalInput.tech_stack)) {
+      return res.status(400).json({ success: false, message: 'Select a valid tech stack from the list' });
+    }
+    if (!isAllowedValue('department', canonicalInput.department)) {
+      return res.status(400).json({ success: false, message: 'Select a valid department from the list' });
+    }
+    if (!isAllowedValue('remote_work', canonicalInput.remote_work)) {
+      return res.status(400).json({ success: false, message: 'Select valid remote work status (Yes/No)' });
+    }
+
+    const userData = {
+      company_name: canonicalInput.company_name,
+      company_location: canonicalInput.company_location,
+      reporting_quarter: canonicalInput.reporting_quarter,
+      job_title: canonicalInput.job_title,
+      tech_stack: canonicalInput.tech_stack,
+      department: canonicalInput.department,
+      remote_work: canonicalInput.remote_work,
       years_at_company,
       salary_range,
       performance_rating,
