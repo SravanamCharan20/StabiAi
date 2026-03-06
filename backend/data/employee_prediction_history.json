@@ -640,5 +640,1313 @@
         "updated_at_utc": "2026-03-05T13:21:30.817Z"
       }
     ]
+  },
+  {
+    "run_id": "fab9246e-b457-455a-9b7b-bbb61580e8e4",
+    "created_at_utc": "2026-03-06T11:08:51.547Z",
+    "updated_at_utc": "2026-03-06T11:08:51.547Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Agile + Jira + Architecture Reviews",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Agile + Jira + Architecture Reviews",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Agile + Jira + Architecture Reviews",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 8.72,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 6.805,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.5738,
+      "risk_score": 35.61,
+      "probabilities": {
+        "Low": 0.2884,
+        "Medium": 0.711,
+        "High": 0.0006
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 8.72,
+          "impact": 1.0084,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 0.562,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.523,
+          "impact": 0.469,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 0.4604,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Agile + Jira + Architecture Reviews",
+          "impact": 0.3107,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: Agile + Jira + Architecture Reviews."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.805,
+          "impact": 0.247,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 0.02 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Cloud Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "Agile + Jira + Architecture Reviews",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "AWS + Terraform + Kubernetes",
+          "sample_size": 13,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.486
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        },
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.7208,
+      "model_confidence": 0.5738,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction quality is acceptable for trend-level decisions.",
+      "checked_at_utc": "2026-03-06T11:08:51.547Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:08:51.548Z"
+      }
+    ]
+  },
+  {
+    "run_id": "41d5fb7a-d002-40b3-bb61-538930356864",
+    "created_at_utc": "2026-03-06T11:11:04.054Z",
+    "updated_at_utc": "2026-03-06T11:11:04.054Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 8.72,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 6.88,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.45,
+      "risk_score": 27.48,
+      "probabilities": {
+        "Low": 0.4505,
+        "Medium": 0.5493,
+        "High": 0.0002
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 8.72,
+          "impact": 1.0084,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 0.562,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.523,
+          "impact": 0.469,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 0.4604,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Node.js + React",
+          "impact": 0.3618,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: Node.js + React."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.88,
+          "impact": 0.229,
+          "direction": "reduces_risk",
+          "reason": "Tech Stack Trend Score is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Cloud Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "Node.js + React",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "AWS + Terraform + Kubernetes",
+          "sample_size": 13,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.486
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        },
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.649,
+      "model_confidence": 0.45,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Model confidence is moderate. Use this result as a directional signal and validate with role-specific context.",
+      "checked_at_utc": "2026-03-06T11:11:04.053Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:11:04.055Z"
+      }
+    ]
+  },
+  {
+    "run_id": "f3ae4fc8-a966-4ca8-88aa-f19869f68253",
+    "created_at_utc": "2026-03-06T11:11:39.086Z",
+    "updated_at_utc": "2026-03-06T11:11:39.086Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Node.js + React",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 8.72,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 6.88,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.45,
+      "risk_score": 27.48,
+      "probabilities": {
+        "Low": 0.4505,
+        "Medium": 0.5493,
+        "High": 0.0002
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 8.72,
+          "impact": 1.0084,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 0.562,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.523,
+          "impact": 0.469,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 0.4604,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Node.js + React",
+          "impact": 0.3618,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: Node.js + React."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.88,
+          "impact": 0.229,
+          "direction": "reduces_risk",
+          "reason": "Tech Stack Trend Score is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Cloud Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "Node.js + React",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "AWS + Terraform + Kubernetes",
+          "sample_size": 13,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.486
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        },
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.649,
+      "model_confidence": 0.45,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Model confidence is moderate. Use this result as a directional signal and validate with role-specific context.",
+      "checked_at_utc": "2026-03-06T11:11:39.086Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:11:39.087Z"
+      }
+    ]
+  },
+  {
+    "run_id": "2df79ddc-fc55-450f-9f96-9d215e3a60f1",
+    "created_at_utc": "2026-03-06T11:11:56.607Z",
+    "updated_at_utc": "2026-03-06T11:11:56.607Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 8.72,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 8.345,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Low",
+      "confidence": 0.7529,
+      "risk_score": 6.86,
+      "probabilities": {
+        "Low": 0.8628,
+        "Medium": 0.1371,
+        "High": 0
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 8.72,
+          "impact": 3.3132,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "job_title",
+          "label": "Job Title",
+          "value": "Cloud Engineer",
+          "impact": 2.1425,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Job Title: Cloud Engineer."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "AWS + Terraform + Kubernetes",
+          "impact": 2.1152,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: AWS + Terraform + Kubernetes."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 2.0069,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 2.0052,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 8.345,
+          "impact": 1.9905,
+          "direction": "reduces_risk",
+          "reason": "Tech Stack Trend Score is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Cloud Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "AWS + Terraform + Kubernetes",
+      "current_stack_rank": 1,
+      "current_stack_signal": "strong",
+      "current_stack_low_risk_share": 1,
+      "current_stack_avg_layoff_rate": 0.486,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "AWS + Terraform + Kubernetes",
+          "sample_size": 13,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.486
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        },
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        }
+      ],
+      "narrative": "AWS + Terraform + Kubernetes is currently in the stronger resilience tier for Cloud Engineer."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.8247,
+      "model_confidence": 0.7529,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-06T11:11:56.606Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:11:56.607Z"
+      }
+    ]
+  },
+  {
+    "run_id": "b23a11ee-2d50-4cb4-b8ab-64de95e61131",
+    "created_at_utc": "2026-03-06T11:12:20.209Z",
+    "updated_at_utc": "2026-03-06T11:12:20.209Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Cloud Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 8.72,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 6.63,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.7616,
+      "risk_score": 43.66,
+      "probabilities": {
+        "Low": 0.1282,
+        "Medium": 0.8705,
+        "High": 0.0013
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 8.72,
+          "impact": 1.0084,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 0.562,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Selenium + Cypress + API Testing",
+          "impact": 0.4829,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Tech Stack: Selenium + Cypress + API Testing."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.523,
+          "impact": 0.469,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 0.4604,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.63,
+          "impact": 0.2914,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 0.19 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Cloud Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "Selenium + Cypress + API Testing",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "AWS + Terraform + Kubernetes",
+          "sample_size": 13,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.486
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        },
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "GCP + Docker + Networking",
+          "sample_size": 14,
+          "low_risk_share": 0.9286,
+          "high_risk_share": 0.0714,
+          "avg_role_layoff_rate": 0.964
+        },
+        {
+          "tech_stack": "Azure + DevOps + IaC",
+          "sample_size": 11,
+          "low_risk_share": 1,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 0.715
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.8297,
+      "model_confidence": 0.7616,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-06T11:12:20.209Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:12:20.210Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:12:20.210Z"
+      }
+    ]
+  },
+  {
+    "run_id": "0b0275f1-6626-4793-8170-e255b2c8834f",
+    "created_at_utc": "2026-03-06T11:12:47.421Z",
+    "updated_at_utc": "2026-03-06T11:12:47.421Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Delhi",
+      "reporting_quarter": "Q1 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "QA Engineer",
+      "tech_stack": "Selenium + Cypress + API Testing",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.9,
+      "profit_margin": 6.97,
+      "stock_price_change": 94.087,
+      "total_employees": 119737,
+      "role_demand_index": 6.13,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 6.63,
+      "years_at_company": 4,
+      "salary_range": 1100000,
+      "performance_rating": 3,
+      "industry_layoff_rate": 2.523,
+      "unemployment_rate": 6.371,
+      "inflation_rate": 5.147,
+      "employee_stability": 12,
+      "economic_pressure": 7.618
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.4671,
+      "risk_score": 70.19,
+      "probabilities": {
+        "Low": 0.0003,
+        "Medium": 0.5956,
+        "High": 0.4041
+      },
+      "top_factors": [
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 6.13,
+          "impact": 0.7082,
+          "direction": "increases_risk",
+          "reason": "Role Demand Index is 1.27 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.97,
+          "impact": 0.562,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.35 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Selenium + Cypress + API Testing",
+          "impact": 0.4829,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Tech Stack: Selenium + Cypress + API Testing."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.523,
+          "impact": 0.469,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": 94.087,
+          "impact": 0.4604,
+          "direction": "reduces_risk",
+          "reason": "Stock Price Change is currently in a risk-reducing range."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.63,
+          "impact": 0.2914,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 0.19 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Prioritize projects tied to current hiring demand in your role track.",
+        "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter."
+      ],
+      "model_version": "2026-03-06T07:46:44.770171+00:00"
+    },
+    "stack_survival": {
+      "scope": "For QA Engineer in Q1 2025",
+      "compared_stacks": 3,
+      "current_stack": "Selenium + Cypress + API Testing",
+      "current_stack_rank": 1,
+      "current_stack_signal": "strong",
+      "current_stack_low_risk_share": 0.5455,
+      "current_stack_avg_layoff_rate": 1.884,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Selenium + Cypress + API Testing",
+          "sample_size": 22,
+          "low_risk_share": 0.5455,
+          "high_risk_share": 0.0909,
+          "avg_role_layoff_rate": 1.884
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 17,
+          "low_risk_share": 0.4118,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.622
+        },
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 18,
+          "low_risk_share": 0.1667,
+          "high_risk_share": 0.5556,
+          "avg_role_layoff_rate": 2.737
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 18,
+          "low_risk_share": 0.1667,
+          "high_risk_share": 0.5556,
+          "avg_role_layoff_rate": 2.737
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 17,
+          "low_risk_share": 0.4118,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.622
+        }
+      ],
+      "narrative": "Selenium + Cypress + API Testing is currently in the stronger resilience tier for QA Engineer."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4044,
+      "company_return_90d": -5.501,
+      "market_return_90d": 5.519,
+      "relative_return_90d": -11.02,
+      "company_volatility_90d": 1.9686,
+      "market_volatility_90d": 1.0055,
+      "india_vix": 31.37,
+      "company_last_price": 218.86,
+      "company_previous_close": 216.82,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 608.93,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.6589,
+      "model_confidence": 0.4671,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Model confidence is moderate. Use this result as a directional signal and validate with role-specific context.",
+      "checked_at_utc": "2026-03-06T11:12:47.421Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Prioritize projects tied to current hiring demand in your role track.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:12:47.421Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:12:47.421Z"
+      },
+      {
+        "id": "tip-3",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-06T11:12:47.421Z"
+      }
+    ]
   }
 ]

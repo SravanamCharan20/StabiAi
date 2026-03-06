@@ -19,10 +19,20 @@ dotenv.config();
 
 const PORT = process.env.PORT || 9000;
 const rawCorsOrigins = process.env.CORS_ORIGINS || '';
-const allowedCorsOrigins = rawCorsOrigins
+const DEFAULT_CORS_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://localhost:3000',
+  'https://stabi-ai.vercel.app',
+  'https://*.vercel.app',
+];
+const allowedCorsOrigins = [...new Set([
+  ...DEFAULT_CORS_ORIGINS,
+  ...rawCorsOrigins
   .split(',')
   .map((origin) => origin.trim())
-  .filter(Boolean);
+  .filter(Boolean),
+])];
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const wildcardToRegExp = (rule) => new RegExp(`^${escapeRegExp(rule).replace(/\\\*/g, '.*')}$`);
@@ -47,12 +57,23 @@ const app = express();
 app.use(express.json());
 app.use(cors({
   origin: (origin, callback) => {
-    if (isOriginAllowed(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Origin not allowed by CORS'));
+    return callback(null, isOriginAllowed(origin));
   },
 }));
+
+const getSpecOptions = (fieldName) => {
+  const spec = getEmployeeInputSpec();
+  const options = spec?.fields?.[fieldName]?.options;
+  return Array.isArray(options) ? options : [];
+};
+
+const isAllowedValue = (fieldName, value) => {
+  const options = getSpecOptions(fieldName);
+  if (!options.length) {
+    return true;
+  }
+  return options.includes(value);
+};
 
 app.get('/', (req, res) => {
   res.send('StabiAI Employee API is running');
@@ -231,7 +252,7 @@ const assessPredictionReliability = (prediction = {}, marketSignals = null) => {
   let message = 'Prediction quality is acceptable for trend-level decisions.';
   if (usingFallbackDefaults) {
     gate = 'warning';
-    message = 'Live market data is unavailable. Prediction used fallback market defaults, so treat this result as directional only.';
+    message = 'Live market feed is temporarily unavailable. Core role, tech-stack, and department signals are active; market context is estimated.';
   } else if (score >= 0.72 && confidence >= 0.6) {
     gate = 'high';
     message = mappingType === 'market_equivalent'
@@ -315,6 +336,7 @@ const toHistoryResponseEntry = (entry = {}) => ({
   normalized_input: entry.normalized_input || {},
   feature_vector: entry.feature_vector || {},
   prediction: entry.prediction || {},
+  stack_survival: entry.stack_survival || null,
   market_signals: entry.market_signals || null,
   reliability: entry.reliability || {},
   review: entry.review || null,
@@ -328,6 +350,7 @@ app.post('/api/employee/predict', async (req, res) => {
       company_location,
       reporting_quarter,
       job_title,
+      tech_stack,
       department,
       remote_work,
       years_at_company,
@@ -338,12 +361,44 @@ app.post('/api/employee/predict', async (req, res) => {
     if (!company_name) {
       return res.status(400).json({ success: false, message: 'Company name is required' });
     }
+    if (!job_title) {
+      return res.status(400).json({ success: false, message: 'Job title is required' });
+    }
+    if (!tech_stack) {
+      return res.status(400).json({ success: false, message: 'Tech stack is required' });
+    }
+    if (!department) {
+      return res.status(400).json({ success: false, message: 'Department is required' });
+    }
+
+    if (!isAllowedValue('company_name', company_name)) {
+      return res.status(400).json({ success: false, message: 'Select a valid company name from the list' });
+    }
+    if (!isAllowedValue('company_location', company_location)) {
+      return res.status(400).json({ success: false, message: 'Select a valid location from the list' });
+    }
+    if (!isAllowedValue('reporting_quarter', reporting_quarter)) {
+      return res.status(400).json({ success: false, message: 'Select a valid reporting quarter from the list' });
+    }
+    if (!isAllowedValue('job_title', job_title)) {
+      return res.status(400).json({ success: false, message: 'Select a valid job title from the list' });
+    }
+    if (!isAllowedValue('tech_stack', tech_stack)) {
+      return res.status(400).json({ success: false, message: 'Select a valid tech stack from the list' });
+    }
+    if (!isAllowedValue('department', department)) {
+      return res.status(400).json({ success: false, message: 'Select a valid department from the list' });
+    }
+    if (!isAllowedValue('remote_work', remote_work)) {
+      return res.status(400).json({ success: false, message: 'Select valid remote work status (Yes/No)' });
+    }
 
     const userData = {
       company_name,
       company_location,
       reporting_quarter,
       job_title,
+      tech_stack,
       department,
       remote_work,
       years_at_company,
@@ -397,6 +452,7 @@ app.post('/api/employee/predict', async (req, res) => {
         normalized_input: modelResult.normalized_input,
         feature_vector: modelResult.features,
         prediction: modelResult.prediction,
+        stack_survival: modelResult.stack_survival || null,
         market_signals: marketContext.market_signals || null,
         reliability,
         action_tracker: buildDefaultActionTracker(modelResult.prediction),
@@ -412,6 +468,7 @@ app.post('/api/employee/predict', async (req, res) => {
       normalized_input: modelResult.normalized_input,
       data: modelResult.features,
       prediction: modelResult.prediction,
+      stack_survival: modelResult.stack_survival || null,
       market_signals: marketContext.market_signals || null,
       reliability,
       history_entry: historyEntry ? toHistoryResponseEntry(historyEntry) : null,
@@ -468,6 +525,7 @@ app.post('/api/employee/what-if', (req, res) => {
         normalized_input: scenarioResult.normalized_input,
         data: scenarioResult.features,
         prediction: scenarioResult.prediction,
+        stack_survival: scenarioResult.stack_survival || null,
         market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
       },
       delta: {

@@ -117,6 +117,66 @@ const FALLBACK_DEPARTMENT_OPTIONS = [
   "Management",
 ];
 
+const FALLBACK_TECH_STACK_OPTIONS = [
+  ".NET + Azure",
+  "ATS + LinkedIn Recruiter",
+  "AWS + Incident Response",
+  "AWS + Terraform + Kubernetes",
+  "Agile + Jira + Architecture Reviews",
+  "Agile + Jira + Stakeholder Management",
+  "Application Support + Monitoring",
+  "CRM + Customer Analytics",
+  "CRM + Sales Analytics",
+  "Cloud Architecture + Microservices",
+  "Cloud Delivery + Program Governance",
+  "Cloud Security + IAM + Zero Trust",
+  "Data Modeling + Power BI + Requirements",
+  "Docker + Kubernetes + AWS",
+  "Excel + Power BI + SQL",
+  "Excel + SQL + Reporting",
+  "Enterprise Integration + API Design",
+  "Figma + Design Systems",
+  "GCP + Docker + Networking",
+  "HRMS + Excel + Analytics",
+  "ITSM + Linux + SQL",
+  "Java + Spring Boot",
+  "Kubernetes + AWS",
+  "Kubernetes + SRE + Observability",
+  "LLM Ops + Vector DB + Python",
+  "Linux + Ansible + Observability",
+  "Linux + Prometheus + Grafana",
+  "Manual QA + Regression Testing",
+  "Node.js + Microservices",
+  "Node.js + React",
+  "People Analytics + HR Operations",
+  "Pipeline Automation + Prospecting Tools",
+  "Playwright + CI Test Automation",
+  "Product Analytics + SQL + A/B Testing",
+  "Program Planning + Risk Tracking",
+  "PySpark + MLflow + Python",
+  "PyTorch + Kubernetes + MLflow",
+  "Python + Django",
+  "Python + FastAPI",
+  "Python + ML + SQL",
+  "Python + NLP + Statistics",
+  "Python + TensorFlow + MLOps",
+  "Roadmapping + Jira + Experimentation",
+  "SAP + Financial Modeling",
+  "SAP Finance + Compliance",
+  "SIEM + SOC + Threat Hunting",
+  "SQL + Excel + Process Mapping",
+  "SQL + Power BI + Excel",
+  "SQL + Tableau + Python",
+  "SaaS Onboarding + QBR Playbooks",
+  "Selenium + Cypress + API Testing",
+  "Sourcing Automation + Talent Analytics",
+  "Tally + Excel + GST",
+  "Terraform + CI/CD + GCP",
+  "Ticketing + Debugging + Scripting",
+  "UX Research + Prototyping",
+  "VAPT + Incident Response",
+];
+
 const RISK_TONE = {
   low: {
     badge: "bg-emerald-100/70 text-emerald-800",
@@ -332,6 +392,9 @@ const formatFeatureValue = (key, value) => {
     ) {
       return `${Number(value).toFixed(2)}%`;
     }
+    if (["role_demand_index", "department_resilience_index", "tech_stack_trend_score"].includes(key)) {
+      return `${Number(value).toFixed(2)} / 10`;
+    }
     return Number(value).toLocaleString("en-IN");
   }
   return String(value);
@@ -414,25 +477,55 @@ const getContextualFactorReason = (factor, predictionData) => {
         ? `Your sector is in a tighter layoff cycle, so baseline risk is higher.${volatilityContext}`
         : `Your sector is currently more stable, which helps contain baseline risk.${volatilityContext}`;
       break;
+    case "role_demand_index":
+      return isRiskUp
+        ? "Current hiring demand for this job title is weaker than safer ranges, which increases exposure."
+        : "Current hiring demand for this job title is healthy, which improves survivability.";
+      break;
+    case "department_resilience_index":
+      return isRiskUp
+        ? "This department is currently under stronger cost or restructuring pressure."
+        : "This department is relatively resilient in the current operating cycle.";
+      break;
+    case "tech_stack_trend_score":
+      return isRiskUp
+        ? "Your stack appears less aligned with current AI/cloud demand, which can increase role risk."
+        : "Your stack aligns with current AI/cloud demand, which lowers role risk.";
+      break;
     case "revenue_growth":
       return isRiskUp
-        ? `Business growth momentum appears softer, which can increase cost and headcount pressure.${relativeContext}`
-        : `Business growth momentum is supportive, which improves role stability.${relativeContext}`;
+        ? `Business momentum is softer, which adds organizational pressure.${relativeContext}`
+        : `Business momentum is supportive and helps overall stability.${relativeContext}`;
       break;
     case "profit_margin":
       return isRiskUp
-        ? `Profit cushion looks constrained, so teams may face tighter efficiency expectations.${volatilityContext}`
-        : `Profit cushion looks healthy, which gives more room to protect roles.${volatilityContext}`;
+        ? `Profit cushion is constrained, which can tighten team budgets.${volatilityContext}`
+        : `Profit cushion is healthier, giving more room to protect roles.${volatilityContext}`;
       break;
     case "stock_price_change":
       return isRiskUp
-        ? `Market performance is weaker than ideal, which often leads to stricter cost control.${volatilityContext}`
-        : `Market performance is relatively supportive, which helps reduce near-term pressure.${volatilityContext}`;
+        ? `Market signal is weak, which is a secondary pressure indicator.${volatilityContext}`
+        : `Market signal is supportive, but role-skill fit remains the primary driver.${volatilityContext}`;
       break;
     case "performance_rating":
       return isRiskUp
         ? "Current performance signal is below the safer range for this role context."
         : "Current performance signal is a strong protective factor.";
+      break;
+    case "job_title":
+      return isRiskUp
+        ? "This job title is currently in a tighter demand band compared with safer role clusters."
+        : "This job title sits in a stronger demand band, supporting role continuity.";
+      break;
+    case "tech_stack":
+      return isRiskUp
+        ? "Current stack appears less aligned with the strongest hiring demand for this role segment."
+        : "Current stack aligns well with resilient and in-demand capability clusters.";
+      break;
+    case "department":
+      return isRiskUp
+        ? "Department-level pressure is elevated, so this role faces more review sensitivity."
+        : "Department context is relatively stable, which helps reduce disruption risk.";
       break;
     case "years_at_company":
       return isRiskUp
@@ -473,6 +566,7 @@ const buildRiskStory = (predictionData) => {
   const prediction = predictionData?.prediction || {};
   const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors : [];
   const marketSignals = predictionData?.market_signals || {};
+  const stackSurvival = predictionData?.stack_survival || {};
 
   const risk = String(prediction.layoff_risk || "Unknown").toLowerCase();
   const riskUp = topFactors.filter((factor) => factor.direction === "increases_risk").slice(0, 3);
@@ -489,9 +583,9 @@ const buildRiskStory = (predictionData) => {
         : "Market stress is relatively contained.";
 
   const summaryByRisk = {
-    high: "Your profile is currently in a high-risk zone because pressure factors are stronger than protective factors.",
-    medium: "Your profile is in a balanced risk zone, with both pressure factors and protective factors active.",
-    low: "Your profile is currently in a lower-risk zone because protective factors are stronger than pressure factors.",
+    high: "Your profile is currently in a high-risk zone due to weaker role-demand and skill-alignment signals.",
+    medium: "Your profile is in a balanced zone: skill/role strengths are present, but pressure signals still matter.",
+    low: "Your profile is currently in a lower-risk zone with stronger role-demand and stack-alignment signals.",
     unknown: "The model could not determine a clear risk posture from current inputs.",
   };
 
@@ -517,7 +611,8 @@ const buildRiskStory = (predictionData) => {
 
   return {
     summary: summaryByRisk[risk] || summaryByRisk.unknown,
-    marketLine: `Market context is ${marketRegime}. ${stressText}`,
+    marketLine: `Market context is ${marketRegime}. ${stressText} This is a contextual signal, not the primary decision basis.`,
+    stackLine: String(stackSurvival?.narrative || "").trim(),
     pressureSignals,
     protectionSignals,
     overall,
@@ -546,6 +641,30 @@ const buildStabilizationPlan = (predictionData) => {
       title: "Prepare internal mobility options",
       detail: "Identify 2 adjacent roles inside the company and start conversations with those teams this month.",
     },
+    role_demand_index: {
+      title: "Align output to high-demand role expectations",
+      detail: "Prioritize responsibilities tied to currently expanding workstreams in your role family.",
+    },
+    department_resilience_index: {
+      title: "Increase department-critical contribution",
+      detail: "Own one initiative linked to business continuity or efficiency in your department.",
+    },
+    tech_stack_trend_score: {
+      title: "Upgrade toward AI/cloud-relevant stack",
+      detail: "Replace one legacy tool with an in-demand AI/cloud workflow over the next 30 days.",
+    },
+    tech_stack: {
+      title: "Modernize stack exposure with practical projects",
+      detail: "Ship one project artifact using a higher-demand stack to prove readiness and mobility.",
+    },
+    job_title: {
+      title: "Build adjacent-role readiness",
+      detail: "Prepare skills and outcomes that make transition to a higher-demand title feasible.",
+    },
+    department: {
+      title: "Expand cross-department visibility",
+      detail: "Partner with one more resilient function to reduce concentration risk in current department.",
+    },
     revenue_growth: {
       title: "Anchor your work to revenue outcomes",
       detail: "Prioritize tasks that improve customer retention, delivery speed, or conversion metrics.",
@@ -555,8 +674,8 @@ const buildStabilizationPlan = (predictionData) => {
       detail: "Take ownership of one cost-saving or automation improvement with measurable business impact.",
     },
     stock_price_change: {
-      title: "Build resilience to market pressure",
-      detail: "Reduce single-team dependency by building reusable skills across current and adjacent responsibilities.",
+      title: "Use market pressure as a secondary caution signal",
+      detail: "Treat market movement as context, but prioritize stack and role-demand actions first.",
     },
   };
 
@@ -1000,6 +1119,15 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
   const reasonForFactor = (factor) => getContextualFactorReason(factor, predictionData);
   const riskStory = buildRiskStory(predictionData);
   const stabilizationPlan = buildStabilizationPlan(predictionData);
+  const stackSurvival = predictionData?.stack_survival || null;
+  const stackSignal = String(stackSurvival?.current_stack_signal || "unknown").toLowerCase();
+  const stackSignalTone = stackSignal === "strong"
+    ? "border-emerald-200 bg-emerald-50/40 text-emerald-800"
+    : stackSignal === "moderate"
+      ? "border-amber-200 bg-amber-50/40 text-amber-800"
+      : stackSignal === "weak"
+        ? "border-rose-200 bg-rose-50/40 text-rose-800"
+        : "border-slate-200 bg-slate-50 text-slate-700";
 
   return (
     <div className="space-y-4">
@@ -1022,6 +1150,7 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
             <p className="mt-1 text-base font-semibold text-slate-900">{riskHeadline}</p>
             <p className="mt-2 text-sm text-slate-700">{riskStory.summary}</p>
             <p className="mt-1 text-sm text-slate-700">{riskStory.marketLine}</p>
+            {riskStory.stackLine ? <p className="mt-1 text-sm text-slate-700">{riskStory.stackLine}</p> : null}
             <div className="mt-3">
               <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <span>Risk Index</span>
@@ -1069,8 +1198,46 @@ const ResultPanel = ({ predictionData, inputQuality }) => {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">In Simple Terms</p>
               <p className="mt-1 text-sm font-medium text-slate-900">{riskStory.summary}</p>
               <p className="mt-1 text-sm text-slate-700">{riskStory.marketLine}</p>
+              {riskStory.stackLine ? <p className="mt-1 text-sm text-slate-700">{riskStory.stackLine}</p> : null}
               <p className="mt-1 text-sm text-slate-700">{riskStory.overall}</p>
             </div>
+            {stackSurvival ? (
+              <div className={`rounded-xl border p-3 ${stackSignalTone}`}>
+                <p className="text-xs font-semibold uppercase tracking-wide">Current Stack Survival Snapshot</p>
+                <p className="mt-1 text-sm font-semibold">
+                  {stackSurvival.scope}
+                </p>
+                <p className="mt-1 text-sm">{stackSurvival.narrative}</p>
+                <p className="mt-2 text-xs">
+                  Current stack rank: {stackSurvival.current_stack_rank || "N/A"} / {stackSurvival.compared_stacks || "N/A"}
+                  {stackSurvival.current_stack_low_risk_share != null
+                    ? ` | Low-risk share: ${(Number(stackSurvival.current_stack_low_risk_share) * 100).toFixed(1)}%`
+                    : ""}
+                </p>
+                <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-lg border border-white/70 bg-white/80 p-2.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">Most Resilient Stacks</p>
+                    <div className="mt-1.5 space-y-1.5 text-sm text-slate-800">
+                      {(stackSurvival.top_resilient_stacks || []).map((item, idx) => (
+                        <p key={`top-stack-${item.tech_stack}-${idx}`}>
+                          {idx + 1}. {item.tech_stack} ({(Number(item.low_risk_share || 0) * 100).toFixed(1)}% low-risk)
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-white/70 bg-white/80 p-2.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">Stacks Under Pressure</p>
+                    <div className="mt-1.5 space-y-1.5 text-sm text-slate-800">
+                      {(stackSurvival.watchlist_stacks || []).map((item, idx) => (
+                        <p key={`risk-stack-${item.tech_stack}-${idx}`}>
+                          {idx + 1}. {item.tech_stack} ({(Number(item.low_risk_share || 0) * 100).toFixed(1)}% low-risk)
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             <div className="grid gap-3 lg:grid-cols-2">
               <div className="rounded-xl border border-rose-200 bg-rose-50/40 p-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">Pressures</p>
@@ -1636,6 +1803,7 @@ const EmployeePred = () => {
     company_location: "",
     reporting_quarter: "",
     job_title: "",
+    tech_stack: "",
     department: "",
     remote_work: "",
     years_at_company: "",
@@ -1697,6 +1865,7 @@ const EmployeePred = () => {
       locations: fields.company_location?.options || FALLBACK_LOCATION_OPTIONS,
       quarters: fields.reporting_quarter?.options || FALLBACK_QUARTER_OPTIONS,
       jobs: fields.job_title?.options || FALLBACK_JOB_OPTIONS,
+      techStacks: fields.tech_stack?.options || FALLBACK_TECH_STACK_OPTIONS,
       departments: fields.department?.options || FALLBACK_DEPARTMENT_OPTIONS,
       remote: fields.remote_work?.options || ["Yes", "No"],
       yearsMax: Number(fields.years_at_company?.max || 18),
@@ -1709,12 +1878,18 @@ const EmployeePred = () => {
 
   useEffect(() => {
     setFormData((prev) => {
-      if (!prev.company_name || options.companies.includes(prev.company_name)) {
+      const companyValid = !prev.company_name || options.companies.includes(prev.company_name);
+      const techValid = !prev.tech_stack || options.techStacks.includes(prev.tech_stack);
+      if (companyValid && techValid) {
         return prev;
       }
-      return { ...prev, company_name: "" };
+      return {
+        ...prev,
+        company_name: companyValid ? prev.company_name : "",
+        tech_stack: techValid ? prev.tech_stack : "",
+      };
     });
-  }, [options.companies]);
+  }, [options.companies, options.techStacks]);
 
   const annualSalaryInr = useMemo(
     () => toAnnualInr(formData.salary_range, salaryUnit),
@@ -1733,6 +1908,11 @@ const EmployeePred = () => {
     if (!formData.job_title || !options.jobs.includes(formData.job_title)) {
       score -= 15;
       warnings.push("Use the exact job title from available options.");
+    }
+
+    if (!formData.tech_stack || !options.techStacks.includes(formData.tech_stack)) {
+      score -= 12;
+      warnings.push("Select the primary tech stack used in your current role.");
     }
 
     const years = Number(formData.years_at_company);
@@ -1817,6 +1997,12 @@ const EmployeePred = () => {
       errors.job_title = requiredText;
     } else if (!options.jobs.includes(data.job_title)) {
       errors.job_title = "Select a valid job title from the list.";
+    }
+
+    if (!String(data.tech_stack || "").trim()) {
+      errors.tech_stack = requiredText;
+    } else if (!options.techStacks.includes(data.tech_stack)) {
+      errors.tech_stack = "Select a valid tech stack from the list.";
     }
 
     if (!String(data.department || "").trim()) {
@@ -2180,6 +2366,7 @@ const EmployeePred = () => {
       company_location: profile.company_location || "",
       reporting_quarter: profile.reporting_quarter || "",
       job_title: profile.job_title || "",
+      tech_stack: profile.tech_stack || "",
       department: profile.department || "",
       remote_work: profile.remote_work || "",
       years_at_company: profile.years_at_company != null ? String(profile.years_at_company) : "",
@@ -2199,6 +2386,7 @@ const EmployeePred = () => {
       normalized_input: entry.normalized_input || {},
       data: entry.feature_vector || {},
       prediction: entry.prediction || {},
+      stack_survival: entry.stack_survival || null,
       market_signals: entry.market_signals || null,
       reliability: entry.reliability || {},
     });
@@ -2263,6 +2451,7 @@ const EmployeePred = () => {
       addTextBlock("Why This Risk Score", 12, "bold", 14);
       addTextBlock(riskStory.summary, 11, "normal", 14);
       addTextBlock(riskStory.marketLine, 11, "normal", 14);
+      addTextBlock(riskStory.stackLine, 11, "normal", 14);
       addTextBlock(riskStory.overall, 11, "normal", 14);
       y += 4;
       addTextBlock("Top Pressure Signals", 12, "bold", 14);
@@ -2389,6 +2578,15 @@ const EmployeePred = () => {
                     onChange={handleChange}
                     options={options.jobs}
                     error={fieldErrors.job_title}
+                  />
+                  <Field
+                    icon={HiOutlineBriefcase}
+                    label="Primary Tech Stack"
+                    name="tech_stack"
+                    value={formData.tech_stack}
+                    onChange={handleChange}
+                    options={options.techStacks}
+                    error={fieldErrors.tech_stack}
                   />
                   <Field
                     icon={HiOutlineUserGroup}

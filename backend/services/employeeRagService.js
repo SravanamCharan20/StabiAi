@@ -45,6 +45,7 @@ function addTag(tags, value) {
 function buildQueryContext(userData, predictionData) {
   const prediction = predictionData?.prediction || {};
   const marketSignals = predictionData?.market_signals || {};
+  const stackSurvival = predictionData?.stack_survival || {};
   const factors = Array.isArray(prediction.top_factors) ? prediction.top_factors : [];
 
   const tags = [];
@@ -53,6 +54,9 @@ function buildQueryContext(userData, predictionData) {
   addTag(tags, prediction.layoff_risk);
   addTag(tags, userData.department);
   addTag(tags, userData.job_title);
+  addTag(tags, userData.tech_stack);
+  addTag(tags, stackSurvival.current_stack_signal);
+  addTag(tags, stackSurvival.scope);
 
   if (String(userData.remote_work || '').toLowerCase() === 'yes') {
     tags.push('remote');
@@ -93,7 +97,9 @@ function buildQueryContext(userData, predictionData) {
   }
 
   tokens.push(...tokenize(userData.job_title));
+  tokens.push(...tokenize(userData.tech_stack));
   tokens.push(...tokenize(userData.department));
+  tokens.push(...tokenize(stackSurvival.narrative));
   tokens.push(...tokenize(userData.company_name));
   tokens.push(...tokenize(userData.company_location));
 

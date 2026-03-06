@@ -20,6 +20,7 @@ CATEGORICAL_FEATURES = [
     "economic_condition_tag",
     "past_layoffs",
     "job_title",
+    "tech_stack",
     "department",
     "remote_work",
     "industry",
@@ -30,6 +31,9 @@ NUMERICAL_FEATURES = [
     "profit_margin",
     "stock_price_change",
     "total_employees",
+    "role_demand_index",
+    "department_resilience_index",
+    "tech_stack_trend_score",
     "years_at_company",
     "salary_range",
     "performance_rating",
@@ -86,6 +90,9 @@ def validate_schema(df: pd.DataFrame) -> None:
         "profit_margin",
         "stock_price_change",
         "total_employees",
+        "role_demand_index",
+        "department_resilience_index",
+        "tech_stack_trend_score",
         "years_at_company",
         "salary_range",
         "performance_rating",
@@ -151,6 +158,9 @@ def compute_artifacts(df: pd.DataFrame, input_path: Path) -> Dict:
         "profit_margin",
         "stock_price_change",
         "total_employees",
+        "role_demand_index",
+        "department_resilience_index",
+        "tech_stack_trend_score",
         "years_at_company",
         "salary_range",
         "performance_rating",
@@ -258,6 +268,52 @@ def compute_artifacts(df: pd.DataFrame, input_path: Path) -> Dict:
         .reset_index()
     )
 
+    stack_survival_profiles = (
+        df.groupby(["reporting_quarter", "job_title", "tech_stack"])
+        .agg(
+            sample_size=("layoff_risk", "size"),
+            avg_role_layoff_rate=("role_layoff_rate", "mean"),
+            low_risk_share=("layoff_risk", lambda s: float((s == "Low").mean())),
+            high_risk_share=("layoff_risk", lambda s: float((s == "High").mean())),
+        )
+        .reset_index()
+    )
+
+    role_stack_profiles = (
+        df.groupby(["job_title", "tech_stack"])
+        .agg(
+            sample_size=("layoff_risk", "size"),
+            avg_role_layoff_rate=("role_layoff_rate", "mean"),
+            low_risk_share=("layoff_risk", lambda s: float((s == "Low").mean())),
+            high_risk_share=("layoff_risk", lambda s: float((s == "High").mean())),
+        )
+        .reset_index()
+    )
+
+    role_defaults = (
+        df.groupby("job_title")
+        .agg(
+            role_demand_index=("role_demand_index", "median"),
+        )
+        .reset_index()
+    )
+
+    department_defaults = (
+        df.groupby("department")
+        .agg(
+            department_resilience_index=("department_resilience_index", "median"),
+        )
+        .reset_index()
+    )
+
+    stack_defaults = (
+        df.groupby("tech_stack")
+        .agg(
+            tech_stack_trend_score=("tech_stack_trend_score", "median"),
+        )
+        .reset_index()
+    )
+
     global_numeric_medians = {feature: float(df[feature].median()) for feature in NUMERICAL_FEATURES}
     global_categorical_modes = {
         feature: str(df[feature].mode().iloc[0])
@@ -294,6 +350,11 @@ def compute_artifacts(df: pd.DataFrame, input_path: Path) -> Dict:
             "company_defaults": company_stats.to_dict(orient="records"),
             "industry_defaults": industry_defaults.to_dict(orient="records"),
             "quarter_defaults": quarter_defaults.to_dict(orient="records"),
+            "stack_survival_profiles": stack_survival_profiles.to_dict(orient="records"),
+            "role_stack_profiles": role_stack_profiles.to_dict(orient="records"),
+            "role_defaults": role_defaults.to_dict(orient="records"),
+            "department_defaults": department_defaults.to_dict(orient="records"),
+            "stack_defaults": stack_defaults.to_dict(orient="records"),
         },
         "aliases": build_alias_maps(df),
     }

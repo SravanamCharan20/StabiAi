@@ -126,6 +126,155 @@ ROLES: List[RoleProfile] = [
     RoleProfile("Solution Architect", "Engineering", 3200000, -0.20, 0.68),
 ]
 
+ROLE_TECH_STACKS: Dict[str, List[str]] = {
+    "Software Engineer": ["Java + Spring Boot", "Node.js + React", "Python + FastAPI", "Go + Microservices"],
+    "Senior Software Engineer": ["Java + Spring Boot", "Node.js + React", "Python + Django", ".NET + Azure"],
+    "Technical Lead": ["Java + Spring Boot", "Node.js + Microservices", ".NET + Azure", "Kubernetes + AWS"],
+    "Engineering Manager": ["Agile + Jira + Architecture Reviews", "Cloud Delivery + Program Governance"],
+    "DevOps Engineer": ["Docker + Kubernetes + AWS", "Terraform + CI/CD + GCP", "Linux + Ansible + Observability"],
+    "Site Reliability Engineer": ["Kubernetes + SRE + Observability", "Linux + Prometheus + Grafana", "AWS + Incident Response"],
+    "QA Engineer": ["Selenium + Cypress + API Testing", "Playwright + CI Test Automation", "Manual QA + Regression Testing"],
+    "Data Analyst": ["SQL + Power BI + Excel", "SQL + Tableau + Python", "Excel + SQL + Reporting"],
+    "Data Scientist": ["Python + ML + SQL", "PySpark + MLflow + Python", "Python + NLP + Statistics"],
+    "Machine Learning Engineer": ["Python + TensorFlow + MLOps", "PyTorch + Kubernetes + MLflow", "LLM Ops + Vector DB + Python"],
+    "Cybersecurity Analyst": ["SIEM + SOC + Threat Hunting", "Cloud Security + IAM + Zero Trust", "VAPT + Incident Response"],
+    "Cloud Engineer": ["AWS + Terraform + Kubernetes", "Azure + DevOps + IaC", "GCP + Docker + Networking"],
+    "Support Engineer": ["ITSM + Linux + SQL", "Application Support + Monitoring", "Ticketing + Debugging + Scripting"],
+    "Product Manager": ["Product Analytics + SQL + A/B Testing", "Roadmapping + Jira + Experimentation"],
+    "Project Manager": ["Agile + Jira + Stakeholder Management", "Program Planning + Risk Tracking"],
+    "Business Analyst": ["SQL + Excel + Process Mapping", "Data Modeling + Power BI + Requirements"],
+    "Finance Analyst": ["Excel + Power BI + SQL", "SAP + Financial Modeling"],
+    "Accountant": ["Tally + Excel + GST", "SAP Finance + Compliance"],
+    "HR Specialist": ["HRMS + Excel + Analytics", "People Analytics + HR Operations"],
+    "Recruiter": ["ATS + LinkedIn Recruiter", "Sourcing Automation + Talent Analytics"],
+    "Customer Success Manager": ["CRM + Customer Analytics", "SaaS Onboarding + QBR Playbooks"],
+    "Sales Executive": ["CRM + Sales Analytics", "Pipeline Automation + Prospecting Tools"],
+    "UI/UX Designer": ["Figma + Design Systems", "UX Research + Prototyping"],
+    "Solution Architect": ["Cloud Architecture + Microservices", "Enterprise Integration + API Design"],
+}
+
+TECH_STACK_RISK_BIAS: Dict[str, float] = {
+    "Java + Spring Boot": -0.06,
+    "Node.js + React": -0.05,
+    "Python + FastAPI": -0.08,
+    "Go + Microservices": -0.09,
+    "Python + Django": -0.03,
+    ".NET + Azure": -0.05,
+    "Node.js + Microservices": -0.08,
+    "Kubernetes + AWS": -0.10,
+    "Agile + Jira + Architecture Reviews": -0.04,
+    "Cloud Delivery + Program Governance": -0.05,
+    "Docker + Kubernetes + AWS": -0.11,
+    "Terraform + CI/CD + GCP": -0.10,
+    "Linux + Ansible + Observability": -0.07,
+    "Kubernetes + SRE + Observability": -0.11,
+    "Linux + Prometheus + Grafana": -0.08,
+    "AWS + Incident Response": -0.06,
+    "Selenium + Cypress + API Testing": -0.03,
+    "Playwright + CI Test Automation": -0.05,
+    "Manual QA + Regression Testing": 0.16,
+    "SQL + Power BI + Excel": -0.02,
+    "SQL + Tableau + Python": -0.04,
+    "Excel + SQL + Reporting": 0.08,
+    "Python + ML + SQL": -0.09,
+    "PySpark + MLflow + Python": -0.12,
+    "Python + NLP + Statistics": -0.08,
+    "Python + TensorFlow + MLOps": -0.13,
+    "PyTorch + Kubernetes + MLflow": -0.14,
+    "LLM Ops + Vector DB + Python": -0.15,
+    "SIEM + SOC + Threat Hunting": -0.11,
+    "Cloud Security + IAM + Zero Trust": -0.12,
+    "VAPT + Incident Response": -0.07,
+    "AWS + Terraform + Kubernetes": -0.12,
+    "Azure + DevOps + IaC": -0.09,
+    "GCP + Docker + Networking": -0.08,
+    "ITSM + Linux + SQL": 0.02,
+    "Application Support + Monitoring": 0.04,
+    "Ticketing + Debugging + Scripting": 0.06,
+    "Product Analytics + SQL + A/B Testing": -0.06,
+    "Roadmapping + Jira + Experimentation": -0.04,
+    "Agile + Jira + Stakeholder Management": 0.00,
+    "Program Planning + Risk Tracking": 0.03,
+    "SQL + Excel + Process Mapping": 0.03,
+    "Data Modeling + Power BI + Requirements": -0.02,
+    "Excel + Power BI + SQL": 0.01,
+    "SAP + Financial Modeling": 0.04,
+    "Tally + Excel + GST": 0.10,
+    "SAP Finance + Compliance": 0.03,
+    "HRMS + Excel + Analytics": 0.06,
+    "People Analytics + HR Operations": 0.02,
+    "ATS + LinkedIn Recruiter": 0.08,
+    "Sourcing Automation + Talent Analytics": 0.03,
+    "CRM + Customer Analytics": 0.02,
+    "SaaS Onboarding + QBR Playbooks": 0.01,
+    "CRM + Sales Analytics": 0.07,
+    "Pipeline Automation + Prospecting Tools": 0.04,
+    "Figma + Design Systems": -0.03,
+    "UX Research + Prototyping": -0.02,
+    "Cloud Architecture + Microservices": -0.10,
+    "Enterprise Integration + API Design": -0.07,
+}
+
+ROLE_DEMAND_INDEX: Dict[str, float] = {
+    "Software Engineer": 8.0,
+    "Senior Software Engineer": 7.8,
+    "Technical Lead": 7.4,
+    "Engineering Manager": 6.8,
+    "DevOps Engineer": 8.4,
+    "Site Reliability Engineer": 8.2,
+    "QA Engineer": 6.2,
+    "Data Analyst": 7.0,
+    "Data Scientist": 8.0,
+    "Machine Learning Engineer": 8.8,
+    "Cybersecurity Analyst": 8.6,
+    "Cloud Engineer": 8.5,
+    "Support Engineer": 5.8,
+    "Product Manager": 7.3,
+    "Project Manager": 6.4,
+    "Business Analyst": 6.6,
+    "Finance Analyst": 6.0,
+    "Accountant": 5.4,
+    "HR Specialist": 5.3,
+    "Recruiter": 5.1,
+    "Customer Success Manager": 6.0,
+    "Sales Executive": 5.7,
+    "UI/UX Designer": 6.8,
+    "Solution Architect": 8.0,
+}
+
+DEPARTMENT_RESILIENCE_INDEX: Dict[str, float] = {
+    "Engineering": 8.1,
+    "Analytics": 7.8,
+    "Product": 7.1,
+    "IT": 7.3,
+    "Operations": 6.2,
+    "Finance": 5.9,
+    "HR": 5.2,
+    "Sales": 5.7,
+    "Management": 6.5,
+}
+
+AI_RELEVANT_STACK_MARKERS = (
+    "llm",
+    "ml",
+    "mlops",
+    "tensorflow",
+    "pytorch",
+    "data",
+    "ai",
+    "cloud",
+    "kubernetes",
+    "devops",
+    "security",
+)
+
+LEGACY_STACK_MARKERS = (
+    "manual qa",
+    "tally",
+    "ticketing",
+    "excel + sql + reporting",
+)
+
 
 LOCATION_PROFILES = {
     "Bengaluru": {"weight": 0.21, "salary_multiplier": 1.12, "unemployment_offset": -0.5, "inflation_offset": 0.00},
@@ -186,6 +335,33 @@ def choose_performance_rating(mean_score: float, rng: np.random.Generator) -> in
     score = int(np.round(rng.normal(mean_score, 0.85)))
     return int(np.clip(score, 1, 5))
 
+def choose_tech_stack(job_title: str, rng: np.random.Generator) -> str:
+    options = ROLE_TECH_STACKS.get(job_title) or ["General Business Tools"]
+    idx = int(rng.integers(0, len(options)))
+    return options[idx]
+
+def parse_reporting_year(reporting_quarter: str) -> int:
+    parts = str(reporting_quarter).split()
+    if len(parts) < 2:
+        return 2024
+    try:
+        return int(parts[-1])
+    except ValueError:
+        return 2024
+
+def estimate_stack_trend_score(tech_stack: str, tech_stack_bias: float, reporting_quarter: str, rng: np.random.Generator) -> float:
+    text = str(tech_stack or "").lower()
+    year = parse_reporting_year(reporting_quarter)
+
+    ai_boost = 0.0
+    if year >= 2024 and any(marker in text for marker in AI_RELEVANT_STACK_MARKERS):
+        ai_boost += 0.55 if year == 2024 else 0.9
+
+    legacy_penalty = -0.65 if any(marker in text for marker in LEGACY_STACK_MARKERS) else 0.0
+
+    score = 6.2 + (-tech_stack_bias * 14.0) + ai_boost + legacy_penalty + rng.normal(0.0, 0.45)
+    return clamp(score, 2.2, 9.8)
+
 
 def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
@@ -242,6 +418,9 @@ def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
 
         job_title = weighted_choice(role_titles, role_weights, rng)
         role = role_lookup[job_title]
+        tech_stack = choose_tech_stack(job_title, rng)
+        tech_stack_bias = TECH_STACK_RISK_BIAS.get(tech_stack, 0.0)
+        tech_stack_trend_score = estimate_stack_trend_score(tech_stack, tech_stack_bias, reporting_quarter, rng)
 
         years_at_company = int(np.clip(np.round(rng.gamma(shape=2.3, scale=2.0)), 0, 18))
 
@@ -336,6 +515,23 @@ def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
                 "Sales",
             ])
 
+        role_demand_index = clamp(
+            ROLE_DEMAND_INDEX.get(job_title, 6.4)
+            + (0.25 if economic_condition_tag == "Growth" else -0.20 if economic_condition_tag == "Recession" else 0.0)
+            + (0.35 if tech_stack_trend_score >= 7.8 else -0.25 if tech_stack_trend_score <= 4.8 else 0.0)
+            + rng.normal(0.0, 0.35),
+            2.0,
+            9.8,
+        )
+
+        department_resilience_index = clamp(
+            DEPARTMENT_RESILIENCE_INDEX.get(department, 6.2)
+            + (0.20 if economic_condition_tag in {"Stable", "Growth"} else -0.35)
+            + rng.normal(0.0, 0.40),
+            2.0,
+            9.8,
+        )
+
         tenure_effect = 0.0
         if years_at_company < 1:
             tenure_effect = 0.48
@@ -359,11 +555,15 @@ def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
             remote_effect = -0.08
 
         role_layoff_rate = (
-            industry_layoff_rate * 0.54
+            industry_layoff_rate * 0.46
             + role.risk_bias
-            + max(0.0, -revenue_growth) * 0.23
-            + max(0.0, -profit_margin) * 0.10
-            + max(0.0, -stock_price_change) * 0.05
+            + (tech_stack_bias * 0.9)
+            + max(0.0, -revenue_growth) * 0.14
+            + max(0.0, -profit_margin) * 0.06
+            + max(0.0, -stock_price_change) * 0.015
+            + (8.4 - role_demand_index) * 0.18
+            + (8.1 - department_resilience_index) * 0.14
+            + (8.6 - tech_stack_trend_score) * 0.22
             + (4.2 - performance_rating) * 0.26
             + tenure_effect
             + salary_pressure
@@ -387,6 +587,10 @@ def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
                 "past_layoffs": past_layoffs,
                 "total_employees": total_employees,
                 "job_title": job_title,
+                "tech_stack": tech_stack,
+                "role_demand_index": round(float(role_demand_index), 2),
+                "department_resilience_index": round(float(department_resilience_index), 2),
+                "tech_stack_trend_score": round(float(tech_stack_trend_score), 2),
                 "years_at_company": years_at_company,
                 "salary_range": salary_range,
                 "performance_rating": performance_rating,
@@ -411,6 +615,10 @@ def generate_rows(row_count: int, seed: int) -> pd.DataFrame:
         "past_layoffs",
         "total_employees",
         "job_title",
+        "tech_stack",
+        "role_demand_index",
+        "department_resilience_index",
+        "tech_stack_trend_score",
         "years_at_company",
         "salary_range",
         "performance_rating",

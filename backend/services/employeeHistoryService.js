@@ -72,6 +72,7 @@ export function createPredictionHistoryEntry(payload = {}) {
     normalized_input: payload.normalized_input || {},
     feature_vector: payload.feature_vector || {},
     prediction: payload.prediction || {},
+    stack_survival: payload.stack_survival || null,
     market_signals: payload.market_signals || null,
     reliability: payload.reliability || {},
     review: null,

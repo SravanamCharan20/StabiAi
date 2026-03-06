@@ -73,6 +73,7 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
         const payload = {
           employeeData: {
             job_title: employeeData.job_title || "",
+            tech_stack: employeeData.tech_stack || "",
             performance_rating: Number(employeeData.performance_rating) || 0,
             years_at_company: Number(employeeData.years_at_company) || 0,
             company_name: employeeData.company_name || "",
@@ -95,6 +96,7 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
                 : [],
             },
             data: predictionData.data || {},
+            stack_survival: predictionData.stack_survival || null,
             market_signals: predictionData.market_signals || {},
             reliability: predictionData.reliability || {},
           },

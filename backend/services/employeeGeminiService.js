@@ -445,6 +445,7 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     probabilities: predictionData?.prediction?.probabilities,
     top_factors: predictionData?.prediction?.top_factors,
     improvement_tips: predictionData?.prediction?.improvement_tips,
+    stack_survival: predictionData?.stack_survival,
     reliability: predictionData?.reliability,
     market_signals: predictionData?.market_signals,
   };

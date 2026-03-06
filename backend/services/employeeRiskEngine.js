@@ -15,6 +15,7 @@ const FEATURE_LABELS = {
   economic_condition_tag: 'Economic Condition',
   past_layoffs: 'Past Layoffs',
   job_title: 'Job Title',
+  tech_stack: 'Tech Stack',
   department: 'Department',
   remote_work: 'Remote Work',
   industry: 'Industry',
@@ -22,6 +23,9 @@ const FEATURE_LABELS = {
   profit_margin: 'Profit Margin',
   stock_price_change: 'Stock Price Change',
   total_employees: 'Total Employees',
+  role_demand_index: 'Role Demand Index',
+  department_resilience_index: 'Department Resilience Index',
+  tech_stack_trend_score: 'Tech Stack Trend Score',
   years_at_company: 'Years at Company',
   salary_range: 'Salary',
   performance_rating: 'Performance Rating',
@@ -38,7 +42,11 @@ const CONTROLLABLE_TIPS = {
   salary_range: 'Document measurable value delivered so compensation is clearly tied to outcomes.',
   remote_work: 'Use a structured weekly update cadence to improve visibility in distributed teams.',
   job_title: 'Add one adjacent in-demand skill to improve mobility across teams.',
+  tech_stack: 'Keep your stack current: add one market-in-demand tool or framework this quarter.',
   department: 'Build cross-functional projects so your role is linked to broader business outcomes.',
+  role_demand_index: 'Prioritize projects tied to current hiring demand in your role track.',
+  department_resilience_index: 'Contribute to initiatives that make your department revenue-critical and hard to downsize.',
+  tech_stack_trend_score: 'Shift from legacy tooling to AI/cloud automation stack over the next quarter.',
   economic_pressure: 'Focus on cost-saving or efficiency improvements that protect your role during pressure periods.',
   past_layoffs: 'Prepare an internal mobility plan and build relationships with adjacent teams.',
 };
@@ -49,6 +57,9 @@ let initialized = false;
 const companyDefaultsByName = new Map();
 const industryDefaultsByName = new Map();
 const quarterDefaultsByQuarter = new Map();
+const roleDefaultsByTitle = new Map();
+const departmentDefaultsByName = new Map();
+const stackDefaultsByName = new Map();
 
 const averageCategoricalRisk = {};
 
@@ -105,6 +116,18 @@ function ensureArtifactsLoaded() {
 
   for (const row of artifacts.profiles.quarter_defaults || []) {
     quarterDefaultsByQuarter.set(row.reporting_quarter, row);
+  }
+
+  for (const row of artifacts.profiles.role_defaults || []) {
+    roleDefaultsByTitle.set(row.job_title, row);
+  }
+
+  for (const row of artifacts.profiles.department_defaults || []) {
+    departmentDefaultsByName.set(row.department, row);
+  }
+
+  for (const row of artifacts.profiles.stack_defaults || []) {
+    stackDefaultsByName.set(row.tech_stack, row);
   }
 
   for (const [feature, values] of Object.entries(artifacts.profiles.categorical_risk || {})) {
@@ -207,6 +230,7 @@ function normalizeUserInput(employeeInput = {}) {
     company_location: normalizeCategoryFeature('company_location', employeeInput.company_location),
     reporting_quarter: normalizeCategoryFeature('reporting_quarter', employeeInput.reporting_quarter),
     job_title: normalizeCategoryFeature('job_title', employeeInput.job_title),
+    tech_stack: normalizeCategoryFeature('tech_stack', employeeInput.tech_stack),
     department: normalizeCategoryFeature('department', employeeInput.department),
     remote_work: normalizeCategoryFeature('remote_work', employeeInput.remote_work),
     years_at_company: parseNumber(
@@ -277,6 +301,11 @@ export function getEmployeeInputSpec() {
         required: true,
         options: getCategoryValues('job_title'),
       },
+      tech_stack: {
+        type: 'select',
+        required: true,
+        options: getCategoryValues('tech_stack'),
+      },
       department: {
         type: 'select',
         required: true,
@@ -312,6 +341,7 @@ export function getEmployeeInputSpec() {
     },
     guidance: [
       'Use values that match HR records (title, department, performance).',
+      'Select the primary tech stack you use most in your current role.',
       'Enter current-year CTC correctly; salary scale strongly affects prediction.',
       'Use the latest reporting quarter for better market alignment.',
       'If unsure about performance rating, use your latest appraisal score.',
@@ -348,6 +378,9 @@ function buildFeatureVector(normalizedInput, marketContext = {}) {
   const inferredIndustry = companyDefaults.industry || artifacts.global_defaults.categorical_modes.industry;
   const industryDefaults = industryDefaultsByName.get(inferredIndustry) || {};
   const quarterDefaults = quarterDefaultsByQuarter.get(normalizedInput.reporting_quarter) || {};
+  const roleDefaults = roleDefaultsByTitle.get(normalizedInput.job_title) || {};
+  const departmentDefaults = departmentDefaultsByName.get(normalizedInput.department) || {};
+  const stackDefaults = stackDefaultsByName.get(normalizedInput.tech_stack) || {};
 
   const defaults = artifacts.global_defaults.numerical_medians;
 
@@ -396,6 +429,24 @@ function buildFeatureVector(normalizedInput, marketContext = {}) {
     'industry_layoff_rate'
   );
 
+  const roleDemandIndex = parseNumber(
+    marketContext.role_demand_index,
+    Number(roleDefaults.role_demand_index) || defaults.role_demand_index,
+    'role_demand_index'
+  );
+
+  const departmentResilienceIndex = parseNumber(
+    marketContext.department_resilience_index,
+    Number(departmentDefaults.department_resilience_index) || defaults.department_resilience_index,
+    'department_resilience_index'
+  );
+
+  const techStackTrendScore = parseNumber(
+    marketContext.tech_stack_trend_score,
+    Number(stackDefaults.tech_stack_trend_score) || defaults.tech_stack_trend_score,
+    'tech_stack_trend_score'
+  );
+
   const features = {
     company_name: normalizedInput.company_name,
     company_location: normalizedInput.company_location,
@@ -403,6 +454,7 @@ function buildFeatureVector(normalizedInput, marketContext = {}) {
     economic_condition_tag: normalizeCategoryFeature('economic_condition_tag', marketContext.economic_condition_tag || economicConditionTag),
     past_layoffs: normalizeCategoryFeature('past_layoffs', marketContext.past_layoffs || pastLayoffs),
     job_title: normalizedInput.job_title,
+    tech_stack: normalizedInput.tech_stack,
     department: normalizedInput.department,
     remote_work: normalizeCategoryFeature('remote_work', normalizedInput.remote_work),
     industry: normalizeCategoryFeature('industry', marketContext.industry || inferredIndustry),
@@ -410,6 +462,9 @@ function buildFeatureVector(normalizedInput, marketContext = {}) {
     profit_margin: round(profitMargin, 3),
     stock_price_change: round(stockPriceChange, 3),
     total_employees: round(totalEmployees, 0),
+    role_demand_index: round(roleDemandIndex, 3),
+    department_resilience_index: round(departmentResilienceIndex, 3),
+    tech_stack_trend_score: round(techStackTrendScore, 3),
     years_at_company: round(normalizedInput.years_at_company, 2),
     salary_range: round(normalizedInput.salary_range, 0),
     performance_rating: round(normalizedInput.performance_rating, 2),
@@ -530,6 +585,96 @@ function createImprovementTips(topFactors) {
   return tips;
 }
 
+function buildStackSurvivalSnapshot(features) {
+  ensureArtifactsLoaded();
+
+  const quarter = String(features?.reporting_quarter || '').trim();
+  const role = String(features?.job_title || '').trim();
+  const selectedStack = String(features?.tech_stack || '').trim();
+  if (!role) {
+    return null;
+  }
+
+  const quarterProfiles = Array.isArray(artifacts?.profiles?.stack_survival_profiles)
+    ? artifacts.profiles.stack_survival_profiles
+    : [];
+  const roleProfiles = Array.isArray(artifacts?.profiles?.role_stack_profiles)
+    ? artifacts.profiles.role_stack_profiles
+    : [];
+
+  let rows = quarterProfiles.filter((item) => (
+    String(item?.job_title || '') === role
+    && String(item?.reporting_quarter || '') === quarter
+  ));
+  let scopeLabel = `For ${role} in ${quarter}`;
+
+  if (rows.length < 3) {
+    rows = roleProfiles.filter((item) => String(item?.job_title || '') === role);
+    scopeLabel = `For ${role} across recent quarters`;
+  }
+
+  if (!rows.length) {
+    return null;
+  }
+
+  const ranked = rows
+    .map((item) => ({
+      tech_stack: String(item?.tech_stack || ''),
+      sample_size: Number(item?.sample_size || 0),
+      low_risk_share: round(Number(item?.low_risk_share || 0), 4),
+      high_risk_share: round(Number(item?.high_risk_share || 0), 4),
+      avg_role_layoff_rate: round(Number(item?.avg_role_layoff_rate || 0), 3),
+    }))
+    .filter((item) => item.tech_stack)
+    .sort((a, b) => {
+      if (b.low_risk_share !== a.low_risk_share) {
+        return b.low_risk_share - a.low_risk_share;
+      }
+      if (a.avg_role_layoff_rate !== b.avg_role_layoff_rate) {
+        return a.avg_role_layoff_rate - b.avg_role_layoff_rate;
+      }
+      return b.sample_size - a.sample_size;
+    });
+
+  const topStacks = ranked.slice(0, 3);
+  const watchlistStacks = ranked.slice(-2).reverse();
+  const totalStacks = ranked.length;
+  const selectedIndex = ranked.findIndex((item) => item.tech_stack === selectedStack);
+  const selectedProfile = selectedIndex >= 0 ? ranked[selectedIndex] : null;
+  const rank = selectedIndex >= 0 ? selectedIndex + 1 : null;
+
+  let currentStackSignal = 'unknown';
+  let narrative = 'Stack survival signal is unavailable for this profile.';
+  if (selectedProfile) {
+    const topCutoff = Math.max(1, Math.ceil(totalStacks * 0.35));
+    const midCutoff = Math.max(topCutoff + 1, Math.ceil(totalStacks * 0.7));
+
+    if (rank <= topCutoff) {
+      currentStackSignal = 'strong';
+      narrative = `${selectedStack} is currently in the stronger resilience tier for ${role}.`;
+    } else if (rank <= midCutoff) {
+      currentStackSignal = 'moderate';
+      narrative = `${selectedStack} is in the middle resilience tier; upskilling can improve survivability.`;
+    } else {
+      currentStackSignal = 'weak';
+      narrative = `${selectedStack} is in a weaker resilience tier for current role demand.`;
+    }
+  }
+
+  return {
+    scope: scopeLabel,
+    compared_stacks: totalStacks,
+    current_stack: selectedStack || null,
+    current_stack_rank: rank,
+    current_stack_signal: currentStackSignal,
+    current_stack_low_risk_share: selectedProfile ? selectedProfile.low_risk_share : null,
+    current_stack_avg_layoff_rate: selectedProfile ? selectedProfile.avg_role_layoff_rate : null,
+    top_resilient_stacks: topStacks,
+    watchlist_stacks: watchlistStacks,
+    narrative,
+  };
+}
+
 function predictFromFeatures(features) {
   ensureArtifactsLoaded();
 
@@ -628,10 +773,12 @@ export function buildAndPredict(employeeInput, marketContext = {}) {
   const normalizedInput = normalizeUserInput(employeeInput);
   const featureVector = buildFeatureVector(normalizedInput, marketContext);
   const prediction = predictFromFeatures(featureVector);
+  const stackSurvival = buildStackSurvivalSnapshot(featureVector);
 
   return {
     normalized_input: normalizedInput,
     features: featureVector,
     prediction,
+    stack_survival: stackSurvival,
   };
 }
