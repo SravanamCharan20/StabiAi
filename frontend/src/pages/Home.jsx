@@ -52,9 +52,10 @@ const PILLARS = [
 ];
 
 const Home = () => (
-  <div className="min-h-screen bg-[#f3f5f8] text-slate-900">
+  <div className="min-h-screen bg-[#f3f5f8] text-slate-900 
+[background-image:linear-gradient(to_right,rgba(15,23,42,0.07)_1px,transparent_1px)] 
+[background-size:132px_100%]">
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.07)_1px,transparent_1px)] [background-size:132px_100%]" />
 
       <section className="relative mx-auto max-w-6xl px-6 pb-10 pt-24">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
@@ -112,7 +113,7 @@ const Home = () => (
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white">Prediction Run</span>
                 <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700">Company + Market Context</span>
-                <span className="ml-auto text-[11px] text-slate-500">Powered by Career Shield Risk Engine</span>
+                <span className="ml-auto text-[11px] text-slate-500">Powered by Career Shield Employee Risk Engine</span>
               </div>
             </div>
           </div>
@@ -123,7 +124,7 @@ const Home = () => (
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Why Teams Choose Career Shield</p>
           <p className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
-            Career Shield connects model reasoning, market signals, and governance workflow in one continuous decision surface.
+          Career Shield connects model reasoning, market signals, and governance workflow in one continuous decision surface.
           </p>
         </div>
 
