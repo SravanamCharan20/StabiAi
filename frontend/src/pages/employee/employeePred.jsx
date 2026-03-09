@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
-  HiCheckCircle,
-  HiChevronDown,
-  HiExclamationCircle,
-  HiInformationCircle,
   HiOutlineBriefcase,
   HiOutlineCalendar,
   HiOutlineChartBar,
@@ -16,1787 +12,41 @@ import {
   HiOutlineUserGroup,
 } from "react-icons/hi";
 import AiSuggestions from "./aiSuggestions";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000";
-
-const FALLBACK_COMPANY_OPTIONS = [
-  "Accenture India Pvt Ltd",
-  "Amazon Development Centre India Pvt Ltd",
-  "Amazon India",
-  "Apollo Hospitals",
-  "Apple India",
-  "Axis Bank",
-  "Bajaj Auto",
-  "Bharti Airtel",
-  "Capgemini India",
-  "Cipla",
-  "Cognizant India",
-  "Coforge",
-  "Deloitte India",
-  "EY India",
-  "Facebook India",
-  "Flipkart Internet Pvt Ltd",
-  "Fortis Healthcare",
-  "Google India",
-  "HCL Technologies",
-  "HDFC Bank",
-  "IBM India",
-  "ICICI Bank",
-  "Infosys",
-  "Jio Platforms",
-  "Larsen & Toubro",
-  "LTIMindtree",
-  "Mahindra & Mahindra",
-  "Meesho",
-  "Meta India",
-  "Microsoft India",
-  "Mphasis",
-  "Myntra",
-  "Netflix India",
-  "Oracle Financial Services Software Ltd.",
-  "Paytm",
-  "Persistent Systems",
-  "PwC India",
-  "Razorpay",
-  "Sun Pharma",
-  "Tata Consultancy Services (TCS)",
-  "Tata Motors",
-  "Tech Mahindra Ltd.",
-  "Vodafone Idea",
-  "Wipro Limited",
-];
-
-const FALLBACK_LOCATION_OPTIONS = [
-  "Ahmedabad",
-  "Bengaluru",
-  "Chennai",
-  "Coimbatore",
-  "Delhi",
-  "Gurugram",
-  "Hyderabad",
-  "Kochi",
-  "Kolkata",
-  "Mumbai",
-  "Noida",
-  "Pune",
-];
-
-const FALLBACK_QUARTER_OPTIONS = [
-  "Q1 2024",
-  "Q2 2024",
-  "Q3 2024",
-  "Q4 2024",
-  "Q1 2025",
-  "Q2 2025",
-  "Q3 2025",
-  "Q4 2025",
-];
-
-const FALLBACK_JOB_OPTIONS = [
-  "Software Engineer",
-  "Senior Software Engineer",
-  "Data Scientist",
-  "Machine Learning Engineer",
-  "DevOps Engineer",
-  "Site Reliability Engineer",
-  "Product Manager",
-  "Project Manager",
-  "Engineering Manager",
-  "Business Analyst",
-];
-
-const FALLBACK_DEPARTMENT_OPTIONS = [
-  "Engineering",
-  "Analytics",
-  "Product",
-  "IT",
-  "Operations",
-  "Finance",
-  "HR",
-  "Sales",
-  "Management",
-];
-
-const FALLBACK_TECH_STACK_OPTIONS = [
-  ".NET + Azure",
-  "ATS + LinkedIn Recruiter",
-  "AWS + Incident Response",
-  "AWS + Terraform + Kubernetes",
-  "Agile + Jira + Architecture Reviews",
-  "Agile + Jira + Stakeholder Management",
-  "Application Support + Monitoring",
-  "CRM + Customer Analytics",
-  "CRM + Sales Analytics",
-  "Cloud Architecture + Microservices",
-  "Cloud Delivery + Program Governance",
-  "Cloud Security + IAM + Zero Trust",
-  "Data Modeling + Power BI + Requirements",
-  "Docker + Kubernetes + AWS",
-  "Excel + Power BI + SQL",
-  "Excel + SQL + Reporting",
-  "Enterprise Integration + API Design",
-  "Figma + Design Systems",
-  "GCP + Docker + Networking",
-  "HRMS + Excel + Analytics",
-  "ITSM + Linux + SQL",
-  "Java + Spring Boot",
-  "Kubernetes + AWS",
-  "Kubernetes + SRE + Observability",
-  "LLM Ops + Vector DB + Python",
-  "Linux + Ansible + Observability",
-  "Linux + Prometheus + Grafana",
-  "Manual QA + Regression Testing",
-  "Node.js + Microservices",
-  "Node.js + React",
-  "People Analytics + HR Operations",
-  "Pipeline Automation + Prospecting Tools",
-  "Playwright + CI Test Automation",
-  "Product Analytics + SQL + A/B Testing",
-  "Program Planning + Risk Tracking",
-  "PySpark + MLflow + Python",
-  "PyTorch + Kubernetes + MLflow",
-  "Python + Django",
-  "Python + FastAPI",
-  "Python + ML + SQL",
-  "Python + NLP + Statistics",
-  "Python + TensorFlow + MLOps",
-  "Roadmapping + Jira + Experimentation",
-  "SAP + Financial Modeling",
-  "SAP Finance + Compliance",
-  "SIEM + SOC + Threat Hunting",
-  "SQL + Excel + Process Mapping",
-  "SQL + Power BI + Excel",
-  "SQL + Tableau + Python",
-  "SaaS Onboarding + QBR Playbooks",
-  "Selenium + Cypress + API Testing",
-  "Sourcing Automation + Talent Analytics",
-  "Tally + Excel + GST",
-  "Terraform + CI/CD + GCP",
-  "Ticketing + Debugging + Scripting",
-  "UX Research + Prototyping",
-  "VAPT + Incident Response",
-];
-
-const RISK_TONE = {
-  low: {
-    badge: "bg-emerald-100/70 text-emerald-800",
-    card: "border-emerald-200 bg-emerald-50/30",
-    icon: HiCheckCircle,
-  },
-  medium: {
-    badge: "bg-amber-100/70 text-amber-800",
-    card: "border-amber-200 bg-amber-50/30",
-    icon: HiInformationCircle,
-  },
-  high: {
-    badge: "bg-rose-100/70 text-rose-800",
-    card: "border-rose-200 bg-rose-50/30",
-    icon: HiExclamationCircle,
-  },
-  unknown: {
-    badge: "bg-slate-100 text-slate-700",
-    card: "border-slate-200 bg-white",
-    icon: HiInformationCircle,
-  },
-};
-
-const RELIABILITY_TONE = {
-  high: {
-    wrap: "border-emerald-200 bg-emerald-50/45",
-    text: "text-emerald-800",
-    icon: HiCheckCircle,
-    title: "High Reliability",
-  },
-  medium: {
-    wrap: "border-amber-200 bg-amber-50/45",
-    text: "text-amber-800",
-    icon: HiInformationCircle,
-    title: "Moderate Reliability",
-  },
-  warning: {
-    wrap: "border-rose-200 bg-rose-50/45",
-    text: "text-rose-800",
-    icon: HiExclamationCircle,
-    title: "Reduced Reliability",
-  },
-};
-
-const INPUT_QUALITY_TONE = {
-  high: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  medium: "border-amber-200 bg-amber-50 text-amber-800",
-  low: "border-rose-200 bg-rose-50 text-rose-800",
-};
-
-const RELIABILITY_SOURCE_LABEL = {
-  nse_live_api: "NSE Live Feed",
-  stooq_daily_api: "Global Market Feed",
-  yahoo_chart_api: "Global Chart Feed",
-  fallback: "Unavailable",
-  unavailable: "Unavailable",
-};
-
-const RELIABILITY_STATUS_LABEL = {
-  live_market: "Live Market Connected",
-  fallback_defaults: "Fallback Defaults",
-};
-
-const MAPPING_MODE_LABEL = {
-  direct_listing: "Direct Listed Company",
-  market_equivalent: "Market-Equivalent Company",
-  user_ticker: "User Symbol",
-};
-
-const DISPLAY_MARKET_SIGNAL_KEYS = [
-  "marketRegime",
-  "marketStressScore",
-  "company_return_90d",
-  "market_return_90d",
-  "relative_return_90d",
-  "company_volatility_90d",
-  "market_volatility_90d",
-  "india_vix",
-  "benchmark_symbol",
-  "nse_index_price",
-  "us_index_price",
-  "global_index_price",
-  "company_last_price",
-  "company_previous_close",
-];
-
-const ACTION_STATUS_OPTIONS = [
-  { value: "not_started", label: "Not Started" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "done", label: "Done" },
-  { value: "blocked", label: "Blocked" },
-];
-
-const REVIEW_DECISIONS = [
-  "manual_review_required",
-  "monitor_with_manager",
-  "coach_and_reassess",
-  "advisory_acknowledged",
-];
-
-const RESULT_VIEW_TABS = [
-  { id: "story", label: "Story" },
-  { id: "signals", label: "Signals" },
-  { id: "drivers", label: "Drivers" },
-  { id: "inputs", label: "Inputs" },
-];
-
-const WORKSPACE_TABS = [
-  { id: "simulator", label: "What-If" },
-  { id: "actions", label: "Actions" },
-  { id: "review", label: "Review" },
-  { id: "history", label: "History" },
-  { id: "quality", label: "Quality" },
-  { id: "guidance", label: "AI Guidance" },
-];
-
-const SALARY_BOUNDS = {
-  minInr: 300000,
-  maxInr: 12000000,
-  minLpa: 3,
-  maxLpa: 120,
-};
-
-const FORM_INPUT_CLASS =
-  "w-full rounded-xl border bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:ring-2";
-
-const FORM_SELECT_CLASS =
-  "select-input w-full rounded-xl border bg-white px-3 py-2.5 pr-9 text-sm text-slate-900 outline-none transition focus:ring-2";
-
-const WORKSPACE_FRAME_THEME = {
-  simulator: {
-    border: "border-sky-200",
-    bg: "bg-sky-50/45",
-    text: "text-sky-800",
-    label: "Scenario Lab",
-  },
-  actions: {
-    border: "border-emerald-200",
-    bg: "bg-emerald-50/45",
-    text: "text-emerald-800",
-    label: "Execution Tracker",
-  },
-  review: {
-    border: "border-amber-200",
-    bg: "bg-amber-50/45",
-    text: "text-amber-900",
-    label: "Governance Review",
-  },
-  history: {
-    border: "border-slate-300",
-    bg: "bg-slate-100/60",
-    text: "text-slate-800",
-    label: "Historical Trend",
-  },
-  quality: {
-    border: "border-indigo-200",
-    bg: "bg-indigo-50/45",
-    text: "text-indigo-800",
-    label: "Model Health",
-  },
-  guidance: {
-    border: "border-cyan-200",
-    bg: "bg-cyan-50/45",
-    text: "text-cyan-800",
-    label: "AI Guidance",
-  },
-};
-
-const toAnnualInr = (value, unit) => {
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric) || numeric <= 0) {
-    return 0;
-  }
-  if (unit === "LPA") {
-    return numeric * 100000;
-  }
-  return numeric;
-};
-
-const formatFeatureLabel = (key) =>
-  String(key || "")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-
-const formatFeatureValue = (key, value) => {
-  if (value == null || value === "") {
-    return "N/A";
-  }
-  if (typeof value === "number") {
-    if (key === "salary_range") {
-      const lpa = Number(value) / 100000;
-      return `₹${Math.round(value).toLocaleString("en-IN")} (${lpa.toFixed(1)} LPA)`;
-    }
-    if (key === "marketStressScore") {
-      return Number(value).toFixed(3);
-    }
-    if (
-      [
-        "revenue_growth",
-        "profit_margin",
-        "stock_price_change",
-        "inflation_rate",
-        "unemployment_rate",
-        "industry_layoff_rate",
-        "company_return_90d",
-        "market_return_90d",
-        "relative_return_90d",
-        "company_volatility_90d",
-        "market_volatility_90d",
-        "india_vix",
-      ].includes(key)
-    ) {
-      return `${Number(value).toFixed(2)}%`;
-    }
-    if (["role_demand_index", "department_resilience_index", "tech_stack_trend_score"].includes(key)) {
-      return `${Number(value).toFixed(2)} / 10`;
-    }
-    return Number(value).toLocaleString("en-IN");
-  }
-  return String(value);
-};
-
-const toFiniteNumber = (value) => {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric : null;
-};
-
-const getRiskBadgeClass = (label) => {
-  const risk = String(label || "").toLowerCase();
-  if (risk === "high") {
-    return "bg-rose-100 text-rose-800";
-  }
-  if (risk === "medium") {
-    return "bg-amber-100 text-amber-800";
-  }
-  if (risk === "low") {
-    return "bg-emerald-100 text-emerald-800";
-  }
-  return "bg-slate-100 text-slate-700";
-};
-
-const getSignalStrengthLabel = (impact) => {
-  const value = Math.abs(Number(impact));
-  if (!Number.isFinite(value)) {
-    return "Relevant";
-  }
-  if (value >= 0.2) {
-    return "Strong";
-  }
-  if (value >= 0.1) {
-    return "Moderate";
-  }
-  return "Mild";
-};
-
-const getContextualFactorReason = (factor, predictionData) => {
-  if (!factor) {
-    return "No additional context available.";
-  }
-
-  const feature = String(factor.feature || "");
-  const direction = String(factor.direction || "");
-  const isRiskUp = direction === "increases_risk";
-  const value = toFiniteNumber(factor.value);
-
-  const marketSignals = predictionData?.market_signals || {};
-  const modelFeatures = predictionData?.data || {};
-  const normalizedInput = predictionData?.normalized_input || {};
-
-  const companyVol = toFiniteNumber(marketSignals.company_volatility_90d);
-  const marketVol = toFiniteNumber(marketSignals.market_volatility_90d);
-  const relativeReturn = toFiniteNumber(marketSignals.relative_return_90d);
-  const marketRegime = String(marketSignals.marketRegime || "").trim();
-  const perf = toFiniteNumber(modelFeatures.performance_rating ?? normalizedInput.performance_rating);
-
-  const volatilityContext = companyVol != null && marketVol != null
-    ? companyVol > marketVol * 1.2
-      ? " Market volatility around this company is higher than the broader market."
-      : companyVol < marketVol * 0.85
-        ? " Market volatility around this company is relatively controlled."
-        : " Market volatility is broadly in line with the broader market."
-    : companyVol != null
-      ? " Company volatility is available and considered in this score."
-      : "";
-
-  const relativeContext = relativeReturn == null
-    ? ""
-    : relativeReturn <= -8
-      ? " Relative market performance is lagging."
-      : relativeReturn >= 5
-        ? " Relative market performance is supportive."
-        : " Relative market performance is mixed.";
-
-  switch (feature) {
-    case "industry_layoff_rate":
-      return isRiskUp
-        ? `Your sector is in a tighter layoff cycle, so baseline risk is higher.${volatilityContext}`
-        : `Your sector is currently more stable, which helps contain baseline risk.${volatilityContext}`;
-      break;
-    case "role_demand_index":
-      return isRiskUp
-        ? "Current hiring demand for this job title is weaker than safer ranges, which increases exposure."
-        : "Current hiring demand for this job title is healthy, which improves survivability.";
-      break;
-    case "department_resilience_index":
-      return isRiskUp
-        ? "This department is currently under stronger cost or restructuring pressure."
-        : "This department is relatively resilient in the current operating cycle.";
-      break;
-    case "tech_stack_trend_score":
-      return isRiskUp
-        ? "Your stack appears less aligned with current AI/cloud demand, which can increase role risk."
-        : "Your stack aligns with current AI/cloud demand, which lowers role risk.";
-      break;
-    case "revenue_growth":
-      return isRiskUp
-        ? `Business momentum is softer, which adds organizational pressure.${relativeContext}`
-        : `Business momentum is supportive and helps overall stability.${relativeContext}`;
-      break;
-    case "profit_margin":
-      return isRiskUp
-        ? `Profit cushion is constrained, which can tighten team budgets.${volatilityContext}`
-        : `Profit cushion is healthier, giving more room to protect roles.${volatilityContext}`;
-      break;
-    case "stock_price_change":
-      return isRiskUp
-        ? `Market signal is weak, which is a secondary pressure indicator.${volatilityContext}`
-        : `Market signal is supportive, but role-skill fit remains the primary driver.${volatilityContext}`;
-      break;
-    case "performance_rating":
-      return isRiskUp
-        ? "Current performance signal is below the safer range for this role context."
-        : "Current performance signal is a strong protective factor.";
-      break;
-    case "job_title":
-      return isRiskUp
-        ? "This job title is currently in a tighter demand band compared with safer role clusters."
-        : "This job title sits in a stronger demand band, supporting role continuity.";
-      break;
-    case "tech_stack":
-      return isRiskUp
-        ? "Current stack appears less aligned with the strongest hiring demand for this role segment."
-        : "Current stack aligns well with resilient and in-demand capability clusters.";
-      break;
-    case "department":
-      return isRiskUp
-        ? "Department-level pressure is elevated, so this role faces more review sensitivity."
-        : "Department context is relatively stable, which helps reduce disruption risk.";
-      break;
-    case "years_at_company":
-      return isRiskUp
-        ? "Tenure is relatively short, which usually means higher exposure during restructuring."
-        : "Tenure is relatively strong, which usually improves role resilience.";
-      break;
-    case "salary_range":
-      if (perf != null) {
-        return isRiskUp
-          ? "Compensation-to-impact balance appears stretched, increasing review pressure."
-          : "Compensation-to-impact balance appears aligned, which supports retention.";
-      }
-      return isRiskUp
-        ? "Compensation level may create higher cost scrutiny in this market."
-        : "Compensation level appears manageable for this profile.";
-      break;
-    case "economic_condition_tag":
-      {
-        const regimeText = marketRegime || String(factor.value || "current");
-        return isRiskUp
-          ? `Current market regime (${regimeText}) is defensive and adds broad pressure.${volatilityContext}`
-          : `Current market regime (${regimeText}) is relatively supportive.${volatilityContext}`;
-      }
-      break;
-    case "past_layoffs":
-      return isRiskUp
-        ? "Recent layoff history indicates recurring restructuring pressure."
-        : "Recent layoff history does not indicate immediate restructuring pressure.";
-      break;
-    default:
-      break;
-  }
-
-  return factor.reason || "No additional context available.";
-};
-
-const buildRiskStory = (predictionData) => {
-  const prediction = predictionData?.prediction || {};
-  const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors : [];
-  const marketSignals = predictionData?.market_signals || {};
-  const stackSurvival = predictionData?.stack_survival || {};
-
-  const risk = String(prediction.layoff_risk || "Unknown").toLowerCase();
-  const riskUp = topFactors.filter((factor) => factor.direction === "increases_risk").slice(0, 3);
-  const riskDown = topFactors.filter((factor) => factor.direction === "reduces_risk").slice(0, 3);
-
-  const marketRegime = String(marketSignals.marketRegime || "current").trim();
-  const stress = toFiniteNumber(marketSignals.marketStressScore);
-  const stressText = stress == null
-    ? "Market stress signal is unavailable."
-    : stress >= 0.62
-      ? "Market stress is elevated."
-      : stress >= 0.45
-        ? "Market stress is moderate."
-        : "Market stress is relatively contained.";
-
-  const summaryByRisk = {
-    high: "Your profile is currently in a high-risk zone due to weaker role-demand and skill-alignment signals.",
-    medium: "Your profile is in a balanced zone: skill/role strengths are present, but pressure signals still matter.",
-    low: "Your profile is currently in a lower-risk zone with stronger role-demand and stack-alignment signals.",
-    unknown: "The model could not determine a clear risk posture from current inputs.",
-  };
-
-  const overall = riskUp.length === 0
-    ? "There are no dominant pressure signals in this run."
-    : riskDown.length === 0
-      ? "Most strong signals are pressure-oriented, so the model leans toward higher risk."
-      : "Pressure and protective signals are both present; final risk depends on which side is stronger.";
-
-  const pressureSignals = riskUp.map((factor) => ({
-    title: factor.label || formatFeatureLabel(factor.feature),
-    reason: getContextualFactorReason(factor, predictionData),
-    strength: getSignalStrengthLabel(factor.impact),
-    effect: "Raises risk",
-  }));
-
-  const protectionSignals = riskDown.map((factor) => ({
-    title: factor.label || formatFeatureLabel(factor.feature),
-    reason: getContextualFactorReason(factor, predictionData),
-    strength: getSignalStrengthLabel(factor.impact),
-    effect: "Lowers risk",
-  }));
-
-  return {
-    summary: summaryByRisk[risk] || summaryByRisk.unknown,
-    marketLine: `Market context is ${marketRegime}. ${stressText} This is a contextual signal, not the primary decision basis.`,
-    stackLine: String(stackSurvival?.narrative || "").trim(),
-    pressureSignals,
-    protectionSignals,
-    overall,
-  };
-};
-
-const buildStabilizationPlan = (predictionData) => {
-  const prediction = predictionData?.prediction || {};
-  const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors : [];
-  const improvementTips = Array.isArray(prediction.improvement_tips) ? prediction.improvement_tips : [];
-
-  const factorActionMap = {
-    performance_rating: {
-      title: "Lock a 30-day performance plan with your manager",
-      detail: "Set weekly deliverables and track outcomes in writing so your impact signal improves quickly.",
-    },
-    years_at_company: {
-      title: "Increase visibility in cross-team work",
-      detail: "Join at least one cross-functional initiative to improve role resilience during restructures.",
-    },
-    salary_range: {
-      title: "Strengthen value-to-cost narrative",
-      detail: "Document business outcomes and efficiency wins tied directly to your compensation level.",
-    },
-    industry_layoff_rate: {
-      title: "Prepare internal mobility options",
-      detail: "Identify 2 adjacent roles inside the company and start conversations with those teams this month.",
-    },
-    role_demand_index: {
-      title: "Align output to high-demand role expectations",
-      detail: "Prioritize responsibilities tied to currently expanding workstreams in your role family.",
-    },
-    department_resilience_index: {
-      title: "Increase department-critical contribution",
-      detail: "Own one initiative linked to business continuity or efficiency in your department.",
-    },
-    tech_stack_trend_score: {
-      title: "Upgrade toward AI/cloud-relevant stack",
-      detail: "Replace one legacy tool with an in-demand AI/cloud workflow over the next 30 days.",
-    },
-    tech_stack: {
-      title: "Modernize stack exposure with practical projects",
-      detail: "Ship one project artifact using a higher-demand stack to prove readiness and mobility.",
-    },
-    job_title: {
-      title: "Build adjacent-role readiness",
-      detail: "Prepare skills and outcomes that make transition to a higher-demand title feasible.",
-    },
-    department: {
-      title: "Expand cross-department visibility",
-      detail: "Partner with one more resilient function to reduce concentration risk in current department.",
-    },
-    revenue_growth: {
-      title: "Anchor your work to revenue outcomes",
-      detail: "Prioritize tasks that improve customer retention, delivery speed, or conversion metrics.",
-    },
-    profit_margin: {
-      title: "Focus on efficiency projects",
-      detail: "Take ownership of one cost-saving or automation improvement with measurable business impact.",
-    },
-    stock_price_change: {
-      title: "Use market pressure as a secondary caution signal",
-      detail: "Treat market movement as context, but prioritize stack and role-demand actions first.",
-    },
-  };
-
-  const prioritizedFactors = topFactors
-    .filter((factor) => factor.direction === "increases_risk")
-    .slice(0, 3);
-
-  const actions = [];
-  const seen = new Set();
-
-  for (const factor of prioritizedFactors) {
-    const mapped = factorActionMap[factor.feature];
-    if (!mapped || seen.has(mapped.title)) {
-      continue;
-    }
-    actions.push(mapped);
-    seen.add(mapped.title);
-  }
-
-  for (const tip of improvementTips) {
-    const title = "Execute one model-recommended improvement";
-    if (seen.has(title)) {
-      continue;
-    }
-    actions.push({
-      title,
-      detail: String(tip || "").trim(),
-    });
-    seen.add(title);
-    if (actions.length >= 3) {
-      break;
-    }
-  }
-
-  if (!actions.length) {
-    actions.push(
-      {
-        title: "Schedule a manager calibration conversation",
-        detail: "Review current goals, delivery quality, and role priorities for the next quarter.",
-      },
-      {
-        title: "Update skill roadmap for your current domain",
-        detail: "Pick one high-demand skill and define weekly checkpoints for the next 30 days.",
-      },
-      {
-        title: "Track measurable outcomes weekly",
-        detail: "Maintain a simple impact log with outcomes, blockers removed, and efficiency gains.",
-      }
-    );
-  }
-
-  return actions.slice(0, 3);
-};
-
-const buildActionTrackerSeed = (predictionData) =>
-  buildStabilizationPlan(predictionData).map((item, index) => ({
-    id: `plan-${index + 1}`,
-    title: item.title,
-    detail: item.detail,
-    status: "not_started",
-  }));
-
-const formatCheckedAt = (value) => {
-  if (!value) {
-    return "N/A";
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return String(value);
-  }
-  return parsed.toLocaleString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-const getVolatilityPosture = (companyVol, marketVol) => {
-  const company = toFiniteNumber(companyVol);
-  const market = toFiniteNumber(marketVol);
-  if (company == null || market == null || market === 0) {
-    return { label: "Unavailable", tone: "text-slate-700", detail: "Volatility feed not available." };
-  }
-  if (company > market * 1.25) {
-    return {
-      label: "Elevated",
-      tone: "text-rose-700",
-      detail: `Company volatility ${company.toFixed(2)}% vs market ${market.toFixed(2)}%.`,
-    };
-  }
-  if (company < market * 0.85) {
-    return {
-      label: "Below Market",
-      tone: "text-emerald-700",
-      detail: `Company volatility ${company.toFixed(2)}% vs market ${market.toFixed(2)}%.`,
-    };
-  }
-  return {
-    label: "In-Line",
-    tone: "text-amber-700",
-    detail: `Company volatility ${company.toFixed(2)}% vs market ${market.toFixed(2)}%.`,
-  };
-};
-
-const getResponsibleAssessment = (predictionData, inputQuality) => {
-  const prediction = predictionData?.prediction || {};
-  const reliability = predictionData?.reliability || {};
-  const marketSignals = predictionData?.market_signals || {};
-
-  const risk = String(prediction.layoff_risk || "Unknown");
-  const confidence = toFiniteNumber(prediction.confidence) || 0;
-  const reliabilityScore = toFiniteNumber(reliability.score) || 0;
-  const inputScore = toFiniteNumber(inputQuality?.score);
-  const gate = String(reliability.gate || "medium").toLowerCase();
-
-  const requiresManualReview =
-    gate === "warning"
-    || confidence < 0.55
-    || (inputScore != null && inputScore < 70);
-
-  const needsCaution =
-    !requiresManualReview
-    && (gate !== "high" || confidence < 0.65 || (inputScore != null && inputScore < 85));
-
-  const status = requiresManualReview ? "manual_review" : needsCaution ? "caution" : "advisory_ready";
-
-  const statusMeta = {
-    manual_review: {
-      title: "Manual Review Required",
-      badge: "Not Decision-Ready",
-      container: "border-rose-200 bg-rose-50",
-      badgeClass: "bg-rose-600 text-white",
-      text: "Current output should be treated as directional only and must be manually reviewed before any decision.",
-    },
-    caution: {
-      title: "Use With Review Controls",
-      badge: "Review Before Use",
-      container: "border-amber-200 bg-amber-50",
-      badgeClass: "bg-amber-600 text-white",
-      text: "Use this prediction as one supporting signal, together with HR and manager evidence.",
-    },
-    advisory_ready: {
-      title: "Advisory Signal Available",
-      badge: "Advisory Use",
-      container: "border-emerald-200 bg-emerald-50",
-      badgeClass: "bg-emerald-600 text-white",
-      text: "Signal quality is relatively strong, but human review is still mandatory.",
-    },
-  }[status];
-
-  const volatility = getVolatilityPosture(
-    marketSignals.company_volatility_90d,
-    marketSignals.market_volatility_90d
-  );
-
-  const limitations = [];
-  if (reliability.used_fallback_defaults) {
-    limitations.push("Live market data was unavailable; fallback defaults were used.");
-  }
-  if (String(reliability.market_mapping_type || "").toLowerCase() === "market_equivalent") {
-    limitations.push("Company was evaluated using market-equivalent mapping rather than direct listing.");
-  }
-  if (confidence < 0.6) {
-    limitations.push(`Model confidence is ${(confidence * 100).toFixed(1)}%, which is below strong-confidence range.`);
-  }
-  if (inputScore != null && inputScore < 80) {
-    limitations.push(`Input quality score is ${inputScore.toFixed(0)}/100; verify all user-entered fields.`);
-  }
-  limitations.push("This model is probabilistic and must not be the sole basis for employment decisions.");
-
-  const checks = [
-    "Validate latest performance and manager feedback from the last 90 days.",
-    "Confirm recent org/team restructuring context not captured in model inputs.",
-    "Cross-check decision with business-unit demand and replacement feasibility.",
-    "Document human reviewer notes before any action is taken.",
-  ];
-  if (reliability.used_fallback_defaults) {
-    checks.push("Re-run prediction when live market feed is available.");
-  }
-
-  return {
-    risk,
-    confidence,
-    reliabilityScore,
-    inputScore,
-    checkedAt: reliability.checked_at_utc,
-    marketRegime: marketSignals.marketRegime || "N/A",
-    statusMeta,
-    volatility,
-    limitations,
-    checks,
-  };
-};
-
-const ResponsibleBrief = ({ predictionData, inputQuality }) => {
-  const assessment = getResponsibleAssessment(predictionData, inputQuality);
-
-  return (
-    <details className={`rounded-2xl border ${assessment.statusMeta.container}`}>
-      <summary className="flex flex-wrap items-start justify-between gap-3 p-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Responsible Prediction Brief</p>
-          <h3 className="mt-1 text-base font-semibold text-slate-900">{assessment.statusMeta.title}</h3>
-          <p className="mt-1 text-sm text-slate-700">{assessment.statusMeta.text}</p>
-        </div>
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${assessment.statusMeta.badgeClass}`}>
-          {assessment.statusMeta.badge}
-        </span>
-      </summary>
-
-      <div className="px-4 pb-4">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs text-slate-500">Predicted Risk</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{assessment.risk}</p>
-          </div>
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs text-slate-500">Model Confidence</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.confidence * 100).toFixed(1)}%</p>
-          </div>
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs text-slate-500">Reliability Score</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">{(assessment.reliabilityScore * 100).toFixed(1)}%</p>
-          </div>
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs text-slate-500">Market Volatility</p>
-            <p className={`mt-1 text-sm font-semibold ${assessment.volatility.tone}`}>{assessment.volatility.label}</p>
-            <p className="mt-1 text-[11px] text-slate-600">{assessment.volatility.detail}</p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Required Checks</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
-              {assessment.checks.map((item, idx) => (
-                <li key={`check-${idx}`}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-xl border border-white/70 bg-white/70 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Known Limitations</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
-              {assessment.limitations.map((item, idx) => (
-                <li key={`limitation-${idx}`}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <p className="mt-3 text-[11px] text-slate-600">
-          Input Quality: {assessment.inputScore != null ? `${assessment.inputScore.toFixed(0)}/100` : "N/A"} | Market Regime: {assessment.marketRegime} | Checked: {formatCheckedAt(assessment.checkedAt)}
-        </p>
-      </div>
-    </details>
-  );
-};
-
-const Field = ({
-  icon,
-  label,
-  name,
-  value,
-  onChange,
-  options,
-  type = "text",
-  min,
-  max,
-  step,
-  required = true,
-  error = "",
-}) => (
-  <label className="space-y-2">
-    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-      {React.createElement(icon, { className: "h-4 w-4 text-slate-500" })}
-      {label}
-    </span>
-    {options ? (
-      <SelectControl
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        aria-invalid={Boolean(error)}
-        className={`${
-          error
-            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
-            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
-        }`}
-      >
-        <option value="">Select {label}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </SelectControl>
-    ) : (
-      <input
-        name={name}
-        value={value}
-        onChange={onChange}
-        type={type}
-        min={min}
-        max={max}
-        step={step}
-        required={required}
-        aria-invalid={Boolean(error)}
-        className={`${FORM_INPUT_CLASS} ${
-          error
-            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
-            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
-        }`}
-      />
-    )}
-    {error ? <p className="text-xs text-rose-700">{error}</p> : null}
-  </label>
-);
-
-const SelectControl = ({
-  children,
-  className = "",
-  ...props
-}) => (
-  <div className="relative">
-    <select
-      {...props}
-      className={`${FORM_SELECT_CLASS} ${className}`}
-    >
-      {children}
-    </select>
-    <HiChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-  </div>
-);
-
-const ReliabilityBanner = ({ reliability }) => {
-  if (!reliability) {
-    return null;
-  }
-
-  const gate = String(reliability.gate || "medium").toLowerCase();
-  const tone = RELIABILITY_TONE[gate] || RELIABILITY_TONE.medium;
-  const Icon = tone.icon;
-  const score = Number.isFinite(Number(reliability.score))
-    ? `${(Number(reliability.score) * 100).toFixed(1)}%`
-    : "N/A";
-  const source = RELIABILITY_SOURCE_LABEL[reliability.source] || reliability.source || "N/A";
-  const status = RELIABILITY_STATUS_LABEL[reliability.market_data_status]
-    || reliability.market_data_status
-    || "Unknown";
-  const mapping = MAPPING_MODE_LABEL[reliability.market_mapping_type] || "Standard Mapping";
-
-  return (
-    <div className={`rounded-2xl border p-4 ${tone.wrap}`}>
-      <div className="flex items-start gap-3">
-        <Icon className={`mt-0.5 h-5 w-5 ${tone.text}`} />
-        <div className="space-y-1">
-          <p className={`text-sm font-semibold ${tone.text}`}>
-            {tone.title} • {score}
-          </p>
-          <p className={`text-sm ${tone.text}`}>{reliability.message}</p>
-          <p className="text-xs text-slate-600">
-            Feed: {source} | Mode: {status} | Mapping: {mapping}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SegmentTabs = ({ tabs, active, onChange }) => (
-  <div className="flex flex-wrap gap-2">
-    {tabs.map((tab) => (
-      <button
-        key={tab.id}
-        type="button"
-        onClick={() => onChange(tab.id)}
-        className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
-          active === tab.id
-            ? "border-slate-900 bg-slate-900 text-white"
-            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-        }`}
-      >
-        {tab.label}
-      </button>
-    ))}
-  </div>
-);
-
-const WorkspacePanelFrame = ({ tabId, children }) => {
-  const tone = WORKSPACE_FRAME_THEME[tabId] || WORKSPACE_FRAME_THEME.simulator;
-  return (
-    <section className={`rounded-3xl border p-4 shadow-sm ${tone.border} ${tone.bg}`}>
-      <div className="mb-3">
-        <span className={`rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${tone.text}`}>
-          {tone.label}
-        </span>
-      </div>
-      <div className="rounded-2xl border border-white/85 bg-white/90 p-1">
-        {children}
-      </div>
-    </section>
-  );
-};
-
-const ResultPanel = ({ predictionData, inputQuality }) => {
-  const [resultView, setResultView] = useState("story");
-  const prediction = predictionData?.prediction || {};
-  const probabilities = Object.entries(prediction.probabilities || {});
-  const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors.slice(0, 5) : [];
-  const improvementTips = Array.isArray(prediction.improvement_tips) ? prediction.improvement_tips.slice(0, 4) : [];
-  const marketSignalSource = predictionData?.market_signals || {};
-  const marketSignals = DISPLAY_MARKET_SIGNAL_KEYS
-    .filter((key) => marketSignalSource[key] !== undefined && marketSignalSource[key] !== null && marketSignalSource[key] !== "")
-    .map((key) => [key, marketSignalSource[key]]);
-  const normalizedInput = Object.entries(predictionData?.normalized_input || {});
-  const fullFeatures = Object.entries(predictionData?.data || {});
-
-  const risk = String(prediction.layoff_risk || "unknown").toLowerCase();
-  const tone = RISK_TONE[risk] || RISK_TONE.unknown;
-  const RiskIcon = tone.icon;
-  const confidence = Number(prediction.confidence || 0);
-  const riskScore = Number(prediction.risk_score || 0);
-  const riskMeter = Math.max(0, Math.min(100, riskScore));
-  const riskMeterTone = risk === "high"
-    ? "bg-rose-500"
-    : risk === "medium"
-      ? "bg-amber-500"
-      : risk === "low"
-        ? "bg-emerald-500"
-        : "bg-slate-500";
-  const riskHeadline = risk === "high"
-    ? "Immediate stabilization actions are recommended."
-    : risk === "medium"
-      ? "Risk is balanced and sensitive to near-term changes."
-      : risk === "low"
-        ? "Current profile is relatively stable."
-        : "Risk posture is currently unclear.";
-  const reasonForFactor = (factor) => getContextualFactorReason(factor, predictionData);
-  const riskStory = buildRiskStory(predictionData);
-  const stabilizationPlan = buildStabilizationPlan(predictionData);
-  const stackSurvival = predictionData?.stack_survival || null;
-  const stackSignal = String(stackSurvival?.current_stack_signal || "unknown").toLowerCase();
-  const stackSignalTone = stackSignal === "strong"
-    ? "border-emerald-200 bg-emerald-50/40 text-emerald-800"
-    : stackSignal === "moderate"
-      ? "border-amber-200 bg-amber-50/40 text-amber-800"
-      : stackSignal === "weak"
-        ? "border-rose-200 bg-rose-50/40 text-rose-800"
-        : "border-slate-200 bg-slate-50 text-slate-700";
-
-  return (
-    <div className="space-y-4">
-      <ReliabilityBanner reliability={predictionData?.reliability} />
-
-      <div className={`rounded-3xl border p-5 shadow-sm ${tone.card}`}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <RiskIcon className="h-5 w-5 text-slate-800" />
-            <h2 className="font-display text-lg font-semibold text-slate-900">Layoff Risk Prediction</h2>
-          </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${tone.badge}`}>
-            {prediction.layoff_risk || "Unknown"}
-          </span>
-        </div>
-
-        <div className="mt-4 grid gap-3 lg:grid-cols-[1.45fr_1fr]">
-          <div className="rounded-2xl border border-white/80 bg-white/85 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Decision Snapshot</p>
-            <p className="mt-1 text-base font-semibold text-slate-900">{riskHeadline}</p>
-            <p className="mt-2 text-sm text-slate-700">{riskStory.summary}</p>
-            <p className="mt-1 text-sm text-slate-700">{riskStory.marketLine}</p>
-            {riskStory.stackLine ? <p className="mt-1 text-sm text-slate-700">{riskStory.stackLine}</p> : null}
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-500">
-                <span>Risk Index</span>
-                <span>{riskScore.toFixed(1)} / 100</span>
-              </div>
-              <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-200/90">
-                <div
-                  className={`h-full rounded-full ${riskMeterTone}`}
-                  style={{ width: `${Math.max(4, riskMeter)}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-xl border border-white/80 bg-white/85 p-3">
-              <p className="text-xs text-slate-500">Model Confidence</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">{(confidence * 100).toFixed(1)}%</p>
-            </div>
-            <div className="rounded-xl border border-white/80 bg-white/85 p-3">
-              <p className="text-xs text-slate-500">Input Quality</p>
-              <p className="mt-1 text-xl font-semibold text-slate-900">{inputQuality?.score ?? "N/A"} / 100</p>
-              <p className="mt-1 text-xs text-slate-600">
-                Market: {predictionData?.market_signals?.marketRegime || "N/A"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ResponsibleBrief predictionData={predictionData} inputQuality={inputQuality} />
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Risk Insight Workspace</p>
-            <p className="mt-1 text-xs text-slate-500">Switch views to keep analysis concise and focused.</p>
-          </div>
-          <SegmentTabs tabs={RESULT_VIEW_TABS} active={resultView} onChange={setResultView} />
-        </div>
-
-        {resultView === "story" ? (
-          <div className="mt-4 space-y-4">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">In Simple Terms</p>
-              <p className="mt-1 text-sm font-medium text-slate-900">{riskStory.summary}</p>
-              <p className="mt-1 text-sm text-slate-700">{riskStory.marketLine}</p>
-              {riskStory.stackLine ? <p className="mt-1 text-sm text-slate-700">{riskStory.stackLine}</p> : null}
-              <p className="mt-1 text-sm text-slate-700">{riskStory.overall}</p>
-            </div>
-            {stackSurvival ? (
-              <div className={`rounded-xl border p-3 ${stackSignalTone}`}>
-                <p className="text-xs font-semibold uppercase tracking-wide">Current Stack Survival Snapshot</p>
-                <p className="mt-1 text-sm font-semibold">
-                  {stackSurvival.scope}
-                </p>
-                <p className="mt-1 text-sm">{stackSurvival.narrative}</p>
-                <p className="mt-2 text-xs">
-                  Current stack rank: {stackSurvival.current_stack_rank || "N/A"} / {stackSurvival.compared_stacks || "N/A"}
-                  {stackSurvival.current_stack_low_risk_share != null
-                    ? ` | Low-risk share: ${(Number(stackSurvival.current_stack_low_risk_share) * 100).toFixed(1)}%`
-                    : ""}
-                </p>
-                <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-lg border border-white/70 bg-white/80 p-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">Most Resilient Stacks</p>
-                    <div className="mt-1.5 space-y-1.5 text-sm text-slate-800">
-                      {(stackSurvival.top_resilient_stacks || []).map((item, idx) => (
-                        <p key={`top-stack-${item.tech_stack}-${idx}`}>
-                          {idx + 1}. {item.tech_stack} ({(Number(item.low_risk_share || 0) * 100).toFixed(1)}% low-risk)
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-white/70 bg-white/80 p-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">Stacks Under Pressure</p>
-                    <div className="mt-1.5 space-y-1.5 text-sm text-slate-800">
-                      {(stackSurvival.watchlist_stacks || []).map((item, idx) => (
-                        <p key={`risk-stack-${item.tech_stack}-${idx}`}>
-                          {idx + 1}. {item.tech_stack} ({(Number(item.low_risk_share || 0) * 100).toFixed(1)}% low-risk)
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-            <div className="grid gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-rose-200 bg-rose-50/40 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">Pressures</p>
-                <div className="mt-2 space-y-2">
-                  {riskStory.pressureSignals.length ? (
-                    riskStory.pressureSignals.map((item, index) => (
-                      <div key={`pressure-${index}`} className="rounded-lg border border-rose-100 bg-white/80 p-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-rose-700">{item.strength} Signal</p>
-                        <p className="mt-1 text-sm font-semibold text-rose-900">{item.title}</p>
-                        <p className="mt-1 text-sm text-rose-900">{item.reason}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-rose-800">No major pressure signals were detected in this run.</p>
-                  )}
-                </div>
-              </div>
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Protection</p>
-                <div className="mt-2 space-y-2">
-                  {riskStory.protectionSignals.length ? (
-                    riskStory.protectionSignals.map((item, index) => (
-                      <div key={`protection-${index}`} className="rounded-lg border border-emerald-100 bg-white/80 p-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">{item.strength} Signal</p>
-                        <p className="mt-1 text-sm font-semibold text-emerald-900">{item.title}</p>
-                        <p className="mt-1 text-sm text-emerald-900">{item.reason}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-emerald-800">No strong protective signals were detected in this run.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">30-Day Stabilization Plan</p>
-              <div className="mt-2 grid gap-2 md:grid-cols-3">
-                {stabilizationPlan.map((item, index) => (
-                  <div key={`${item.title}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step {index + 1}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p>
-                    <p className="mt-1 text-xs text-slate-700">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {resultView === "signals" ? (
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <section className="rounded-xl border border-slate-200 bg-white p-3">
-              <h3 className="text-sm font-semibold text-slate-900">Class Probabilities</h3>
-              <div className="mt-3 space-y-3">
-                {probabilities.length ? (
-                  probabilities.map(([label, value]) => (
-                    <div key={label} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs text-slate-600">
-                        <span>{label}</span>
-                        <span>{(Number(value) * 100).toFixed(2)}%</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className="h-full rounded-full bg-slate-700"
-                          style={{ width: `${Math.max(2, Number(value) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">No probability breakdown available.</p>
-                )}
-              </div>
-            </section>
-
-            <section className="rounded-xl border border-slate-200 bg-white p-3">
-              <h3 className="text-sm font-semibold text-slate-900">Market Signals Used</h3>
-              <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
-                {marketSignals.length ? (
-                  marketSignals.map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between text-sm">
-                      <span className="text-slate-600">{formatFeatureLabel(key)}</span>
-                      <span className="font-medium text-slate-900">{formatFeatureValue(key, value)}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">Live market stats unavailable for this run.</p>
-                )}
-              </div>
-            </section>
-          </div>
-        ) : null}
-
-        {resultView === "drivers" ? (
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <section className="rounded-xl border border-slate-200 bg-white p-3">
-              <h3 className="text-sm font-semibold text-slate-900">Top Risk Drivers</h3>
-              <div className="mt-3 space-y-3">
-                {topFactors.length ? (
-                  topFactors.map((factor, index) => (
-                    <div key={`${factor.feature}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                      <p className="text-sm font-semibold text-slate-900">{factor.label || formatFeatureLabel(factor.feature)}</p>
-                      <p className="mt-1 text-xs text-slate-700">{reasonForFactor(factor)}</p>
-                      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                        <span>
-                          Effect: {factor.direction === "increases_risk" ? "Raises Risk" : factor.direction === "reduces_risk" ? "Lowers Risk" : "Neutral"}
-                        </span>
-                        <span>Signal: {getSignalStrengthLabel(factor.impact)}</span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">Top factors unavailable for this run.</p>
-                )}
-              </div>
-            </section>
-
-            <section className="rounded-xl border border-slate-200 bg-white p-3">
-              <h3 className="text-sm font-semibold text-slate-900">Priority Actions</h3>
-              <div className="mt-3 space-y-2">
-                {improvementTips.length ? (
-                  improvementTips.map((tip, index) => (
-                    <div key={`${tip}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5 text-sm text-slate-700">
-                      {index + 1}. {tip}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">No immediate tips generated.</p>
-                )}
-              </div>
-            </section>
-          </div>
-        ) : null}
-
-        {resultView === "inputs" ? (
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Model Input Values</p>
-              <div className="mt-2 max-h-80 space-y-2 overflow-y-auto pr-1">
-                {normalizedInput.map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600">{formatFeatureLabel(key)}</span>
-                    <span className="font-medium text-slate-900">{formatFeatureValue(key, value)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Full Feature Vector</p>
-              <div className="mt-2 max-h-80 space-y-2 overflow-y-auto pr-1">
-                {fullFeatures.map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600">{formatFeatureLabel(key)}</span>
-                    <span className="font-medium text-slate-900">{formatFeatureValue(key, value)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </section>
-    </div>
-  );
-};
-
-const WhatIfSimulator = ({
-  whatIfForm,
-  setWhatIfForm,
-  onRun,
-  onApplyToInput,
-  loading,
-  result,
-  baselineRisk,
-}) => (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5">
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-900">What-If Simulator</h3>
-        <p className="mt-1 text-xs text-slate-500">
-          Test how controllable changes could shift your risk signal before making real updates.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onApplyToInput}
-        className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-      >
-        Apply Scenario To Form
-      </button>
-    </div>
-
-    <div className="mt-4 grid gap-3 md:grid-cols-3">
-      <label className="space-y-1">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Years At Company</span>
-        <input
-          type="number"
-          min="0"
-          max="18"
-          step="0.5"
-          value={whatIfForm.years_at_company}
-          onChange={(event) =>
-            setWhatIfForm((prev) => ({ ...prev, years_at_company: event.target.value }))
-          }
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-        />
-      </label>
-      <label className="space-y-1">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Performance Rating</span>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          step="1"
-          value={whatIfForm.performance_rating}
-          onChange={(event) =>
-            setWhatIfForm((prev) => ({ ...prev, performance_rating: event.target.value }))
-          }
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-        />
-      </label>
-      <label className="space-y-1">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Salary (LPA)</span>
-        <input
-          type="number"
-          min="1"
-          max="120"
-          step="0.5"
-          value={whatIfForm.salary_lpa}
-          onChange={(event) =>
-            setWhatIfForm((prev) => ({ ...prev, salary_lpa: event.target.value }))
-          }
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-        />
-      </label>
-    </div>
-
-    <button
-      type="button"
-      onClick={onRun}
-      disabled={loading}
-      className="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-    >
-      {loading ? "Running Scenario..." : "Run Scenario"}
-    </button>
-
-    {result?.scenario?.prediction ? (
-      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Scenario Output</p>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getRiskBadgeClass(baselineRisk)}`}>
-            Baseline: {baselineRisk || "Unknown"}
-          </span>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getRiskBadgeClass(result.delta?.risk_to)}`}>
-            Scenario: {result.delta?.risk_to || "Unknown"}
-          </span>
-        </div>
-        <p className="mt-2 text-sm text-slate-700">{result.delta?.narrative}</p>
-        <p className="mt-1 text-xs text-slate-600">
-          Risk Score Delta: {result.delta?.risk_score_delta != null ? result.delta.risk_score_delta.toFixed(3) : "N/A"}
-          {" "} | Confidence Delta: {result.delta?.confidence_delta != null ? (result.delta.confidence_delta * 100).toFixed(2) : "N/A"}%
-        </p>
-      </div>
-    ) : null}
-  </section>
-);
-
-const ActionTrackerPanel = ({
-  actions,
-  onUpdateStatus,
-  onSave,
-  onRescore,
-  saving,
-  rescoreLoading,
-  message,
-  rescoreSummary,
-}) => {
-  const doneCount = actions.filter((item) => item.status === "done").length;
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">30-Day Action Tracker</h3>
-          <p className="mt-1 text-xs text-slate-500">
-            Track completion and re-score once progress is visible in your profile updates.
-          </p>
-        </div>
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-          {doneCount}/{actions.length} Done
-        </span>
-      </div>
-
-      <div className="mt-4 space-y-3">
-        {actions.map((action, index) => (
-          <div key={action.id || `${action.title}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p className="text-sm font-semibold text-slate-900">{action.title}</p>
-            {action.detail ? <p className="mt-1 text-xs text-slate-600">{action.detail}</p> : null}
-            <div className="mt-2">
-              <SelectControl
-                value={action.status}
-                onChange={(event) => onUpdateStatus(index, event.target.value)}
-                className="border-slate-200 py-2 focus:border-slate-400 focus:ring-slate-200"
-              >
-                {ACTION_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </SelectControl>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-        >
-          {saving ? "Saving..." : "Save Action Status"}
-        </button>
-        <button
-          type="button"
-          onClick={onRescore}
-          disabled={rescoreLoading}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-        >
-          {rescoreLoading ? "Re-scoring..." : "Re-score With Current Inputs"}
-        </button>
-      </div>
-
-      {message ? <p className="mt-2 text-xs text-slate-600">{message}</p> : null}
-      {rescoreSummary ? (
-        <p className="mt-2 text-xs text-slate-600">
-          Re-score result: {rescoreSummary.from} to {rescoreSummary.to} (Risk Score delta {rescoreSummary.delta.toFixed(3)})
-        </p>
-      ) : null}
-    </section>
-  );
-};
-
-const HumanReviewPanel = ({
-  runId,
-  reviewForm,
-  setReviewForm,
-  onSubmit,
-  saving,
-  savedReview,
-  message,
-}) => (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5">
-    <h3 className="text-sm font-semibold text-slate-900">Human Review Workflow</h3>
-    <p className="mt-1 text-xs text-slate-500">
-      Capture accountable reviewer notes before this output is used operationally.
-    </p>
-    <p className="mt-1 text-[11px] text-slate-500">Run ID: {runId || "Unavailable"}</p>
-
-    {savedReview ? (
-      <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
-        Last review by {savedReview.reviewed_by} on {formatCheckedAt(savedReview.reviewed_at_utc)} ({savedReview.decision}).
-      </div>
-    ) : null}
-
-    <div className="mt-4 grid gap-3 md:grid-cols-2">
-      <input
-        type="text"
-        placeholder="Reviewer Name"
-        value={reviewForm.reviewed_by}
-        onChange={(event) => setReviewForm((prev) => ({ ...prev, reviewed_by: event.target.value }))}
-        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-      />
-      <SelectControl
-        value={reviewForm.decision}
-        onChange={(event) => setReviewForm((prev) => ({ ...prev, decision: event.target.value }))}
-        className="border-slate-200 py-2 focus:border-slate-400 focus:ring-slate-200"
-      >
-        {REVIEW_DECISIONS.map((decision) => (
-          <option key={decision} value={decision}>
-            {decision}
-          </option>
-        ))}
-      </SelectControl>
-      <textarea
-        rows={3}
-        placeholder="Review reason and human evidence"
-        value={reviewForm.review_reason}
-        onChange={(event) => setReviewForm((prev) => ({ ...prev, review_reason: event.target.value }))}
-        className="md:col-span-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
-      />
-    </div>
-
-    <button
-      type="button"
-      onClick={onSubmit}
-      disabled={saving || !runId}
-      className="mt-3 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-    >
-      {saving ? "Saving Review..." : "Save Review Note"}
-    </button>
-    {message ? <p className="mt-2 text-xs text-slate-600">{message}</p> : null}
-  </section>
-);
-
-const HistoryPanel = ({ historyEntries, trend, loading, onRefresh, onLoadRun }) => (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5">
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-900">Prediction History & Trend</h3>
-        <p className="mt-1 text-xs text-slate-500">Track risk movement and stability over time for this company profile.</p>
-      </div>
-      <button
-        type="button"
-        onClick={onRefresh}
-        disabled={loading}
-        className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-      >
-        {loading ? "Refreshing..." : "Refresh"}
-      </button>
-    </div>
-
-    {trend ? (
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-          <p className="text-xs text-slate-500">Entries</p>
-          <p className="text-sm font-semibold text-slate-900">{trend.entry_count}</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-          <p className="text-xs text-slate-500">Latest Risk</p>
-          <p className="text-sm font-semibold text-slate-900">{trend.latest_risk || "N/A"}</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-          <p className="text-xs text-slate-500">Risk Direction</p>
-          <p className="text-sm font-semibold text-slate-900">{trend.risk_direction || "flat"}</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-          <p className="text-xs text-slate-500">Avg Confidence</p>
-          <p className="text-sm font-semibold text-slate-900">
-            {trend.avg_confidence != null ? `${(trend.avg_confidence * 100).toFixed(1)}%` : "N/A"}
-          </p>
-        </div>
-      </div>
-    ) : null}
-
-    <div className="mt-4 space-y-2">
-      {historyEntries.length ? historyEntries.map((entry) => (
-        <div key={entry.run_id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-slate-500">{formatCheckedAt(entry.created_at_utc)}</p>
-            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getRiskBadgeClass(entry?.prediction?.layoff_risk)}`}>
-              {entry?.prediction?.layoff_risk || "Unknown"}
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-slate-600">
-            Confidence {(Number(entry?.prediction?.confidence || 0) * 100).toFixed(1)}% | Market {entry?.market_signals?.marketRegime || "N/A"}
-          </p>
-          <p className="mt-1 text-xs text-slate-600">
-            Reviewed: {entry?.review?.reviewed_by ? `${entry.review.reviewed_by} (${entry.review.decision})` : "No"}
-          </p>
-          <button
-            type="button"
-            onClick={() => onLoadRun(entry)}
-            className="mt-2 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-white"
-          >
-            Load Snapshot
-          </button>
-        </div>
-      )) : (
-        <p className="text-sm text-slate-500">No history available yet.</p>
-      )}
-    </div>
-  </section>
-);
-
-const ModelQualityPanel = ({ report, loading, error, onLoad }) => (
-  <section className="rounded-2xl border border-slate-200 bg-white p-5">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-900">Model Quality Dashboard</h3>
-        <p className="mt-1 text-xs text-slate-500">
-          Production checks for accuracy, calibration, confusion matrix, and high-confidence failures.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onLoad}
-        disabled={loading}
-        className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-      >
-        {loading ? "Loading..." : "Load Metrics"}
-      </button>
-    </div>
-
-    {error ? <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-
-    {report ? (
-      <div className="mt-4 space-y-4">
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-            <p className="text-xs text-slate-500">Accuracy</p>
-            <p className="text-sm font-semibold text-slate-900">{(Number(report?.overall?.accuracy || 0) * 100).toFixed(2)}%</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-            <p className="text-xs text-slate-500">Macro F1</p>
-            <p className="text-sm font-semibold text-slate-900">{Number(report?.overall?.macro_f1 || 0).toFixed(4)}</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-            <p className="text-xs text-slate-500">High Recall</p>
-            <p className="text-sm font-semibold text-slate-900">{Number(report?.per_class?.High?.recall || 0).toFixed(4)}</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-            <p className="text-xs text-slate-500">ECE</p>
-            <p className="text-sm font-semibold text-slate-900">{Number(report?.calibration?.expected_calibration_error || 0).toFixed(4)}</p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
-          <table className="min-w-full text-xs">
-            <thead className="bg-slate-100 text-slate-700">
-              <tr>
-                <th className="px-3 py-2 text-left">Actual \ Pred</th>
-                {(report?.confusion_matrix?.labels || []).map((label) => (
-                  <th key={label} className="px-3 py-2 text-left">{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(report?.confusion_matrix?.matrix || []).map((row, rowIdx) => (
-                <tr key={`row-${rowIdx}`} className="border-t border-slate-100">
-                  <td className="px-3 py-2 font-semibold text-slate-700">{report?.confusion_matrix?.labels?.[rowIdx] || rowIdx}</td>
-                  {row.map((value, colIdx) => (
-                    <td key={`cell-${rowIdx}-${colIdx}`} className="px-3 py-2 text-slate-700">{value}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">High-Confidence Errors</p>
-          <div className="mt-2 space-y-2">
-            {(report?.error_analysis?.high_confidence_errors || []).slice(0, 5).map((item, idx) => (
-              <div key={`${item.company_name}-${idx}`} className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
-                <p className="text-xs text-slate-700">
-                  {item.company_name} | {item.job_title} | {item.department}
-                </p>
-                <p className="mt-1 text-xs text-slate-600">
-                  Actual {item.actual}, Predicted {item.predicted}, Confidence {(Number(item.confidence || 0) * 100).toFixed(1)}%
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    ) : null}
-  </section>
-);
-
+import { API_BASE_URL } from "../../config/api";
+import {
+  ACTION_STATUS_OPTIONS,
+  FALLBACK_COMPANY_OPTIONS,
+  FALLBACK_DEPARTMENT_OPTIONS,
+  FALLBACK_JOB_OPTIONS,
+  FALLBACK_LOCATION_OPTIONS,
+  FALLBACK_QUARTER_OPTIONS,
+  FALLBACK_TECH_STACK_OPTIONS,
+  FORM_INPUT_CLASS,
+  INPUT_QUALITY_TONE,
+  REVIEW_DECISIONS,
+  SALARY_BOUNDS,
+  WORKSPACE_TABS,
+} from "./predictor/constants";
+import {
+  buildActionTrackerSeed,
+  buildRiskStory,
+  getResponsibleAssessment,
+  sanitizeResumeInsights,
+  toAnnualInr,
+} from "./predictor/utils";
+import {
+  ActionTrackerPanel,
+  Field,
+  HistoryPanel,
+  HumanReviewPanel,
+  ModelQualityPanel,
+  ResumeIntakeCard,
+  ResultPanel,
+  SegmentTabs,
+  SelectControl,
+  WhatIfSimulator,
+  WorkspacePanelFrame,
+} from "./predictor/sections";
 const EmployeePred = () => {
   const [formData, setFormData] = useState({
     company_name: "",
@@ -1842,6 +92,12 @@ const EmployeePred = () => {
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
   const [workspaceTab, setWorkspaceTab] = useState("simulator");
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeParsing, setResumeParsing] = useState(false);
+  const [resumeInsights, setResumeInsights] = useState(null);
+  const [resumeMissingFields, setResumeMissingFields] = useState([]);
+  const [resumeTrendGuidance, setResumeTrendGuidance] = useState(null);
+  const [resumeMessage, setResumeMessage] = useState("");
 
   useEffect(() => {
     const fetchInputSpec = async () => {
@@ -1943,6 +199,71 @@ const EmployeePred = () => {
       setError("");
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleResumeFileChange = (event) => {
+    const file = event?.target?.files?.[0] || null;
+    setResumeFile(file);
+    if (file) {
+      setResumeMessage(`Ready to parse: ${file.name}`);
+    } else {
+      setResumeMessage("");
+    }
+  };
+
+  const handleResumeParse = async () => {
+    if (!resumeFile) {
+      setError("Choose a resume file first.");
+      return;
+    }
+
+    setResumeParsing(true);
+    setResumeMessage("");
+    setError("");
+
+    try {
+      const payload = new FormData();
+      payload.append("resume", resumeFile);
+      const response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse`, payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || "Unable to parse resume");
+      }
+
+      const extractedProfile = response.data.profile || {};
+      setFormData((prev) => {
+        const next = { ...prev };
+        for (const [key, value] of Object.entries(extractedProfile)) {
+          if (value != null && String(value).trim() !== "") {
+            next[key] = String(value);
+          }
+        }
+        return next;
+      });
+
+      const nextInsights = response.data.resume_insights || null;
+      const nextMissing = Array.isArray(response.data.missing_required_fields)
+        ? response.data.missing_required_fields
+        : [];
+      const nextTrend = response.data.trend_guidance || null;
+
+      setResumeInsights(nextInsights);
+      setResumeMissingFields(nextMissing);
+      setResumeTrendGuidance(nextTrend);
+      setResumeMessage(
+        nextMissing.length
+          ? `Resume parsed. Fill remaining fields: ${nextMissing.join(", ")}`
+          : "Resume parsed successfully. Profile fields were auto-filled."
+      );
+    } catch (resumeError) {
+      const message = resumeError.response?.data?.message || resumeError.message || "Unable to parse resume.";
+      setError(message);
+      setResumeMessage("");
+    } finally {
+      setResumeParsing(false);
+    }
   };
 
   const activeRunId = predictionData?.run_id || predictionData?.history_entry?.run_id || null;
@@ -2076,6 +397,7 @@ const EmployeePred = () => {
     years_at_company: Number(formData.years_at_company),
     salary_range: annualSalaryInr,
     performance_rating: Number(formData.performance_rating),
+    resume_insights: sanitizeResumeInsights(resumeInsights),
   });
 
   const runPrediction = async (payload, mode = "predict") => {
@@ -2166,8 +488,9 @@ const EmployeePred = () => {
       years_at_company: Number(formData.years_at_company) || 0,
       performance_rating: Number(formData.performance_rating) || 0,
       salary_range: annualSalaryInr || 0,
+      resume_insights: sanitizeResumeInsights(resumeInsights || predictionData?.resume_insights),
     }),
-    [annualSalaryInr, formData]
+    [annualSalaryInr, formData, predictionData?.resume_insights, resumeInsights]
   );
 
   useEffect(() => {
@@ -2199,6 +522,13 @@ const EmployeePred = () => {
         decision: savedReview.decision || prev.decision || REVIEW_DECISIONS[0],
         review_reason: savedReview.review_reason || prev.review_reason,
       }));
+    }
+
+    if (predictionData?.resume_insights) {
+      setResumeInsights(predictionData.resume_insights);
+    }
+    if (predictionData?.trend_guidance) {
+      setResumeTrendGuidance(predictionData.trend_guidance);
     }
   }, [predictionData, annualSalaryInr, formData.performance_rating, formData.salary_range, formData.years_at_company]);
 
@@ -2388,10 +718,16 @@ const EmployeePred = () => {
       prediction: entry.prediction || {},
       stack_survival: entry.stack_survival || null,
       market_signals: entry.market_signals || null,
+      resume_insights: entry.resume_insights || null,
+      trend_guidance: entry.trend_guidance || null,
       reliability: entry.reliability || {},
     });
     setWhatIfResult(null);
     setActionTracker(Array.isArray(entry.action_tracker) ? entry.action_tracker : []);
+    setResumeInsights(entry.resume_insights || null);
+    setResumeTrendGuidance(entry.trend_guidance || null);
+    setResumeMissingFields([]);
+    setResumeMessage("Loaded profile snapshot from history.");
   };
 
   const handleLoadModelEval = async () => {
@@ -2504,6 +840,19 @@ const EmployeePred = () => {
             <p className="mt-1 text-sm text-slate-500">
               Step-by-step profile capture designed for cleaner and more accurate model input.
             </p>
+
+            <div className="mt-4">
+              <ResumeIntakeCard
+                onFileChange={handleResumeFileChange}
+                onParse={handleResumeParse}
+                parsing={resumeParsing}
+                fileName={resumeFile?.name || ""}
+                insights={resumeInsights}
+                missingFields={resumeMissingFields}
+                trendGuidance={resumeTrendGuidance}
+                message={resumeMessage}
+              />
+            </div>
 
             <div className={`mt-4 rounded-xl border p-3 text-sm ${INPUT_QUALITY_TONE[inputQuality.level]}`}>
               <p className="font-semibold">

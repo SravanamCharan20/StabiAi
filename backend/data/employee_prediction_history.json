@@ -1948,5 +1948,655 @@
         "updated_at_utc": "2026-03-06T11:12:47.421Z"
       }
     ]
+  },
+  {
+    "run_id": "fb8e1daf-a36e-40f7-b097-3fcbb38e1e9b",
+    "created_at_utc": "2026-03-09T07:22:28.780Z",
+    "updated_at_utc": "2026-03-09T07:22:28.780Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4,
+      "resume_insights": {
+        "candidate_name": "Arjun Mehta",
+        "years_of_experience": 5.5,
+        "certifications": [
+          "AWS CERTIFIED",
+          "CKA"
+        ],
+        "skills": [
+          "python",
+          "node",
+          "react",
+          "kubernetes",
+          "docker",
+          "terraform",
+          "aws",
+          "sql"
+        ],
+        "ai_readiness_score": 88,
+        "parse_confidence": 0.7
+      }
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.35,
+      "profit_margin": 6.63,
+      "stock_price_change": -2.623,
+      "total_employees": 119737,
+      "role_demand_index": 7.85,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 8.345,
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 2.611,
+      "unemployment_rate": 6.444,
+      "inflation_rate": 5.196,
+      "employee_stability": 22,
+      "economic_pressure": 8.29
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.45,
+      "risk_score": 28.5,
+      "probabilities": {
+        "Low": 0.4327,
+        "Medium": 0.5645,
+        "High": 0.0027
+      },
+      "top_factors": [
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.63,
+          "impact": 0.598,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.69 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 7.85,
+          "impact": 0.5829,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.611,
+          "impact": 0.525,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.09 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "job_title",
+          "label": "Job Title",
+          "value": "Senior Software Engineer",
+          "impact": 0.2322,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Job Title: Senior Software Engineer."
+        },
+        {
+          "feature": "salary_range",
+          "label": "Salary",
+          "value": 3500000,
+          "impact": 0.2184,
+          "direction": "reduces_risk",
+          "reason": "Salary is currently in a risk-reducing range."
+        },
+        {
+          "feature": "department_resilience_index",
+          "label": "Department Resilience Index",
+          "value": 7.27,
+          "impact": 0.1634,
+          "direction": "increases_risk",
+          "reason": "Department Resilience Index is 0.15 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Contribute to initiatives that make your department revenue-critical and hard to downsize."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Senior Software Engineer in Q4 2025",
+      "compared_stacks": 4,
+      "current_stack": "AWS + Terraform + Kubernetes",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Node.js + React",
+          "sample_size": 34,
+          "low_risk_share": 0.8529,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.243
+        },
+        {
+          "tech_stack": ".NET + Azure",
+          "sample_size": 18,
+          "low_risk_share": 0.8333,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.133
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Java + Spring Boot",
+          "sample_size": 24,
+          "low_risk_share": 0.625,
+          "high_risk_share": 0.0417,
+          "avg_role_layoff_rate": 1.527
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4349,
+      "company_return_90d": -6.934,
+      "market_return_90d": 5.16,
+      "relative_return_90d": -12.094,
+      "company_volatility_90d": 1.9794,
+      "market_volatility_90d": 1.0091,
+      "india_vix": 35.67,
+      "company_last_price": 213.12,
+      "company_previous_close": 218.86,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 599.83,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Arjun Mehta",
+      "years_of_experience": 5.5,
+      "certifications": [
+        "AWS CERTIFIED",
+        "CKA"
+      ],
+      "skills": [
+        "python",
+        "node",
+        "react",
+        "kubernetes",
+        "docker",
+        "terraform",
+        "aws",
+        "sql"
+      ],
+      "ai_readiness_score": 88,
+      "parse_confidence": 0.7
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "trending_tech_stacks": [
+        {
+          "name": "AI-assisted SDLC (GitHub Copilot, Codeium, Cursor)",
+          "why": "Teams now expect faster delivery with AI-augmented development workflows."
+        },
+        {
+          "name": "Cloud-native platform stack (Kubernetes, Terraform, observability)",
+          "why": "Infra automation and reliability ownership reduce layoff exposure."
+        },
+        {
+          "name": "Backend modernization (FastAPI/Node microservices + event streaming)",
+          "why": "Scalable service ownership is retained in cost-constrained cycles."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified Developer / Solutions Architect",
+          "provider": "AWS",
+          "level": "Associate",
+          "why": "Cloud cost/performance ownership is strongly valued."
+        },
+        {
+          "name": "CKA / CKAD",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Kubernetes depth supports platform and reliability tracks."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC is now baseline in modern engineering teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Prompt engineering for developer workflows",
+          "why": "Improves coding velocity and review quality."
+        },
+        {
+          "name": "System design for scale and resilience",
+          "why": "Architecture capability improves role criticality."
+        },
+        {
+          "name": "Cost optimization and production telemetry",
+          "why": "Direct business impact in optimization cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Prompt engineering for developer workflows",
+        "System design for scale and resilience",
+        "Cost optimization and production telemetry"
+      ],
+      "certification_gaps": [
+        "HashiCorp Terraform Associate"
+      ],
+      "shift_path": [
+        "Move toward AI-assisted SDLC (GitHub Copilot, Codeium, Cursor) with one production project in 30-45 days.",
+        "Add Prompt engineering for developer workflows with measurable project evidence.",
+        "Pursue HashiCorp Terraform Associate for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For Senior Software Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.649,
+      "model_confidence": 0.45,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Model confidence is moderate. Use this result as a directional signal and validate with role-specific context.",
+      "checked_at_utc": "2026-03-09T07:22:28.780Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T07:22:28.782Z"
+      }
+    ]
+  },
+  {
+    "run_id": "d5161a45-2793-4a7f-8e43-9d7822daa389",
+    "created_at_utc": "2026-03-09T07:29:07.075Z",
+    "updated_at_utc": "2026-03-09T07:29:07.075Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4,
+      "resume_insights": {
+        "candidate_name": "Arjun Mehta",
+        "years_of_experience": 5.5,
+        "certifications": [
+          "AWS CERTIFIED",
+          "CKA"
+        ],
+        "skills": [
+          "python",
+          "node",
+          "react",
+          "kubernetes",
+          "docker",
+          "terraform",
+          "aws",
+          "sql"
+        ],
+        "ai_readiness_score": 88,
+        "parse_confidence": 0.7
+      }
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "IT",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 3.35,
+      "profit_margin": 6.63,
+      "stock_price_change": -2.623,
+      "total_employees": 119737,
+      "role_demand_index": 7.85,
+      "department_resilience_index": 7.27,
+      "tech_stack_trend_score": 8.345,
+      "years_at_company": 5.5,
+      "salary_range": 3500000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 2.611,
+      "unemployment_rate": 6.444,
+      "inflation_rate": 5.196,
+      "employee_stability": 22,
+      "economic_pressure": 8.29
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.45,
+      "risk_score": 28.5,
+      "probabilities": {
+        "Low": 0.4327,
+        "Medium": 0.5645,
+        "High": 0.0027
+      },
+      "top_factors": [
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.63,
+          "impact": 0.598,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.69 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 7.85,
+          "impact": 0.5829,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.611,
+          "impact": 0.525,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.09 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "job_title",
+          "label": "Job Title",
+          "value": "Senior Software Engineer",
+          "impact": 0.2322,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Job Title: Senior Software Engineer."
+        },
+        {
+          "feature": "salary_range",
+          "label": "Salary",
+          "value": 3500000,
+          "impact": 0.2184,
+          "direction": "reduces_risk",
+          "reason": "Salary is currently in a risk-reducing range."
+        },
+        {
+          "feature": "department_resilience_index",
+          "label": "Department Resilience Index",
+          "value": 7.27,
+          "impact": 0.1634,
+          "direction": "increases_risk",
+          "reason": "Department Resilience Index is 0.15 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Contribute to initiatives that make your department revenue-critical and hard to downsize."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Senior Software Engineer in Q4 2025",
+      "compared_stacks": 4,
+      "current_stack": "AWS + Terraform + Kubernetes",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Node.js + React",
+          "sample_size": 34,
+          "low_risk_share": 0.8529,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.243
+        },
+        {
+          "tech_stack": ".NET + Azure",
+          "sample_size": 18,
+          "low_risk_share": 0.8333,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.133
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Java + Spring Boot",
+          "sample_size": 24,
+          "low_risk_share": 0.625,
+          "high_risk_share": 0.0417,
+          "avg_role_layoff_rate": 1.527
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4349,
+      "company_return_90d": -6.934,
+      "market_return_90d": 5.16,
+      "relative_return_90d": -12.094,
+      "company_volatility_90d": 1.9794,
+      "market_volatility_90d": 1.0091,
+      "india_vix": 35.67,
+      "company_last_price": 213.12,
+      "company_previous_close": 218.86,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 599.83,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Arjun Mehta",
+      "years_of_experience": 5.5,
+      "certifications": [
+        "AWS CERTIFIED",
+        "CKA"
+      ],
+      "skills": [
+        "python",
+        "node",
+        "react",
+        "kubernetes",
+        "docker",
+        "terraform",
+        "aws",
+        "sql"
+      ],
+      "ai_readiness_score": 88,
+      "parse_confidence": 0.7
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "trending_tech_stacks": [
+        {
+          "name": "AI-assisted SDLC (GitHub Copilot, Codeium, Cursor)",
+          "why": "Teams now expect faster delivery with AI-augmented development workflows."
+        },
+        {
+          "name": "Cloud-native platform stack (Kubernetes, Terraform, observability)",
+          "why": "Infra automation and reliability ownership reduce layoff exposure."
+        },
+        {
+          "name": "Backend modernization (FastAPI/Node microservices + event streaming)",
+          "why": "Scalable service ownership is retained in cost-constrained cycles."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified Developer / Solutions Architect",
+          "provider": "AWS",
+          "level": "Associate",
+          "why": "Cloud cost/performance ownership is strongly valued."
+        },
+        {
+          "name": "CKA / CKAD",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Kubernetes depth supports platform and reliability tracks."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC is now baseline in modern engineering teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Prompt engineering for developer workflows",
+          "why": "Improves coding velocity and review quality."
+        },
+        {
+          "name": "System design for scale and resilience",
+          "why": "Architecture capability improves role criticality."
+        },
+        {
+          "name": "Cost optimization and production telemetry",
+          "why": "Direct business impact in optimization cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Prompt engineering for developer workflows",
+        "System design for scale and resilience",
+        "Cost optimization and production telemetry"
+      ],
+      "certification_gaps": [
+        "HashiCorp Terraform Associate"
+      ],
+      "shift_path": [
+        "Move toward AI-assisted SDLC (GitHub Copilot, Codeium, Cursor) with one production project in 30-45 days.",
+        "Add Prompt engineering for developer workflows with measurable project evidence.",
+        "Pursue HashiCorp Terraform Associate for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For Senior Software Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "medium",
+      "score": 0.649,
+      "model_confidence": 0.45,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Model confidence is moderate. Use this result as a directional signal and validate with role-specific context.",
+      "checked_at_utc": "2026-03-09T07:29:07.075Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T07:29:07.077Z"
+      }
+    ]
   }
 ]

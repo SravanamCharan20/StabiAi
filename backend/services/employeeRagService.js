@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { buildCareerTrendGuidance } from './employeeCareerTrendService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,6 +47,8 @@ function buildQueryContext(userData, predictionData) {
   const prediction = predictionData?.prediction || {};
   const marketSignals = predictionData?.market_signals || {};
   const stackSurvival = predictionData?.stack_survival || {};
+  const resumeInsights = userData?.resume_insights || predictionData?.resume_insights || {};
+  const trendGuidance = predictionData?.trend_guidance || {};
   const factors = Array.isArray(prediction.top_factors) ? prediction.top_factors : [];
 
   const tags = [];
@@ -57,6 +60,7 @@ function buildQueryContext(userData, predictionData) {
   addTag(tags, userData.tech_stack);
   addTag(tags, stackSurvival.current_stack_signal);
   addTag(tags, stackSurvival.scope);
+  addTag(tags, trendGuidance.role_family);
 
   if (String(userData.remote_work || '').toLowerCase() === 'yes') {
     tags.push('remote');
@@ -102,6 +106,10 @@ function buildQueryContext(userData, predictionData) {
   tokens.push(...tokenize(stackSurvival.narrative));
   tokens.push(...tokenize(userData.company_name));
   tokens.push(...tokenize(userData.company_location));
+  tokens.push(...tokenize((resumeInsights.skills || []).join(' ')));
+  tokens.push(...tokenize((resumeInsights.certifications || []).join(' ')));
+  tokens.push(...tokenize((trendGuidance.skill_gaps || []).join(' ')));
+  tokens.push(...tokenize((trendGuidance.certification_gaps || []).join(' ')));
 
   return {
     tags: unique(tags),
@@ -266,6 +274,7 @@ function buildFallbackSuggestions(query) {
 export function generateRagSuggestions(userData, predictionData) {
   const knowledge = loadKnowledgeBase();
   const query = buildQueryContext(userData, predictionData);
+  const trendGuidance = predictionData?.trend_guidance || buildCareerTrendGuidance(userData, predictionData);
 
   const ranked = knowledge
     .map((doc) => ({
@@ -319,12 +328,14 @@ export function generateRagSuggestions(userData, predictionData) {
       title: item.doc.title,
       relevance_score: Number(item.score.toFixed(3)),
     })),
+    trend_focus: trendGuidance?.summary || null,
   };
 
   return {
     skills,
     actions,
     opportunities,
+    trends: trendGuidance,
     insights,
   };
 }

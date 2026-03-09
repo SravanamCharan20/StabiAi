@@ -61,6 +61,57 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
         },
       },
     },
+    trends: {
+      type: 'OBJECT',
+      properties: {
+        role_family: { type: 'STRING' },
+        summary: { type: 'STRING' },
+        trending_tech_stacks: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              name: { type: 'STRING' },
+              why: { type: 'STRING' },
+            },
+          },
+        },
+        trending_certifications: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              name: { type: 'STRING' },
+              provider: { type: 'STRING' },
+              level: { type: 'STRING' },
+              why: { type: 'STRING' },
+            },
+          },
+        },
+        trending_skills: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              name: { type: 'STRING' },
+              why: { type: 'STRING' },
+            },
+          },
+        },
+        skill_gaps: {
+          type: 'ARRAY',
+          items: { type: 'STRING' },
+        },
+        certification_gaps: {
+          type: 'ARRAY',
+          items: { type: 'STRING' },
+        },
+        shift_path: {
+          type: 'ARRAY',
+          items: { type: 'STRING' },
+        },
+      },
+    },
     insights: {
       type: 'OBJECT',
       properties: {
@@ -338,11 +389,50 @@ function normalizeSteps(steps) {
     .slice(0, 6);
 }
 
+function normalizeTrendNameWhy(items, limit = 5) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items
+    .map((item) => ({
+      name: String(item?.name || '').trim(),
+      why: String(item?.why || '').trim(),
+    }))
+    .filter((item) => item.name && item.why)
+    .slice(0, limit);
+}
+
+function normalizeTrendCerts(items, limit = 5) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items
+    .map((item) => ({
+      name: String(item?.name || '').trim(),
+      provider: String(item?.provider || '').trim(),
+      level: String(item?.level || '').trim(),
+      why: String(item?.why || '').trim(),
+    }))
+    .filter((item) => item.name && item.why)
+    .slice(0, limit);
+}
+
+function normalizeStringList(items, limit = 5) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
 function normalizeSuggestionsShape(payload, fallback) {
   const safe = payload && typeof payload === 'object' ? payload : {};
   const skills = Array.isArray(safe.skills) ? safe.skills : fallback.skills;
   const actions = Array.isArray(safe.actions) ? safe.actions : fallback.actions;
   const opportunities = Array.isArray(safe.opportunities) ? safe.opportunities : fallback.opportunities;
+  const trends = safe.trends && typeof safe.trends === 'object' ? safe.trends : (fallback.trends || {});
   const insights = safe.insights && typeof safe.insights === 'object' ? safe.insights : fallback.insights;
 
   const normalizedSkills = skills
@@ -405,10 +495,45 @@ function normalizeSuggestionsShape(payload, fallback) {
     .filter((item) => item.title && item.timeline && item.requirements && item.impact)
     .slice(0, 5);
 
+  const fallbackTrends = fallback?.trends && typeof fallback.trends === 'object' ? fallback.trends : {};
+  const normalizedTrends = {
+    role_family: String(trends?.role_family || fallbackTrends?.role_family || '').trim(),
+    summary: String(trends?.summary || fallbackTrends?.summary || '').trim(),
+    trending_tech_stacks: (() => {
+      const value = normalizeTrendNameWhy(trends?.trending_tech_stacks, 5);
+      return value.length ? value : normalizeTrendNameWhy(fallbackTrends?.trending_tech_stacks, 5);
+    })(),
+    trending_certifications: (() => {
+      const value = normalizeTrendCerts(trends?.trending_certifications, 5);
+      return value.length ? value : normalizeTrendCerts(fallbackTrends?.trending_certifications, 5);
+    })(),
+    trending_skills: (() => {
+      const value = normalizeTrendNameWhy(trends?.trending_skills, 6);
+      return value.length ? value : normalizeTrendNameWhy(fallbackTrends?.trending_skills, 6);
+    })(),
+    skill_gaps: (() => {
+      const value = normalizeStringList(trends?.skill_gaps, 6);
+      return value.length ? value : normalizeStringList(fallbackTrends?.skill_gaps, 6);
+    })(),
+    certification_gaps: (() => {
+      const value = normalizeStringList(trends?.certification_gaps, 6);
+      return value.length ? value : normalizeStringList(fallbackTrends?.certification_gaps, 6);
+    })(),
+    shift_path: (() => {
+      const value = normalizeStringList(trends?.shift_path, 6);
+      return value.length ? value : normalizeStringList(fallbackTrends?.shift_path, 6);
+    })(),
+    global_priority_skills: (() => {
+      const value = normalizeStringList(trends?.global_priority_skills, 6);
+      return value.length ? value : normalizeStringList(fallbackTrends?.global_priority_skills, 6);
+    })(),
+  };
+
   return {
     skills: normalizedSkills.length > 0 ? normalizedSkills : fallbackSkills,
     actions: normalizedActions.length > 0 ? normalizedActions : fallbackActions,
     opportunities: normalizedOpportunities.length > 0 ? normalizedOpportunities : fallbackOpportunities,
+    trends: normalizedTrends,
     insights,
   };
 }
@@ -434,6 +559,15 @@ function compactSuggestionContext(ragSuggestions) {
         timeline: String(item?.timeline || '').trim(),
       }))
       : [],
+    trends: {
+      role_family: String(safe?.trends?.role_family || '').trim(),
+      summary: String(safe?.trends?.summary || '').trim(),
+      trending_tech_stacks: normalizeTrendNameWhy(safe?.trends?.trending_tech_stacks || [], 3),
+      trending_certifications: normalizeTrendCerts(safe?.trends?.trending_certifications || [], 3),
+      trending_skills: normalizeTrendNameWhy(safe?.trends?.trending_skills || [], 4),
+      skill_gaps: normalizeStringList(safe?.trends?.skill_gaps || [], 4),
+      certification_gaps: normalizeStringList(safe?.trends?.certification_gaps || [], 4),
+    },
   };
 }
 
@@ -459,6 +593,16 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     '  "skills": [{"name":"", "why":"", "how":"", "impact":""}],',
     '  "actions": [{"title":"", "timeline":"", "steps":[""], "indicators":""}],',
     '  "opportunities": [{"title":"", "timeline":"", "requirements":"", "impact":""}],',
+    '  "trends": {',
+    '    "role_family": "",',
+    '    "summary": "",',
+    '    "trending_tech_stacks": [{"name":"", "why":""}],',
+    '    "trending_certifications": [{"name":"", "provider":"", "level":"", "why":""}],',
+    '    "trending_skills": [{"name":"", "why":""}],',
+    '    "skill_gaps": [],',
+    '    "certification_gaps": [],',
+    '    "shift_path": []',
+    '  },',
     '  "insights": {',
     '    "why_this_prediction": [],',
     '    "model_improvement_tips": [],',
@@ -475,6 +619,8 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     '- Keep each text field short and direct (1-2 sentences).',
     '- Keep each string under 180 characters.',
     '- Keep each steps array to 2-4 short bullets.',
+    '- Prioritize market-relevant trends for 2026 role demand.',
+    '- Include a realistic shift path from current stack to stronger stack.',
     '- Return compact JSON (no pretty-print indentation).',
     '- Use strict JSON only (double quotes, no comments, no trailing commas).',
     '',

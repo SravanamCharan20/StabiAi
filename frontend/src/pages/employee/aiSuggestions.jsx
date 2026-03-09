@@ -1,8 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { HiExclamationCircle, HiLightBulb } from "react-icons/hi";
+import { API_BASE_URL } from "../../config/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:9000";
+const sanitizeResumeInsights = (value) => {
+  const source = value && typeof value === "object" ? value : {};
+  return {
+    candidate_name: source.candidate_name || null,
+    years_of_experience: Number.isFinite(Number(source.years_of_experience))
+      ? Number(source.years_of_experience)
+      : null,
+    certifications: Array.isArray(source.certifications) ? source.certifications.slice(0, 8) : [],
+    skills: Array.isArray(source.skills) ? source.skills.slice(0, 12) : [],
+    ai_readiness_score: Number.isFinite(Number(source.ai_readiness_score))
+      ? Number(source.ai_readiness_score)
+      : null,
+    parse_confidence: Number.isFinite(Number(source.parse_confidence))
+      ? Number(source.parse_confidence)
+      : null,
+  };
+};
 
 const isShortTimeline = (timeline = "") => {
   const value = String(timeline).toLowerCase();
@@ -30,6 +47,7 @@ const EmptyItem = ({ message }) => (
 
 const AI_TABS = [
   { id: "skills", label: "AI Skills" },
+  { id: "trends", label: "AI Trends" },
   { id: "immediate", label: "AI Immediate" },
   { id: "strategic", label: "AI Strategic" },
   { id: "opportunities", label: "AI Opportunities" },
@@ -82,6 +100,7 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             department: employeeData.department || "",
             remote_work: employeeData.remote_work || "",
             salary_range: Number(employeeData.salary_range) || 0,
+            resume_insights: sanitizeResumeInsights(employeeData.resume_insights),
           },
           predictionData: {
             prediction: {
@@ -98,6 +117,8 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
             data: predictionData.data || {},
             stack_survival: predictionData.stack_survival || null,
             market_signals: predictionData.market_signals || {},
+            resume_insights: sanitizeResumeInsights(predictionData.resume_insights),
+            trend_guidance: predictionData.trend_guidance || null,
             reliability: predictionData.reliability || {},
           },
         };
@@ -121,12 +142,24 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
     const skills = Array.isArray(suggestions?.skills) ? suggestions.skills : [];
     const actions = Array.isArray(suggestions?.actions) ? suggestions.actions : [];
     const opportunities = Array.isArray(suggestions?.opportunities) ? suggestions.opportunities : [];
+    const trends = suggestions?.trends && typeof suggestions.trends === "object" ? suggestions.trends : {};
 
     const immediateActions = actions.filter((item) => isShortTimeline(item.timeline));
     const strategicActions = actions.filter((item) => !isShortTimeline(item.timeline));
 
     return {
       skills,
+      trends: {
+        roleFamily: trends.role_family || "",
+        summary: trends.summary || "",
+        techStacks: Array.isArray(trends.trending_tech_stacks) ? trends.trending_tech_stacks : [],
+        certifications: Array.isArray(trends.trending_certifications) ? trends.trending_certifications : [],
+        trendSkills: Array.isArray(trends.trending_skills) ? trends.trending_skills : [],
+        skillGaps: Array.isArray(trends.skill_gaps) ? trends.skill_gaps : [],
+        certificationGaps: Array.isArray(trends.certification_gaps) ? trends.certification_gaps : [],
+        shiftPath: Array.isArray(trends.shift_path) ? trends.shift_path : [],
+        globalPrioritySkills: Array.isArray(trends.global_priority_skills) ? trends.global_priority_skills : [],
+      },
       immediateActions,
       strategicActions: strategicActions.length ? strategicActions : actions,
       opportunities,
@@ -205,6 +238,96 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
           ) : (
             <EmptyItem message="No skill recommendations generated." />
           )}
+        </SectionCard>
+      ) : null}
+
+      {activeTab === "trends" ? (
+        <SectionCard title="Trending Role Upgrade Map" subtitle="Current market demand for stack, certifications, and strategic skill shifts">
+          {grouped.trends.summary ? (
+            <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
+              <p className="text-sm text-slate-800">{grouped.trends.summary}</p>
+              {grouped.trends.roleFamily ? (
+                <p className="mt-1 text-xs text-slate-600">Role family: {grouped.trends.roleFamily}</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {grouped.trends.techStacks.length ? (
+            <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Trending Tech Stacks</p>
+              <div className="mt-2 space-y-2">
+                {grouped.trends.techStacks.map((item, index) => (
+                  <div key={`${item.name}-${index}`}>
+                    <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                    <p className="text-xs text-slate-600">{item.why}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {grouped.trends.certifications.length ? (
+            <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Trending Certifications</p>
+              <div className="mt-2 space-y-2">
+                {grouped.trends.certifications.map((item, index) => (
+                  <div key={`${item.name}-${index}`}>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {item.name}
+                      {item.level ? <span className="ml-1 text-xs font-medium text-slate-600">({item.level})</span> : null}
+                    </p>
+                    {item.provider ? <p className="text-xs text-slate-600">Provider: {item.provider}</p> : null}
+                    <p className="text-xs text-slate-600">{item.why}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {grouped.trends.trendSkills.length ? (
+            <div className="rounded-xl border border-cyan-100 bg-cyan-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Trending Skills</p>
+              <div className="mt-2 space-y-2">
+                {grouped.trends.trendSkills.map((item, index) => (
+                  <div key={`${item.name}-${index}`}>
+                    <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                    <p className="text-xs text-slate-600">{item.why}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {grouped.trends.skillGaps.length || grouped.trends.certificationGaps.length ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Most Important Gaps</p>
+              {grouped.trends.skillGaps.length ? (
+                <p className="mt-2 text-xs text-amber-900">Skill gaps: {grouped.trends.skillGaps.join(", ")}</p>
+              ) : null}
+              {grouped.trends.certificationGaps.length ? (
+                <p className="mt-1 text-xs text-amber-900">Certification gaps: {grouped.trends.certificationGaps.join(", ")}</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {grouped.trends.shiftPath.length ? (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Suggested Shift Path</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-emerald-900">
+                {grouped.trends.shiftPath.map((item, index) => (
+                  <li key={`${item}-${index}`}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {!grouped.trends.summary
+            && !grouped.trends.techStacks.length
+            && !grouped.trends.certifications.length
+            && !grouped.trends.trendSkills.length
+            && !grouped.trends.shiftPath.length ? (
+              <EmptyItem message="Trend guidance is currently unavailable for this profile." />
+            ) : null}
         </SectionCard>
       ) : null}
 

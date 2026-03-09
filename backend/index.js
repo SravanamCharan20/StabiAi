@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import multer from 'multer';
 import { resolveCompanySymbol } from './controllers/employee/SymbolConvertor.js';
 import { getCompanyStats } from './controllers/employee/compantStats.js';
 import getSuggestions from './controllers/employee/suggestionController.js';
@@ -19,6 +20,8 @@ import {
   updatePredictionActions,
   updatePredictionReview,
 } from './services/employeeHistoryService.js';
+import { parseResumeAndBuildProfile } from './services/employeeResumeService.js';
+import { buildCareerTrendGuidance } from './services/employeeCareerTrendService.js';
 
 dotenv.config();
 
@@ -65,6 +68,10 @@ app.use(cors({
     return callback(null, isOriginAllowed(origin));
   },
 }));
+const resumeUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 6 * 1024 * 1024 },
+});
 
 const getSpecOptions = (fieldName) => {
   const spec = getEmployeeInputSpec();
@@ -78,6 +85,25 @@ const isAllowedValue = (fieldName, value) => {
     return true;
   }
   return options.includes(value);
+};
+
+const quarterSortKey = (value) => {
+  const text = String(value || '').trim().toUpperCase();
+  const match = text.match(/^Q([1-4])\s+([0-9]{4})$/);
+  if (!match) {
+    return 0;
+  }
+  const q = Number(match[1]);
+  const year = Number(match[2]);
+  return (year * 10) + q;
+};
+
+const getLatestQuarterOption = () => {
+  const quarterOptions = getSpecOptions('reporting_quarter');
+  if (!quarterOptions.length) {
+    return '';
+  }
+  return [...quarterOptions].sort((a, b) => quarterSortKey(b) - quarterSortKey(a))[0];
 };
 
 app.get('/', (req, res) => {
@@ -146,6 +172,54 @@ app.get('/api/employee/eval', (req, res) => {
       success: false,
       message: 'Unable to compute employee model evaluation',
       error: error.message,
+    });
+  }
+});
+
+app.post('/api/employee/resume-parse', resumeUpload.single('resume'), async (req, res) => {
+  try {
+    const inputSpec = getEmployeeInputSpec();
+    const parsed = await parseResumeAndBuildProfile({
+      file: req.file,
+      inputSpec,
+      defaultQuarter: getLatestQuarterOption(),
+    });
+
+    const canonicalCandidate = canonicalizeEmployeeInput(parsed.profile || {});
+    const applyCanonicalIfPresent = (rawValue, canonicalValue) => (
+      String(rawValue || '').trim() ? canonicalValue : ''
+    );
+
+    const profile = {
+      ...parsed.profile,
+      company_name: applyCanonicalIfPresent(parsed.profile?.company_name, canonicalCandidate.company_name),
+      company_location: applyCanonicalIfPresent(parsed.profile?.company_location, canonicalCandidate.company_location),
+      reporting_quarter: applyCanonicalIfPresent(parsed.profile?.reporting_quarter, canonicalCandidate.reporting_quarter),
+      job_title: applyCanonicalIfPresent(parsed.profile?.job_title, canonicalCandidate.job_title),
+      tech_stack: applyCanonicalIfPresent(parsed.profile?.tech_stack, canonicalCandidate.tech_stack),
+      department: applyCanonicalIfPresent(parsed.profile?.department, canonicalCandidate.department),
+      remote_work: applyCanonicalIfPresent(parsed.profile?.remote_work, canonicalCandidate.remote_work),
+      years_at_company: String(parsed.profile?.years_at_company || '').trim(),
+      salary_range: String(parsed.profile?.salary_range || '').trim(),
+      performance_rating: String(parsed.profile?.performance_rating || '').trim(),
+    };
+
+    const trendGuidance = buildCareerTrendGuidance({
+      ...profile,
+      resume_insights: parsed.resume_insights || {},
+    });
+
+    return res.status(200).json({
+      success: true,
+      profile,
+      resume_insights: parsed.resume_insights || {},
+      missing_required_fields: parsed.missing_required_fields || [],
+      trend_guidance: trendGuidance,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message || 'Unable to parse resume',
     });
   }
 });
@@ -343,6 +417,8 @@ const toHistoryResponseEntry = (entry = {}) => ({
   prediction: entry.prediction || {},
   stack_survival: entry.stack_survival || null,
   market_signals: entry.market_signals || null,
+  resume_insights: entry.resume_insights || null,
+  trend_guidance: entry.trend_guidance || null,
   reliability: entry.reliability || {},
   review: entry.review || null,
   action_tracker: Array.isArray(entry.action_tracker) ? entry.action_tracker : [],
@@ -361,6 +437,7 @@ app.post('/api/employee/predict', async (req, res) => {
       years_at_company,
       salary_range,
       performance_rating,
+      resume_insights,
     } = req.body;
 
     if (!company_name) {
@@ -422,6 +499,7 @@ app.post('/api/employee/predict', async (req, res) => {
       years_at_company,
       salary_range,
       performance_rating,
+      resume_insights: resume_insights || null,
     };
 
     let marketContext = {};
@@ -463,6 +541,11 @@ app.post('/api/employee/predict', async (req, res) => {
 
     const modelResult = buildAndPredict(userData, marketContext);
     const reliability = assessPredictionReliability(modelResult?.prediction, marketContext.market_signals || null);
+    const trendGuidance = buildCareerTrendGuidance(userData, {
+      ...modelResult,
+      market_signals: marketContext.market_signals || null,
+      reliability,
+    });
     let historyEntry = null;
     try {
       historyEntry = createPredictionHistoryEntry({
@@ -472,6 +555,8 @@ app.post('/api/employee/predict', async (req, res) => {
         prediction: modelResult.prediction,
         stack_survival: modelResult.stack_survival || null,
         market_signals: marketContext.market_signals || null,
+        resume_insights: resume_insights || null,
+        trend_guidance: trendGuidance,
         reliability,
         action_tracker: buildDefaultActionTracker(modelResult.prediction),
       });
@@ -488,6 +573,8 @@ app.post('/api/employee/predict', async (req, res) => {
       prediction: modelResult.prediction,
       stack_survival: modelResult.stack_survival || null,
       market_signals: marketContext.market_signals || null,
+      resume_insights: resume_insights || null,
+      trend_guidance: trendGuidance,
       reliability,
       history_entry: historyEntry ? toHistoryResponseEntry(historyEntry) : null,
     });
@@ -513,6 +600,10 @@ app.post('/api/employee/what-if', (req, res) => {
 
     const marketContext = extractMarketContextFromReference(referencePrediction || {});
     const scenarioResult = buildAndPredict(employeeData, marketContext);
+    const scenarioTrendGuidance = buildCareerTrendGuidance(employeeData, {
+      ...scenarioResult,
+      market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
+    });
 
     const baselinePrediction = referencePrediction?.prediction || {};
     const baselineRiskScore = Number(baselinePrediction.risk_score);
@@ -545,6 +636,7 @@ app.post('/api/employee/what-if', (req, res) => {
         prediction: scenarioResult.prediction,
         stack_survival: scenarioResult.stack_survival || null,
         market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
+        trend_guidance: scenarioTrendGuidance,
       },
       delta: {
         risk_from: riskFrom,
