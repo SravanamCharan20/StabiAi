@@ -1,19 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import {
-  HiOutlineBriefcase,
-  HiOutlineCalendar,
-  HiOutlineChartBar,
-  HiOutlineClock,
-  HiOutlineCurrencyDollar,
-  HiOutlineHome,
-  HiOutlineLocationMarker,
-  HiOutlineOfficeBuilding,
-  HiOutlineUserGroup,
-} from "react-icons/hi";
-import AiSuggestions from "./aiSuggestions";
-import SimplifiedResults from "../../components/SimplifiedResults";
-import EnhancedAiGuidance from "../../components/EnhancedAiGuidance";
 import { API_BASE_URL } from "../../config/api";
 import {
   ACTION_STATUS_OPTIONS,
@@ -23,11 +9,7 @@ import {
   FALLBACK_LOCATION_OPTIONS,
   FALLBACK_QUARTER_OPTIONS,
   FALLBACK_TECH_STACK_OPTIONS,
-  FORM_INPUT_CLASS,
-  INPUT_QUALITY_TONE,
-  REVIEW_DECISIONS,
   SALARY_BOUNDS,
-  WORKSPACE_TABS,
 } from "./predictor/constants";
 import {
   buildActionTrackerSeed,
@@ -38,16 +20,8 @@ import {
   sanitizeResumeInsights,
   toAnnualInr,
 } from "./predictor/utils";
-import {
-  Field,
-  ModelQualityPanel,
-  ResumeIntakeCard,
-  ResultPanel,
-  SegmentTabs,
-  SelectControl,
-  WhatIfSimulator,
-  WorkspacePanelFrame,
-} from "./predictor/sections";
+import { InputPanel, PredictionWorkspace } from "./predictor/sections";
+
 const EmployeePred = () => {
   const [formData, setFormData] = useState({
     company_name: "",
@@ -70,9 +44,7 @@ const EmployeePred = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [predictionData, setPredictionData] = useState(null);
   const [inputSpec, setInputSpec] = useState(null);
-  const [historyEntries, setHistoryEntries] = useState([]);
-  const [historyTrend, setHistoryTrend] = useState(null);
-  const [historyLoading, setHistoryLoading] = useState(false);
+
   const [whatIfForm, setWhatIfForm] = useState({
     years_at_company: "",
     performance_rating: "",
@@ -80,30 +52,21 @@ const EmployeePred = () => {
   });
   const [whatIfResult, setWhatIfResult] = useState(null);
   const [whatIfLoading, setWhatIfLoading] = useState(false);
-  const [actionTracker, setActionTracker] = useState([]);
-  const [actionSaving, setActionSaving] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
-  const [rescoreLoading, setRescoreLoading] = useState(false);
-  const [rescoreSummary, setRescoreSummary] = useState(null);
-  const [reviewForm, setReviewForm] = useState({
-    reviewed_by: "",
-    decision: REVIEW_DECISIONS[0],
-    review_reason: "",
-  });
-  const [reviewSaving, setReviewSaving] = useState(false);
-  const [reviewMessage, setReviewMessage] = useState("");
+
   const [evalReport, setEvalReport] = useState(null);
   const [evalLoading, setEvalLoading] = useState(false);
   const [evalError, setEvalError] = useState("");
+
   const [workspaceTab, setWorkspaceTab] = useState("simulator");
+  const [viewMode, setViewMode] = useState("simple");
+
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeParsing, setResumeParsing] = useState(false);
   const [resumeInsights, setResumeInsights] = useState(null);
   const [resumeMissingFields, setResumeMissingFields] = useState([]);
   const [resumeTrendGuidance, setResumeTrendGuidance] = useState(null);
   const [resumeMessage, setResumeMessage] = useState("");
-  const [viewMode, setViewMode] = useState("simple"); // NEW: simple or advanced
-  const [resumeIntelligence, setResumeIntelligence] = useState(null); // NEW: enhanced resume data
+  const [resumeIntelligence, setResumeIntelligence] = useState(null);
 
   useEffect(() => {
     const fetchInputSpec = async () => {
@@ -206,6 +169,8 @@ const EmployeePred = () => {
     return { score: clampedScore, level, warnings };
   }, [annualSalaryInr, formData, options, resumeInsights]);
 
+  const activeRunId = predictionData?.run_id || predictionData?.history_entry?.run_id || null;
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     if (error) {
@@ -214,14 +179,17 @@ const EmployeePred = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSalaryUnitChange = (event) => {
+    if (error) {
+      setError("");
+    }
+    setSalaryUnit(event.target.value);
+  };
+
   const handleResumeFileChange = (event) => {
     const file = event?.target?.files?.[0] || null;
     setResumeFile(file);
-    if (file) {
-      setResumeMessage(`Ready to parse: ${file.name}`);
-    } else {
-      setResumeMessage("");
-    }
+    setResumeMessage(file ? `Ready to parse: ${file.name}` : "");
   };
 
   const handleResumeParse = async () => {
@@ -237,19 +205,17 @@ const EmployeePred = () => {
     try {
       const payload = new FormData();
       payload.append("resume", resumeFile);
-      
-      // Try enhanced parser first
+
       let response;
       try {
         response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse-enhanced`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        
+
         if (response.data?.success && response.data?.resumeIntelligence) {
-          // Enhanced parsing succeeded
           const extractedProfile = response.data.profile || {};
           const intelligence = response.data.resumeIntelligence || {};
-          
+
           setFormData((prev) => {
             const next = { ...prev };
             for (const [key, value] of Object.entries(extractedProfile)) {
@@ -257,36 +223,31 @@ const EmployeePred = () => {
                 next[key] = String(value);
               }
             }
-            
-            // Auto-fill skill tags from enhanced intelligence
+
             if (!String(next.skill_tags || "").trim() && Array.isArray(intelligence.skills) && intelligence.skills.length) {
-              next.skill_tags = intelligence.skills.slice(0, 10).map(s => s.name).join(", ");
+              next.skill_tags = intelligence.skills.slice(0, 10).map((item) => item.name).join(", ");
             }
-            
-            // Auto-fill certifications
+
             if (!String(next.certifications || "").trim() && Array.isArray(intelligence.certifications) && intelligence.certifications.length) {
-              next.certifications = intelligence.certifications.slice(0, 8).map(c => c.name).join(", ");
+              next.certifications = intelligence.certifications.slice(0, 8).map((item) => item.name).join(", ");
             }
-            
+
             return next;
           });
 
           setResumeIntelligence(intelligence);
           setResumeTrendGuidance(response.data.trend_guidance || null);
-          
           const scores = intelligence.scores || {};
           setResumeMessage(
-            `✨ Resume analyzed! Overall Strength: ${scores.overallStrength || 0}/100. ` +
-            `Found ${intelligence.skills?.length || 0} skills with ${intelligence.skillGaps?.length || 0} gaps identified.`
+            `Resume analyzed. Overall strength: ${scores.overallStrength || 0}/100. `
+            + `Skills found: ${intelligence.skills?.length || 0}.`
           );
-          
           return;
         }
       } catch (enhancedError) {
-        console.warn('Enhanced parser failed, falling back to basic parser:', enhancedError.message);
+        console.warn("Enhanced parser failed, falling back to basic parser:", enhancedError.message);
       }
-      
-      // Fallback to basic parser
+
       response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse`, payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -297,6 +258,7 @@ const EmployeePred = () => {
 
       const extractedProfile = response.data.profile || {};
       const parsedInsights = response.data.resume_insights || {};
+
       setFormData((prev) => {
         const next = { ...prev };
         for (const [key, value] of Object.entries(extractedProfile)) {
@@ -324,6 +286,7 @@ const EmployeePred = () => {
         : [];
       const nextTrend = response.data.trend_guidance || null;
 
+      setResumeIntelligence(null);
       setResumeInsights(nextInsights);
       setResumeMissingFields(nextMissing);
       setResumeTrendGuidance(nextTrend);
@@ -341,33 +304,7 @@ const EmployeePred = () => {
     }
   };
 
-  const activeRunId = predictionData?.run_id || predictionData?.history_entry?.run_id || null;
-
-  const fetchHistory = useCallback(async (companyName) => {
-    const selectedCompany = String(companyName || "").trim();
-    if (!selectedCompany) {
-      setHistoryEntries([]);
-      setHistoryTrend(null);
-      return;
-    }
-
-    setHistoryLoading(true);
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/employee/history`, {
-        params: { company_name: selectedCompany, limit: 14 },
-      });
-      if (response.data?.success) {
-        setHistoryEntries(Array.isArray(response.data.entries) ? response.data.entries : []);
-        setHistoryTrend(response.data.trend || null);
-      }
-    } catch (historyError) {
-      console.warn("Unable to load prediction history:", historyError.message);
-    } finally {
-      setHistoryLoading(false);
-    }
-  }, []);
-
-  const validateFormData = useCallback((data = formData, unit = salaryUnit) => {
+  const validateFormData = (data = formData, unit = salaryUnit) => {
     const errors = {};
     const requiredText = "This field is required.";
 
@@ -445,7 +382,7 @@ const EmployeePred = () => {
     }
 
     return errors;
-  }, [formData, options, salaryUnit, resumeInsights]);
+  };
 
   useEffect(() => {
     if (!Object.keys(fieldErrors).length) {
@@ -460,7 +397,7 @@ const EmployeePred = () => {
     if (!isSame) {
       setFieldErrors(nextErrors);
     }
-  }, [fieldErrors, formData, salaryUnit, validateFormData]);
+  }, [fieldErrors, formData, salaryUnit]);
 
   const validate = () => {
     const nextErrors = validateFormData(formData, salaryUnit);
@@ -485,63 +422,27 @@ const EmployeePred = () => {
     };
   };
 
-  const runPrediction = async (payload, mode = "predict") => {
-    const isRescore = mode === "rescore";
-    if (isRescore) {
-      setRescoreLoading(true);
-    } else {
-      setLoading(true);
-    }
+  const runPrediction = async (payload) => {
+    setLoading(true);
     setError("");
 
     try {
-      const previousRisk = predictionData?.prediction?.layoff_risk || null;
-      const previousScore = Number(predictionData?.prediction?.risk_score);
-
       const response = await axios.post(`${API_BASE_URL}/api/employee/predict`, payload);
       setPredictionData(response.data);
+
       const resolvedStack = String(response.data?.normalized_input?.tech_stack || "").trim();
       if (resolvedStack) {
-        setFormData((prev) => ({
-          ...prev,
-          tech_stack: resolvedStack,
-        }));
-      }
-
-      const runId = response.data?.run_id || response.data?.history_entry?.run_id || null;
-      const persistedActions = response.data?.history_entry?.action_tracker;
-      if (Array.isArray(persistedActions) && persistedActions.length > 0) {
-        setActionTracker(persistedActions);
-      } else {
-        setActionTracker(buildActionTrackerSeed(response.data));
+        setFormData((prev) => ({ ...prev, tech_stack: resolvedStack }));
       }
 
       setWhatIfResult(null);
-      await fetchHistory(payload.company_name);
-
-      if (isRescore) {
-        const nextRisk = response.data?.prediction?.layoff_risk || "Unknown";
-        const nextScore = Number(response.data?.prediction?.risk_score);
-        const delta = Number.isFinite(previousScore) && Number.isFinite(nextScore) ? nextScore - previousScore : 0;
-        setRescoreSummary({
-          runId,
-          from: previousRisk || "Unknown",
-          to: nextRisk,
-          delta,
-        });
-      }
-
       return response.data;
     } catch (requestError) {
       const message = requestError.response?.data?.message || "Failed to fetch employee prediction.";
       setError(message);
       throw requestError;
     } finally {
-      if (isRescore) {
-        setRescoreLoading(false);
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -552,47 +453,31 @@ const EmployeePred = () => {
       setError(validationError);
       return;
     }
+
     const payload = buildPayloadFromForm();
     try {
-      await runPrediction(payload, "predict");
+      await runPrediction(payload);
     } catch (errorResponse) {
       // error state already handled in runPrediction
     }
   };
 
-  const handleRescore = async () => {
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-    const payload = buildPayloadFromForm();
-    try {
-      await runPrediction(payload, "rescore");
-    } catch (errorResponse) {
-      // error state already handled in runPrediction
-    }
-  };
-
-  const employeeDataForSuggestions = useMemo(
-    () => {
-      const mergedResumeInsights = mergeResumeInsightsFromForm(
-        resumeInsights || predictionData?.resume_insights,
-        formData
-      );
-      return {
-        ...formData,
-        years_at_company: Number(formData.years_at_company) || 0,
-        performance_rating: Number(formData.performance_rating) || 0,
-        salary_range: annualSalaryInr || 0,
-        stack_profile: String(formData.stack_profile || "").trim(),
-        skill_tags: String(formData.skill_tags || "").trim(),
-        certifications: String(formData.certifications || "").trim(),
-        resume_insights: sanitizeResumeInsights(mergedResumeInsights),
-      };
-    },
-    [annualSalaryInr, formData, predictionData?.resume_insights, resumeInsights]
-  );
+  const employeeDataForSuggestions = useMemo(() => {
+    const mergedResumeInsights = mergeResumeInsightsFromForm(
+      resumeInsights || predictionData?.resume_insights,
+      formData
+    );
+    return {
+      ...formData,
+      years_at_company: Number(formData.years_at_company) || 0,
+      performance_rating: Number(formData.performance_rating) || 0,
+      salary_range: annualSalaryInr || 0,
+      stack_profile: String(formData.stack_profile || "").trim(),
+      skill_tags: String(formData.skill_tags || "").trim(),
+      certifications: String(formData.certifications || "").trim(),
+      resume_insights: sanitizeResumeInsights(mergedResumeInsights),
+    };
+  }, [annualSalaryInr, formData, predictionData?.resume_insights, resumeInsights]);
 
   useEffect(() => {
     if (!predictionData) {
@@ -609,22 +494,6 @@ const EmployeePred = () => {
       salary_lpa: salaryLpa || String(formData.salary_range || ""),
     });
 
-    const persistedActions = predictionData?.history_entry?.action_tracker;
-    if (Array.isArray(persistedActions) && persistedActions.length > 0) {
-      setActionTracker(persistedActions);
-    } else {
-      setActionTracker(buildActionTrackerSeed(predictionData));
-    }
-
-    const savedReview = predictionData?.history_entry?.review;
-    if (savedReview) {
-      setReviewForm((prev) => ({
-        reviewed_by: savedReview.reviewed_by || prev.reviewed_by,
-        decision: savedReview.decision || prev.decision || REVIEW_DECISIONS[0],
-        review_reason: savedReview.review_reason || prev.review_reason,
-      }));
-    }
-
     if (predictionData?.resume_insights) {
       setResumeInsights(predictionData.resume_insights);
     }
@@ -632,13 +501,6 @@ const EmployeePred = () => {
       setResumeTrendGuidance(predictionData.trend_guidance);
     }
   }, [predictionData, annualSalaryInr, formData.performance_rating, formData.salary_range, formData.years_at_company]);
-
-  useEffect(() => {
-    if (!formData.company_name) {
-      return;
-    }
-    fetchHistory(formData.company_name);
-  }, [fetchHistory, formData.company_name]);
 
   const handleRunWhatIf = async () => {
     if (!predictionData?.prediction) {
@@ -648,6 +510,7 @@ const EmployeePred = () => {
     const years = Number(whatIfForm.years_at_company);
     const performance = Number(whatIfForm.performance_rating);
     const salaryLpa = Number(whatIfForm.salary_lpa);
+
     if (!Number.isFinite(years) || years < 0 || years > options.yearsMax) {
       setError(`What-if years must be between 0 and ${options.yearsMax}.`);
       return;
@@ -694,148 +557,6 @@ const EmployeePred = () => {
     }));
   };
 
-  const handleActionStatusUpdate = (index, status) => {
-    setActionTracker((prev) => prev.map((item, idx) => (
-      idx === index ? { ...item, status } : item
-    )));
-  };
-
-  const handleSaveActionTracker = async () => {
-    if (!activeRunId) {
-      setActionMessage("Run ID unavailable. Re-run prediction to enable action tracking.");
-      return;
-    }
-    if (!actionTracker.length) {
-      setActionMessage("No actions available to save.");
-      return;
-    }
-
-    setActionSaving(true);
-    setActionMessage("");
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/employee/history/${activeRunId}/actions`, {
-        actions: actionTracker,
-      });
-      if (response.data?.success && response.data?.entry) {
-        const updatedEntry = response.data.entry;
-        setActionTracker(Array.isArray(updatedEntry.action_tracker) ? updatedEntry.action_tracker : actionTracker);
-        setPredictionData((prev) => prev ? ({
-          ...prev,
-          run_id: updatedEntry.run_id,
-          history_entry: {
-            ...(prev.history_entry || {}),
-            run_id: updatedEntry.run_id,
-            action_tracker: updatedEntry.action_tracker || [],
-            review: updatedEntry.review || prev.history_entry?.review || null,
-          },
-        }) : prev);
-      }
-      setActionMessage("Action tracker updated.");
-      await fetchHistory(formData.company_name);
-    } catch (actionError) {
-      setActionMessage(actionError.response?.data?.message || "Unable to save action tracker.");
-    } finally {
-      setActionSaving(false);
-    }
-  };
-
-  const handleSaveReview = async () => {
-    if (!activeRunId) {
-      setReviewMessage("Run ID unavailable. Re-run prediction to enable review logging.");
-      return;
-    }
-    if (!reviewForm.reviewed_by.trim() || !reviewForm.review_reason.trim()) {
-      setReviewMessage("Reviewer name and review reason are required.");
-      return;
-    }
-
-    setReviewSaving(true);
-    setReviewMessage("");
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/employee/history/${activeRunId}/review`, {
-        reviewed_by: reviewForm.reviewed_by.trim(),
-        decision: reviewForm.decision,
-        review_reason: reviewForm.review_reason.trim(),
-      });
-      if (response.data?.success && response.data?.entry) {
-        const updatedEntry = response.data.entry;
-        setPredictionData((prev) => prev ? ({
-          ...prev,
-          run_id: updatedEntry.run_id,
-          history_entry: {
-            ...(prev.history_entry || {}),
-            run_id: updatedEntry.run_id,
-            review: updatedEntry.review || null,
-            action_tracker: updatedEntry.action_tracker || prev.history_entry?.action_tracker || [],
-          },
-        }) : prev);
-      }
-      setReviewMessage("Review note saved.");
-      await fetchHistory(formData.company_name);
-    } catch (reviewError) {
-      setReviewMessage(reviewError.response?.data?.message || "Unable to save review note.");
-    } finally {
-      setReviewSaving(false);
-    }
-  };
-
-  const handleRefreshHistory = async () => {
-    await fetchHistory(formData.company_name || predictionData?.normalized_input?.company_name);
-  };
-
-  const handleLoadHistorySnapshot = (entry) => {
-    if (!entry) {
-      return;
-    }
-    const profile = entry.employee_profile || {};
-    const savedResume = sanitizeResumeInsights(entry.resume_insights || {});
-    const salaryInr = Number(profile.salary_range || 0);
-    const salaryLpa = salaryInr > 0 ? (salaryInr / 100000).toFixed(1) : "";
-
-    setSalaryUnit("LPA");
-    setFormData({
-      company_name: profile.company_name || "",
-      company_location: profile.company_location || "",
-      reporting_quarter: profile.reporting_quarter || "",
-      job_title: profile.job_title || "",
-      tech_stack: profile.tech_stack || "",
-      stack_profile: profile.stack_profile || savedResume.declared_stack_profile || "",
-      skill_tags: profile.skill_tags || (savedResume.skills || []).join(", "),
-      certifications: profile.certifications || (savedResume.certifications || []).join(", "),
-      department: profile.department || "",
-      remote_work: profile.remote_work || "",
-      years_at_company: profile.years_at_company != null ? String(profile.years_at_company) : "",
-      salary_range: salaryLpa,
-      performance_rating: profile.performance_rating != null ? String(profile.performance_rating) : "",
-    });
-
-    setPredictionData({
-      success: true,
-      run_id: entry.run_id,
-      history_entry: {
-        run_id: entry.run_id,
-        created_at_utc: entry.created_at_utc,
-        review: entry.review || null,
-        action_tracker: entry.action_tracker || [],
-      },
-      normalized_input: entry.normalized_input || {},
-      data: entry.feature_vector || {},
-      prediction: entry.prediction || {},
-      stack_survival: entry.stack_survival || null,
-      market_signals: entry.market_signals || null,
-      resume_insights: entry.resume_insights || null,
-      stack_resolution: entry.stack_resolution || null,
-      trend_guidance: entry.trend_guidance || null,
-      reliability: entry.reliability || {},
-    });
-    setWhatIfResult(null);
-    setActionTracker(Array.isArray(entry.action_tracker) ? entry.action_tracker : []);
-    setResumeInsights(savedResume || null);
-    setResumeTrendGuidance(entry.trend_guidance || null);
-    setResumeMissingFields([]);
-    setResumeMessage("Loaded profile snapshot from history.");
-  };
-
   const handleLoadModelEval = async () => {
     setEvalLoading(true);
     setEvalError("");
@@ -860,12 +581,18 @@ const EmployeePred = () => {
       setError("Run prediction first to export a report.");
       return;
     }
+
     try {
       const { jsPDF } = await import("jspdf");
       const doc = new jsPDF({ unit: "pt", format: "a4" });
       const riskStory = buildRiskStory(predictionData);
       const assessment = getResponsibleAssessment(predictionData, inputQuality);
       const review = predictionData?.history_entry?.review || null;
+      const actionTracker = Array.isArray(predictionData?.history_entry?.action_tracker)
+        && predictionData.history_entry.action_tracker.length
+        ? predictionData.history_entry.action_tracker
+        : buildActionTrackerSeed(predictionData);
+
       const pageWidth = doc.internal.pageSize.getWidth();
       const maxWidth = pageWidth - 80;
       let y = 44;
@@ -878,7 +605,7 @@ const EmployeePred = () => {
         doc.setFontSize(size);
         const lines = doc.splitTextToSize(String(text), maxWidth);
         doc.text(lines, 40, y);
-        y += (lines.length * gap);
+        y += lines.length * gap;
       };
 
       addTextBlock("Career Shield Employee Risk Report", 16, "bold", 18);
@@ -890,28 +617,33 @@ const EmployeePred = () => {
       addTextBlock(`Risk Score: ${Number(predictionData?.prediction?.risk_score || 0).toFixed(2)} / 100`, 11, "normal", 14);
       addTextBlock(`Market Regime: ${predictionData?.market_signals?.marketRegime || "N/A"}`, 11, "normal", 14);
       y += 4;
+
       addTextBlock("Why This Risk Score", 12, "bold", 14);
       addTextBlock(riskStory.summary, 11, "normal", 14);
       addTextBlock(riskStory.marketLine, 11, "normal", 14);
       addTextBlock(riskStory.stackLine, 11, "normal", 14);
       addTextBlock(riskStory.overall, 11, "normal", 14);
       y += 4;
+
       addTextBlock("Top Pressure Signals", 12, "bold", 14);
       (riskStory.pressureSignals || []).slice(0, 3).forEach((item, idx) => {
         addTextBlock(`${idx + 1}. ${item.title}: ${item.reason}`, 10, "normal", 13);
       });
       y += 2;
+
       addTextBlock("Action Tracker", 12, "bold", 14);
-      (actionTracker || []).slice(0, 6).forEach((item, idx) => {
+      actionTracker.slice(0, 6).forEach((item, idx) => {
         const statusLabel = ACTION_STATUS_OPTIONS.find((opt) => opt.value === item.status)?.label || item.status;
         addTextBlock(`${idx + 1}. ${item.title} [${statusLabel}]`, 10, "normal", 13);
       });
       y += 2;
+
       addTextBlock("Responsible Use", 12, "bold", 14);
       addTextBlock(assessment?.statusMeta?.text || "", 10, "normal", 13);
-      (assessment?.limitations || []).slice(0, 4).forEach((item, idx) => {
+      (assessment?.limitations || []).slice(0, 4).forEach((item) => {
         addTextBlock(`- ${item}`, 10, "normal", 13);
       });
+
       if (review) {
         y += 2;
         addTextBlock("Human Review Note", 12, "bold", 14);
@@ -941,378 +673,49 @@ const EmployeePred = () => {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1.5fr]">
-          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="font-display text-lg font-semibold text-slate-900">Prediction Input Flow</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Step-by-step profile capture designed for cleaner and more accurate model input.
-            </p>
+          <InputPanel
+            formData={formData}
+            options={options}
+            fieldErrors={fieldErrors}
+            inputQuality={inputQuality}
+            error={error}
+            loading={loading}
+            salaryUnit={salaryUnit}
+            annualSalaryInr={annualSalaryInr}
+            resumeFileName={resumeFile?.name || ""}
+            resumeParsing={resumeParsing}
+            resumeInsights={resumeInsights}
+            resumeMissingFields={resumeMissingFields}
+            resumeTrendGuidance={resumeTrendGuidance}
+            resumeMessage={resumeMessage}
+            onChange={handleChange}
+            onSalaryUnitChange={handleSalaryUnitChange}
+            onSubmit={handleSubmit}
+            onResumeFileChange={handleResumeFileChange}
+            onResumeParse={handleResumeParse}
+          />
 
-            <div className="mt-4">
-              <ResumeIntakeCard
-                onFileChange={handleResumeFileChange}
-                onParse={handleResumeParse}
-                parsing={resumeParsing}
-                fileName={resumeFile?.name || ""}
-                insights={resumeInsights}
-                missingFields={resumeMissingFields}
-                trendGuidance={resumeTrendGuidance}
-                message={resumeMessage}
-              />
-            </div>
-
-            <div className={`mt-4 rounded-xl border p-3 text-sm ${INPUT_QUALITY_TONE[inputQuality.level]}`}>
-              <p className="font-semibold">
-                Input Quality: {inputQuality.score}/100 ({inputQuality.level.toUpperCase()})
-              </p>
-              {inputQuality.warnings.length ? (
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
-                  {inputQuality.warnings.map((warning, index) => (
-                    <li key={`${warning}-${index}`}>{warning}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-1 text-xs">Inputs look consistent with model expectations.</p>
-              )}
-            </div>
-
-            {options.guidance.length ? (
-              <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <summary className="text-xs font-semibold uppercase tracking-wide text-slate-600">Data Tips</summary>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-600">
-                  {options.guidance.map((item, index) => (
-                    <li key={`${item}-${index}`}>{item}</li>
-                  ))}
-                </ul>
-              </details>
-            ) : null}
-
-            <form onSubmit={handleSubmit} className="mt-5 space-y-5">
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 1: Company Context</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field
-                    icon={HiOutlineOfficeBuilding}
-                    label="Company"
-                    name="company_name"
-                    value={formData.company_name}
-                    onChange={handleChange}
-                    options={options.companies}
-                    error={fieldErrors.company_name}
-                  />
-                  <Field
-                    icon={HiOutlineLocationMarker}
-                    label="Location"
-                    name="company_location"
-                    value={formData.company_location}
-                    onChange={handleChange}
-                    options={options.locations}
-                    error={fieldErrors.company_location}
-                  />
-                  <div className="sm:col-span-2">
-                    <Field
-                      icon={HiOutlineCalendar}
-                      label="Reporting Quarter"
-                      name="reporting_quarter"
-                      value={formData.reporting_quarter}
-                      onChange={handleChange}
-                      options={options.quarters}
-                      error={fieldErrors.reporting_quarter}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 2: Role Context</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field
-                    icon={HiOutlineBriefcase}
-                    label="Job Title"
-                    name="job_title"
-                    value={formData.job_title}
-                    onChange={handleChange}
-                    options={options.jobs}
-                    error={fieldErrors.job_title}
-                  />
-                  <Field
-                    icon={HiOutlineBriefcase}
-                    label="Primary Tech Stack"
-                    name="tech_stack"
-                    value={formData.tech_stack}
-                    onChange={handleChange}
-                    options={options.techStacks}
-                    error={fieldErrors.tech_stack}
-                  />
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <HiOutlineBriefcase className="h-4 w-4 text-slate-500" />
-                      Mixed Stack Profile (Optional)
-                    </span>
-                    <textarea
-                      name="stack_profile"
-                      value={formData.stack_profile}
-                      onChange={handleChange}
-                      rows={2}
-                      placeholder="Example: MERN + DevOps + ML (Python), Kubernetes, Terraform"
-                      className={`${FORM_INPUT_CLASS} min-h-[74px] resize-y border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
-                    />
-                    <p className="text-xs text-slate-500">
-                      Free-form stack details are auto-mapped to the closest model-supported stack.
-                    </p>
-                  </label>
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <HiOutlineChartBar className="h-4 w-4 text-slate-500" />
-                      Skill Tags (Optional)
-                    </span>
-                    <input
-                      name="skill_tags"
-                      value={formData.skill_tags}
-                      onChange={handleChange}
-                      placeholder="Comma-separated: Python, MLOps, AWS, React, Microservices"
-                      className={`${FORM_INPUT_CLASS} border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
-                    />
-                    <p className="text-xs text-slate-500">
-                      Use comma-separated skills if your stack is broader than dropdown options.
-                    </p>
-                  </label>
-                  <Field
-                    icon={HiOutlineUserGroup}
-                    label="Department"
-                    name="department"
-                    value={formData.department}
-                    onChange={handleChange}
-                    options={options.departments}
-                    error={fieldErrors.department}
-                  />
-                  <div className="sm:col-span-2">
-                    <Field
-                      icon={HiOutlineHome}
-                      label="Remote Work"
-                      name="remote_work"
-                      value={formData.remote_work}
-                      onChange={handleChange}
-                      options={options.remote}
-                      error={fieldErrors.remote_work}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 3: Employee Profile</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <HiOutlineChartBar className="h-4 w-4 text-slate-500" />
-                      Certifications (Optional)
-                    </span>
-                    <input
-                      name="certifications"
-                      value={formData.certifications}
-                      onChange={handleChange}
-                      placeholder="Comma-separated: AWS Certified Developer, CKA, Databricks Associate"
-                      className={`${FORM_INPUT_CLASS} border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
-                    />
-                    <p className="text-xs text-slate-500">
-                      Certifications directly influence AI guidance and certification-gap recommendations.
-                    </p>
-                  </label>
-                  <Field
-                    icon={HiOutlineClock}
-                    label="Years At Company"
-                    name="years_at_company"
-                    value={formData.years_at_company}
-                    onChange={handleChange}
-                    type="number"
-                    min="0"
-                    max={String(options.yearsMax)}
-                    step="0.5"
-                    error={fieldErrors.years_at_company}
-                  />
-
-                  <label className="space-y-2">
-                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
-                      <HiOutlineCurrencyDollar className="h-4 w-4 text-slate-500" />
-                      Salary
-                    </span>
-                    <div className="flex gap-2">
-                      <SelectControl
-                        value={salaryUnit}
-                        onChange={(event) => {
-                          if (error) {
-                            setError("");
-                          }
-                          setSalaryUnit(event.target.value);
-                        }}
-                        className="w-32 border-slate-200 focus:border-slate-400 focus:ring-slate-200"
-                      >
-                        <option value="LPA">LPA</option>
-                        <option value="INR">Annual INR</option>
-                      </SelectControl>
-                      <input
-                        name="salary_range"
-                        type="number"
-                        value={formData.salary_range}
-                        onChange={handleChange}
-                        min={salaryUnit === "LPA" ? String(SALARY_BOUNDS.minLpa) : String(SALARY_BOUNDS.minInr)}
-                        max={salaryUnit === "LPA" ? String(SALARY_BOUNDS.maxLpa) : String(SALARY_BOUNDS.maxInr)}
-                        step={salaryUnit === "LPA" ? "0.5" : "10000"}
-                        aria-invalid={Boolean(fieldErrors.salary_range)}
-                        className={`${FORM_INPUT_CLASS} ${
-                          fieldErrors.salary_range
-                            ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
-                            : "border-slate-200 focus:border-slate-400 focus:ring-slate-200"
-                        }`}
-                      />
-                    </div>
-                    <p className="text-xs text-slate-500">
-                      Model receives salary as annual INR. Current converted value:
-                      {" "}
-                      {annualSalaryInr > 0 ? `₹${Math.round(annualSalaryInr).toLocaleString("en-IN")}` : "N/A"}
-                    </p>
-                    {fieldErrors.salary_range ? <p className="text-xs text-rose-700">{fieldErrors.salary_range}</p> : null}
-                  </label>
-
-                  <Field
-                    icon={HiOutlineChartBar}
-                    label="Performance Rating"
-                    name="performance_rating"
-                    value={formData.performance_rating}
-                    onChange={handleChange}
-                    type="number"
-                    min={String(options.perfMin)}
-                    max={String(options.perfMax)}
-                    step={String(options.perfStep)}
-                    error={fieldErrors.performance_rating}
-                  />
-                </div>
-              </div>
-
-              {error ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-              >
-                {loading ? "Running Prediction..." : "Analyze Layoff Risk"}
-              </button>
-            </form>
-          </section>
-
-          <section className="space-y-6">
-            {!predictionData ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-blue/70 p-8 text-center">
-                <p className="text-sm text-slate-500">
-                  Complete the three-step flow to get calibrated risk, reliability diagnostics, and targeted actions.
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* View Mode Toggle */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Results View</p>
-                      <p className="mt-1 text-xs text-slate-600">
-                        Choose how you want to see your analysis
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setViewMode('simple')}
-                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
-                          viewMode === 'simple'
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                      >
-                        Simple View
-                      </button>
-                      <button
-                        onClick={() => setViewMode('advanced')}
-                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
-                          viewMode === 'advanced'
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                      >
-                        Advanced View
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Conditional Results Display */}
-                {viewMode === 'simple' ? (
-                  <SimplifiedResults 
-                    predictionData={predictionData}
-                    resumeIntelligence={resumeIntelligence}
-                  />
-                ) : (
-                  <ResultPanel predictionData={predictionData} inputQuality={inputQuality} />
-                )}
-                
-                <section className="rounded-3xl border border-slate-300 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Operator Console</p>
-                      <p className="font-display mt-1 text-sm font-semibold text-slate-900">Decision Workspace</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        One compact control center for simulation, AI guidance, and model quality checks.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleExportPdf}
-                      className="rounded-lg border border-slate-900 bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
-                    >
-                      Export PDF
-                    </button>
-                  </div>
-                  <div className="mt-3">
-                    <SegmentTabs tabs={WORKSPACE_TABS} active={workspaceTab} onChange={setWorkspaceTab} />
-                  </div>
-                </section>
-
-                {workspaceTab === "simulator" ? (
-                  <WorkspacePanelFrame tabId="simulator">
-                    <WhatIfSimulator
-                      whatIfForm={whatIfForm}
-                      setWhatIfForm={setWhatIfForm}
-                      onRun={handleRunWhatIf}
-                      onApplyToInput={handleApplyScenarioToForm}
-                      loading={whatIfLoading}
-                      result={whatIfResult}
-                      baselineRisk={predictionData?.prediction?.layoff_risk}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-
-                {workspaceTab === "guidance" ? (
-                  <WorkspacePanelFrame tabId="guidance">
-                    <EnhancedAiGuidance
-                      employeeData={employeeDataForSuggestions}
-                      predictionData={predictionData}
-                      resumeIntelligence={resumeIntelligence}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-
-                {workspaceTab === "quality" ? (
-                  <WorkspacePanelFrame tabId="quality">
-                    <ModelQualityPanel
-                      report={evalReport}
-                      loading={evalLoading}
-                      error={evalError}
-                      onLoad={handleLoadModelEval}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-              </>
-            )}
-          </section>
+          <PredictionWorkspace
+            predictionData={predictionData}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            inputQuality={inputQuality}
+            resumeIntelligence={resumeIntelligence}
+            workspaceTab={workspaceTab}
+            onWorkspaceTabChange={setWorkspaceTab}
+            whatIfForm={whatIfForm}
+            setWhatIfForm={setWhatIfForm}
+            onRunWhatIf={handleRunWhatIf}
+            onApplyScenarioToForm={handleApplyScenarioToForm}
+            whatIfLoading={whatIfLoading}
+            whatIfResult={whatIfResult}
+            employeeDataForSuggestions={employeeDataForSuggestions}
+            evalReport={evalReport}
+            evalLoading={evalLoading}
+            evalError={evalError}
+            onLoadModelEval={handleLoadModelEval}
+            onExportPdf={handleExportPdf}
+          />
         </div>
       </div>
     </div>

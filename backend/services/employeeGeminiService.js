@@ -3,27 +3,37 @@ import { jsonrepair } from 'jsonrepair';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const GEMINI_MODELS_LIST_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
-const GEMINI_TIMEOUT_MS = 24000;
+const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_TIMEOUT_MS = 18000;
+const MAX_MODEL_ATTEMPTS = 5;
 const MODEL_DISCOVERY_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_RATE_LIMIT_COOLDOWN_MS = 15000;
+const MODEL_DAILY_QUOTA_COOLDOWN_MS = 12 * 60 * 60 * 1000;
+const MODEL_TIMEOUT_COOLDOWN_MS = 5 * 60 * 1000;
+const SUGGESTIONS_MAX_OUTPUT_TOKENS = 1800;
 const MODEL_FALLBACKS = [
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
   'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
-  'gemini-2.0-flash',
   'gemini-1.5-flash',
+  'gemini-flash-latest',
+  'gemini-3-flash-preview',
 ];
 const modelCatalogCache = {
   fetchedAt: 0,
   names: null,
 };
 let geminiRateLimitedUntil = 0;
+let lastGeminiFailure = null;
+const modelCooldownCache = new Map();
 
 const SUGGESTIONS_RESPONSE_SCHEMA = {
   type: 'OBJECT',
   properties: {
     skills: {
       type: 'ARRAY',
+      maxItems: 4,
       items: {
         type: 'OBJECT',
         properties: {
@@ -36,6 +46,7 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
     },
     actions: {
       type: 'ARRAY',
+      maxItems: 4,
       items: {
         type: 'OBJECT',
         properties: {
@@ -51,6 +62,7 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
     },
     opportunities: {
       type: 'ARRAY',
+      maxItems: 3,
       items: {
         type: 'OBJECT',
         properties: {
@@ -68,6 +80,7 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
         summary: { type: 'STRING' },
         trending_tech_stacks: {
           type: 'ARRAY',
+          maxItems: 4,
           items: {
             type: 'OBJECT',
             properties: {
@@ -78,6 +91,7 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
         },
         trending_certifications: {
           type: 'ARRAY',
+          maxItems: 4,
           items: {
             type: 'OBJECT',
             properties: {
@@ -90,6 +104,7 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
         },
         trending_skills: {
           type: 'ARRAY',
+          maxItems: 5,
           items: {
             type: 'OBJECT',
             properties: {
@@ -100,14 +115,17 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
         },
         skill_gaps: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
         certification_gaps: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
         shift_path: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
       },
@@ -117,15 +135,18 @@ const SUGGESTIONS_RESPONSE_SCHEMA = {
       properties: {
         why_this_prediction: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
         model_improvement_tips: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
         market_context: { type: 'OBJECT' },
         retrieved_contexts: {
           type: 'ARRAY',
+          maxItems: 5,
           items: { type: 'STRING' },
         },
       },
@@ -164,6 +185,7 @@ function repairLikelyJsonIssues(text) {
     // likely missing commas between adjacent array/object elements
     .replace(/}\s*\n\s*{/g, '},\n{')
     .replace(/]\s*\n\s*\[/g, '],\n[')
+    .replace(/([}\]0-9"])\s*\n\s*("[A-Za-z0-9_ ]+"\s*:)/g, '$1,\n$2')
     .replace(/"\s*\n\s*"/g, '",\n"')
     .replace(/"\s*\n\s*{/g, '",\n{')
     .replace(/}\s*\n\s*"/g, '},\n"')
@@ -173,7 +195,22 @@ function repairLikelyJsonIssues(text) {
 }
 
 function safeParseJsonObject(text) {
-  const envelope = extractObjectEnvelope(text);
+  let envelope;
+  try {
+    envelope = extractObjectEnvelope(text);
+  } catch (envelopeError) {
+    try {
+      const repairedWhole = jsonrepair(stripCodeFence(text));
+      const parsedWhole = JSON.parse(repairedWhole);
+      if (parsedWhole && typeof parsedWhole === 'object') {
+        return parsedWhole;
+      }
+    } catch (repairError) {
+      // continue to structured parse error below
+    }
+    throw envelopeError;
+  }
+
   const variants = [envelope, repairLikelyJsonIssues(envelope)];
   let repairedByLibrary = null;
 
@@ -226,6 +263,72 @@ function parseRetryDelayMs(message) {
   return Math.max(DEFAULT_RATE_LIMIT_COOLDOWN_MS, Math.ceil(seconds * 1000));
 }
 
+function isDailyQuotaMessage(message) {
+  const text = String(message || '').toLowerCase();
+  return text.includes('requestsperday')
+    || text.includes('perday')
+    || text.includes('limit: 0')
+    || text.includes('quota exceeded for metric');
+}
+
+function getModelCooldownRemainingMs(model) {
+  const until = Number(modelCooldownCache.get(model) || 0);
+  if (!Number.isFinite(until) || until <= 0) {
+    return 0;
+  }
+  return Math.max(0, until - Date.now());
+}
+
+function setModelCooldown(model, msFromNow) {
+  if (!model) {
+    return;
+  }
+  const duration = Number(msFromNow);
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return;
+  }
+  modelCooldownCache.set(model, Date.now() + duration);
+}
+
+function setGeminiFailure(reason, message, retryAfterMs = 0) {
+  lastGeminiFailure = {
+    reason: String(reason || 'unavailable'),
+    message: String(message || 'Gemini is unavailable for this run.'),
+    retry_after_ms: Number.isFinite(Number(retryAfterMs)) ? Math.max(0, Number(retryAfterMs)) : 0,
+    at_utc: new Date().toISOString(),
+  };
+}
+
+export function getGeminiFailureInfo() {
+  return lastGeminiFailure;
+}
+
+function classifyGeminiFailure(error) {
+  const text = String(error?.message || '').toLowerCase();
+  if (text.includes('quota') || text.includes('rate limit') || text.includes('resource_exhausted')) {
+    return {
+      reason: 'quota_exceeded',
+      message: 'Gemini quota is exhausted for this API key. Showing grounded RAG guidance for now.',
+    };
+  }
+  if (text.includes('timeout') || text.includes('timed out')) {
+    return {
+      reason: 'timeout',
+      message: 'Gemini response timed out. Showing grounded RAG guidance for this run.',
+    };
+  }
+  if (text.includes('json') || text.includes('parse')) {
+    return {
+      reason: 'invalid_json',
+      message: 'Gemini returned malformed JSON. Showing grounded RAG guidance for this run.',
+    };
+  }
+  return {
+    reason: 'unavailable',
+    message: 'Gemini is temporarily unavailable. Showing grounded RAG guidance for this run.',
+  };
+}
+
 async function fetchAvailableModelNames(apiKey) {
   const now = Date.now();
   if (Array.isArray(modelCatalogCache.names) && (now - modelCatalogCache.fetchedAt) < MODEL_DISCOVERY_TTL_MS) {
@@ -273,6 +376,53 @@ function resolveCandidateFromCatalog(candidate, catalog) {
   return containsMatch || null;
 }
 
+function sortModelPreference(models = []) {
+  const score = (name) => {
+    const normalized = normalizeModelName(name).toLowerCase();
+    let weight = 0;
+
+    if (normalized === 'gemini-2.0-flash') {
+      weight += 120;
+    }
+    if (normalized.startsWith('gemini-2.0-flash')) {
+      weight += 90;
+    } else if (normalized.startsWith('gemini-2.5-flash')) {
+      weight += 80;
+    } else if (normalized.startsWith('gemini-3-flash')) {
+      weight += 88;
+    } else if (normalized.startsWith('gemini-flash-latest')) {
+      weight += 84;
+    } else if (normalized.startsWith('gemini-1.5-flash')) {
+      weight += 50;
+    }
+
+    if (normalized.includes('lite')) {
+      weight -= 6;
+    }
+    if (normalized.includes('thinking') || normalized.includes('exp') || normalized.includes('experimental')) {
+      weight -= 14;
+    }
+    if (normalized.includes('preview')) {
+      weight -= 8;
+    }
+
+    return weight;
+  };
+
+  return [...models]
+    .filter(Boolean)
+    .sort((a, b) => score(b) - score(a));
+}
+
+function selectCatalogFlashCandidates(catalog = []) {
+  return sortModelPreference(
+    catalog
+      .filter((name) => /gemini-[\w.-]*flash/i.test(name) || /^gemini-flash/i.test(name))
+      .filter((name) => !/embedding|imagen|aqa|tts|veo|learnlm/i.test(name))
+      .filter((name) => !/thinking|experimental|image-generation/i.test(name))
+  ).slice(0, 6);
+}
+
 async function getModelCandidates(apiKey) {
   const preferred = normalizeModelName(process.env.GEMINI_MODEL);
   const desiredCandidates = [...new Set([
@@ -290,15 +440,25 @@ async function getModelCandidates(apiKey) {
     .map((candidate) => resolveCandidateFromCatalog(candidate, catalog))
     .filter(Boolean);
 
-  if (resolved.length > 0) {
-    return [...new Set(resolved)];
+  const catalogFallbacks = selectCatalogFlashCandidates(catalog);
+  const combined = sortModelPreference([
+    ...new Set([
+      ...resolved,
+      ...catalogFallbacks,
+    ]),
+  ]).slice(0, 6);
+
+  if (combined.length > 0) {
+    return combined;
   }
 
-  const flashFirst = catalog
-    .filter((name) => /gemini-[\w.-]*flash/i.test(name))
-    .slice(0, 4);
+  const flashFirst = selectCatalogFlashCandidates(catalog).slice(0, 4);
 
-  return flashFirst.length > 0 ? flashFirst : desiredCandidates;
+  if (flashFirst.length > 0) {
+    return sortModelPreference(flashFirst);
+  }
+
+  return sortModelPreference(desiredCandidates);
 }
 
 function buildGeminiUrl(apiKey, model) {
@@ -311,8 +471,20 @@ async function callGeminiText({ apiKey, prompt, generationConfig, models = [] })
     ? models
     : await getModelCandidates(apiKey);
   let retryDelayMs = 0;
+  let attempts = 0;
 
   for (const model of candidateModels) {
+    if (attempts >= MAX_MODEL_ATTEMPTS) {
+      break;
+    }
+
+    const cooldownRemaining = getModelCooldownRemainingMs(model);
+    if (cooldownRemaining > 0) {
+      errors.push(`${model}: skipped (cooldown ${Math.ceil(cooldownRemaining / 1000)}s)`);
+      continue;
+    }
+
+    attempts += 1;
     const url = buildGeminiUrl(apiKey, model);
 
     try {
@@ -325,18 +497,29 @@ async function callGeminiText({ apiKey, prompt, generationConfig, models = [] })
         { timeout: GEMINI_TIMEOUT_MS }
       );
 
-      const text = response?.data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
+      const candidate = response?.data?.candidates?.[0] || {};
+      const finishReason = String(candidate?.finishReason || '').toUpperCase();
+      const text = candidate?.content?.parts?.map((part) => part.text || '').join('\n') || '';
       if (!text.trim()) {
-        errors.push(`${model}: empty content`);
+        errors.push(`${model}: empty content${finishReason ? ` (${finishReason})` : ''}`);
         continue;
       }
 
-      return { text, model };
+      return { text, model, finishReason };
     } catch (error) {
       const status = Number(error?.response?.status || 0) || 'NA';
       const message = error?.response?.data?.error?.message || error.message;
       if (status === 429) {
-        retryDelayMs = Math.max(retryDelayMs, parseRetryDelayMs(message));
+        if (isDailyQuotaMessage(message)) {
+          setModelCooldown(model, MODEL_DAILY_QUOTA_COOLDOWN_MS);
+          retryDelayMs = Math.max(retryDelayMs, DEFAULT_RATE_LIMIT_COOLDOWN_MS);
+        } else {
+          const parsedRetry = parseRetryDelayMs(message);
+          setModelCooldown(model, parsedRetry);
+          retryDelayMs = Math.max(retryDelayMs, parsedRetry);
+        }
+      } else if (String(message || '').toLowerCase().includes('timeout')) {
+        setModelCooldown(model, MODEL_TIMEOUT_COOLDOWN_MS);
       }
       errors.push(`${model}: [${status}] ${message}`);
     }
@@ -367,7 +550,7 @@ async function repairJsonWithGemini(rawText, apiKey, models) {
     generationConfig: {
       temperature: 0,
       topP: 0.8,
-      maxOutputTokens: 3000,
+      maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS,
       responseMimeType: 'application/json',
     },
   });
@@ -638,20 +821,50 @@ function compactSuggestionContext(ragSuggestions) {
 
 function buildPrompt(userData, predictionData, ragSuggestions) {
   const compactRag = compactSuggestionContext(ragSuggestions);
+  const compactUserData = {
+    company_name: userData?.company_name || null,
+    job_title: userData?.job_title || null,
+    department: userData?.department || null,
+    tech_stack: userData?.tech_stack || null,
+    stack_profile: userData?.stack_profile || null,
+    skill_tags: normalizeStringList(String(userData?.skill_tags || '').split(','), 8),
+    certifications: normalizeStringList(String(userData?.certifications || '').split(','), 8),
+    years_at_company: Number.isFinite(Number(userData?.years_at_company)) ? Number(userData.years_at_company) : null,
+    performance_rating: Number.isFinite(Number(userData?.performance_rating)) ? Number(userData.performance_rating) : null,
+    resume_insights: {
+      skills: normalizeStringList((userData?.resume_insights?.skills || []).map((item) => item?.name || item), 10),
+      certifications: normalizeStringList((userData?.resume_insights?.certifications || []).map((item) => item?.name || item), 8),
+      years_of_experience: Number.isFinite(Number(userData?.resume_insights?.years_of_experience))
+        ? Number(userData.resume_insights.years_of_experience)
+        : null,
+      ai_readiness_score: Number.isFinite(Number(userData?.resume_insights?.ai_readiness_score))
+        ? Number(userData.resume_insights.ai_readiness_score)
+        : null,
+    },
+  };
+
   const compactPrediction = {
     layoff_risk: predictionData?.prediction?.layoff_risk,
     confidence: predictionData?.prediction?.confidence,
-    probabilities: predictionData?.prediction?.probabilities,
-    top_factors: predictionData?.prediction?.top_factors,
-    improvement_tips: predictionData?.prediction?.improvement_tips,
+    top_factors: (predictionData?.prediction?.top_factors || []).slice(0, 4),
+    improvement_tips: (predictionData?.prediction?.improvement_tips || []).slice(0, 4),
     stack_survival: predictionData?.stack_survival,
-    reliability: predictionData?.reliability,
-    market_signals: predictionData?.market_signals,
+    reliability: predictionData?.reliability || {},
+    market_signals: {
+      marketRegime: predictionData?.market_signals?.marketRegime || null,
+      marketStressScore: Number.isFinite(Number(predictionData?.market_signals?.marketStressScore))
+        ? Number(predictionData.market_signals.marketStressScore)
+        : null,
+      relative_return_90d: Number.isFinite(Number(predictionData?.market_signals?.relative_return_90d))
+        ? Number(predictionData.market_signals.relative_return_90d)
+        : null,
+      source: predictionData?.market_signals?.dataSource || null,
+    },
   };
 
   return [
     'You are a senior career-risk advisor for Indian tech and services employees.',
-    'Goal: produce highly personalized and practical guidance from model outputs and market signals.',
+    'Goal: produce compact, practical guidance from prediction and market signals.',
     '',
     'Return ONLY a valid JSON object with this exact shape:',
     '{',
@@ -680,17 +893,18 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     '- Keep each item concrete and measurable.',
     '- Use timelines in weeks/months.',
     '- Do not hallucinate unavailable data; use provided context only.',
-    '- Keep 3 to 4 items per section when possible.',
-    '- Keep each text field short and direct (1-2 sentences).',
-    '- Keep each string under 180 characters.',
-    '- Keep each steps array to 2-4 short bullets.',
-    '- Prioritize market-relevant trends for 2026 role demand.',
-    '- Include a realistic shift path from current stack to stronger stack.',
-    '- Ensure at least one skill and one action directly address certification-gap closure when gaps exist.',
+    '- Keep each array to 2 items unless strongly justified (max 3).',
+    '- Keep each text field short and direct (one sentence).',
+    '- Keep each string under 110 characters.',
+    '- Keep each steps array to 2 short bullets.',
+    '- Avoid repeating the same idea across multiple sections.',
+    '- Prioritize market-relevant trends for 2026 role demand in India.',
+    '- Include one realistic shift path from current stack to stronger stack.',
+    '- If certification gaps exist, include one skill and one action to close them.',
     '- Return compact JSON (no pretty-print indentation).',
     '- Use strict JSON only (double quotes, no comments, no trailing commas).',
     '',
-    `employee_data: ${JSON.stringify(userData)}`,
+    `employee_data: ${JSON.stringify(compactUserData)}`,
     `prediction_context: ${JSON.stringify(compactPrediction)}`,
     `baseline_rag_suggestions: ${JSON.stringify(compactRag)}`,
   ].join('\n');
@@ -699,10 +913,17 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
 export async function generateGeminiCustomizedSuggestions(userData, predictionData, ragSuggestions) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    setGeminiFailure('missing_key', 'GEMINI_API_KEY is missing. Showing grounded RAG guidance.');
     return null;
   }
 
   if (Date.now() < geminiRateLimitedUntil) {
+    const waitMs = Math.max(0, geminiRateLimitedUntil - Date.now());
+    setGeminiFailure(
+      'rate_limited',
+      'Gemini is cooling down after rate limits. Showing grounded RAG guidance for now.',
+      waitMs
+    );
     return null;
   }
 
@@ -717,32 +938,83 @@ export async function generateGeminiCustomizedSuggestions(userData, predictionDa
         models,
         prompt,
         generationConfig: {
-          temperature: 0.35,
-          topP: 0.9,
-          maxOutputTokens: 3000,
+          temperature: 0.15,
+          topP: 0.8,
+          maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS,
           responseMimeType: 'application/json',
           responseSchema: SUGGESTIONS_RESPONSE_SCHEMA,
         },
       });
       text = response.text;
       modelUsed = response.model;
+
+      if (response.finishReason === 'MAX_TOKENS') {
+        const compactRetry = await callGeminiText({
+          apiKey,
+          models,
+          prompt: [
+            prompt,
+            '',
+            'COMPRESS FURTHER:',
+            '- keep exactly 2 skills, 2 actions, 2 opportunities',
+            '- keep exactly 2 trend stacks, 2 trend certs, 2 trend skills',
+            '- keep all strings under 100 chars',
+            '- return strict compact JSON only',
+          ].join('\n'),
+          generationConfig: {
+            temperature: 0,
+            topP: 0.8,
+            maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS + 900,
+            responseMimeType: 'application/json',
+            responseSchema: SUGGESTIONS_RESPONSE_SCHEMA,
+          },
+        });
+        text = compactRetry.text;
+        modelUsed = compactRetry.model;
+      }
     } catch (schemaError) {
+      if (String(schemaError?.message || '').includes('Gemini call failed across models')) {
+        throw schemaError;
+      }
       const response = await callGeminiText({
         apiKey,
         models,
         prompt,
         generationConfig: {
-          temperature: 0.35,
-          topP: 0.9,
-          maxOutputTokens: 3000,
+          temperature: 0.15,
+          topP: 0.8,
+          maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS,
           responseMimeType: 'application/json',
         },
       });
       text = response.text;
       modelUsed = response.model;
+
+      if (response.finishReason === 'MAX_TOKENS') {
+        const compactRetry = await callGeminiText({
+          apiKey,
+          models,
+          prompt: [
+            prompt,
+            '',
+            'COMPRESS FURTHER:',
+            '- keep exactly 2 skills, 2 actions, 2 opportunities',
+            '- keep strings short and strict JSON only',
+          ].join('\n'),
+          generationConfig: {
+            temperature: 0,
+            topP: 0.8,
+            maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS + 900,
+            responseMimeType: 'application/json',
+          },
+        });
+        text = compactRetry.text;
+        modelUsed = compactRetry.model;
+      }
     }
 
     if (!text.trim()) {
+      setGeminiFailure('empty_response', 'Gemini returned empty content. Showing grounded RAG guidance.');
       return null;
     }
 
@@ -760,13 +1032,14 @@ export async function generateGeminiCustomizedSuggestions(userData, predictionDa
             'FINAL INSTRUCTION:',
             'Respond with only one valid JSON object.',
             'Return compact JSON in a single line.',
-            'Keep each section to at most 4 items.',
+            'Keep each array to at most 2 items.',
+            'Keep each string under 100 characters.',
             'No markdown, no prose, no explanation.',
           ].join('\n'),
           generationConfig: {
             temperature: 0,
             topP: 0.8,
-            maxOutputTokens: 3000,
+            maxOutputTokens: SUGGESTIONS_MAX_OUTPUT_TOKENS,
             responseMimeType: 'application/json',
           },
         });
@@ -782,17 +1055,26 @@ export async function generateGeminiCustomizedSuggestions(userData, predictionDa
     }
 
     const normalized = normalizeSuggestionsShape(parsed, ragSuggestions);
+    lastGeminiFailure = null;
 
     return {
       ...normalized,
       generator: 'gemini',
       generator_model: modelUsed,
+      generator_status: {
+        gemini_available: true,
+        reason: null,
+        message: 'Gemini is active for this guidance run.',
+        retry_after_ms: 0,
+      },
     };
   } catch (error) {
     const retryDelayMs = Number(error?.rateLimitDelayMs || 0);
     if (retryDelayMs > 0) {
       geminiRateLimitedUntil = Date.now() + retryDelayMs;
     }
+    const failure = classifyGeminiFailure(error);
+    setGeminiFailure(failure.reason, failure.message, retryDelayMs);
     return null;
   }
 }

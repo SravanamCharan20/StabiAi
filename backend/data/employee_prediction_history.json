@@ -8410,5 +8410,709 @@
         "updated_at_utc": "2026-03-09T11:32:46.308Z"
       }
     ]
+  },
+  {
+    "run_id": "096cf614-1652-4bfa-b55b-c166b4979abd",
+    "created_at_utc": "2026-03-09T14:00:46.018Z",
+    "updated_at_utc": "2026-03-09T14:00:46.018Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4,
+      "stack_profile": "Manual QA + Regression Testing",
+      "skill_tags": "sql, selenium, jira",
+      "certifications": "SCRUM",
+      "resume_insights": {
+        "candidate_name": "Vikram Singh",
+        "years_of_experience": 9,
+        "certifications": [
+          "SCRUM"
+        ],
+        "skills": [
+          "sql",
+          "selenium",
+          "jira",
+          "Manual QA",
+          "Regression Testing"
+        ],
+        "ai_readiness_score": 45,
+        "parse_confidence": 0.7,
+        "declared_stack_profile": "Manual QA + Regression Testing"
+      },
+      "stack_resolution": {
+        "resolved_tech_stack": "Manual QA + Regression Testing",
+        "mapping_type": "direct",
+        "confidence": 1,
+        "reason": "Exact stack selected from model catalog."
+      }
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 2.76,
+      "profit_margin": 7.29,
+      "stock_price_change": -1.98,
+      "total_employees": 119737,
+      "role_demand_index": 6.13,
+      "department_resilience_index": 5.215,
+      "tech_stack_trend_score": 3.3,
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 2.473,
+      "unemployment_rate": 6.329,
+      "inflation_rate": 5.119,
+      "employee_stability": 36,
+      "economic_pressure": 8.688
+    },
+    "prediction": {
+      "layoff_risk": "High",
+      "confidence": 0.98,
+      "risk_score": 99.88,
+      "probabilities": {
+        "Low": 0,
+        "Medium": 0.0024,
+        "High": 0.9976
+      },
+      "top_factors": [
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 3.3,
+          "impact": 5.0308,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 3.52 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "department_resilience_index",
+          "label": "Department Resilience Index",
+          "value": 5.215,
+          "impact": 2.8318,
+          "direction": "increases_risk",
+          "reason": "Department Resilience Index is 2.21 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Manual QA + Regression Testing",
+          "impact": 2.4424,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Tech Stack: Manual QA + Regression Testing."
+        },
+        {
+          "feature": "department",
+          "label": "Department",
+          "value": "HR",
+          "impact": 2.0308,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Department: HR."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 7.29,
+          "impact": 1.3788,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.03 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 6.13,
+          "impact": 1.2995,
+          "direction": "increases_risk",
+          "reason": "Role Demand Index is 1.27 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "Keep your stack current: add one market-in-demand tool or framework this quarter."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For QA Engineer in Q4 2025",
+      "compared_stacks": 3,
+      "current_stack": "Manual QA + Regression Testing",
+      "current_stack_rank": 3,
+      "current_stack_signal": "weak",
+      "current_stack_low_risk_share": 0.0588,
+      "current_stack_avg_layoff_rate": 2.901,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Selenium + Cypress + API Testing",
+          "sample_size": 18,
+          "low_risk_share": 0.3889,
+          "high_risk_share": 0.2222,
+          "avg_role_layoff_rate": 2.072
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        },
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        }
+      ],
+      "narrative": "Manual QA + Regression Testing is in a weaker resilience tier for current role demand."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.3871,
+      "company_return_90d": -7.296,
+      "market_return_90d": 2.096,
+      "relative_return_90d": -9.392,
+      "company_volatility_90d": 1.982,
+      "market_volatility_90d": 0.7391,
+      "india_vix": 36.66,
+      "company_last_price": 208.9,
+      "company_previous_close": 213.12,
+      "benchmark_symbol": "SPY",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 663.96,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Vikram Singh",
+      "years_of_experience": 9,
+      "certifications": [
+        "SCRUM"
+      ],
+      "skills": [
+        "sql",
+        "selenium",
+        "jira",
+        "Manual QA",
+        "Regression Testing"
+      ],
+      "ai_readiness_score": 45,
+      "parse_confidence": 0.7,
+      "declared_stack_profile": "Manual QA + Regression Testing"
+    },
+    "stack_resolution": {
+      "resolved_tech_stack": "Manual QA + Regression Testing",
+      "mapping_type": "direct",
+      "confidence": 1,
+      "reason": "Exact stack selected from model catalog."
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "trending_tech_stacks": [
+        {
+          "name": "AI-assisted SDLC (GitHub Copilot, Codeium, Cursor)",
+          "why": "Teams now expect faster delivery with AI-augmented development workflows."
+        },
+        {
+          "name": "Cloud-native platform stack (Kubernetes, Terraform, observability)",
+          "why": "Infra automation and reliability ownership reduce layoff exposure."
+        },
+        {
+          "name": "Backend modernization (FastAPI/Node microservices + event streaming)",
+          "why": "Scalable service ownership is retained in cost-constrained cycles."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified Developer / Solutions Architect",
+          "provider": "AWS",
+          "level": "Associate",
+          "why": "Cloud cost/performance ownership is strongly valued."
+        },
+        {
+          "name": "CKA / CKAD",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Kubernetes depth supports platform and reliability tracks."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC is now baseline in modern engineering teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Prompt engineering for developer workflows",
+          "why": "Improves coding velocity and review quality."
+        },
+        {
+          "name": "System design for scale and resilience",
+          "why": "Architecture capability improves role criticality."
+        },
+        {
+          "name": "Cost optimization and production telemetry",
+          "why": "Direct business impact in optimization cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Prompt engineering for developer workflows",
+        "System design for scale and resilience",
+        "Cost optimization and production telemetry"
+      ],
+      "certification_gaps": [
+        "AWS Certified Developer / Solutions Architect",
+        "CKA / CKAD",
+        "HashiCorp Terraform Associate"
+      ],
+      "shift_path": [
+        "Move toward AI-assisted SDLC (GitHub Copilot, Codeium, Cursor) with one production project in 30-45 days.",
+        "Add Prompt engineering for developer workflows with measurable project evidence.",
+        "Pursue AWS Certified Developer / Solutions Architect for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For QA Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.9564,
+      "model_confidence": 0.98,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-09T14:00:46.018Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:00:46.018Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:00:46.018Z"
+      },
+      {
+        "id": "tip-3",
+        "title": "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:00:46.018Z"
+      }
+    ]
+  },
+  {
+    "run_id": "9269ff6c-ed37-4da6-9a72-aefed8f06e58",
+    "created_at_utc": "2026-03-09T14:14:32.779Z",
+    "updated_at_utc": "2026-03-09T14:14:32.779Z",
+    "employee_profile": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4,
+      "stack_profile": "Manual QA + Regression Testing",
+      "skill_tags": "sql, selenium, jira",
+      "certifications": "SCRUM",
+      "resume_insights": {
+        "candidate_name": "Vikram Singh",
+        "years_of_experience": 9,
+        "certifications": [
+          "SCRUM"
+        ],
+        "skills": [
+          "sql",
+          "selenium",
+          "jira",
+          "Manual QA",
+          "Regression Testing"
+        ],
+        "ai_readiness_score": 45,
+        "parse_confidence": 0.7,
+        "declared_stack_profile": "Manual QA + Regression Testing"
+      },
+      "stack_resolution": {
+        "resolved_tech_stack": "Manual QA + Regression Testing",
+        "mapping_type": "direct",
+        "confidence": 1,
+        "reason": "Exact stack selected from model catalog."
+      }
+    },
+    "normalized_input": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Amazon India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "Yes",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "HR",
+      "remote_work": "No",
+      "industry": "Information Technology",
+      "revenue_growth": 2.98,
+      "profit_margin": 6.43,
+      "stock_price_change": -2.562,
+      "total_employees": 119737,
+      "role_demand_index": 6.13,
+      "department_resilience_index": 5.215,
+      "tech_stack_trend_score": 3.3,
+      "years_at_company": 9,
+      "salary_range": 1300000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 2.665,
+      "unemployment_rate": 6.488,
+      "inflation_rate": 5.225,
+      "employee_stability": 36,
+      "economic_pressure": 8.733
+    },
+    "prediction": {
+      "layoff_risk": "High",
+      "confidence": 0.98,
+      "risk_score": 99.95,
+      "probabilities": {
+        "Low": 0,
+        "Medium": 0.001,
+        "High": 0.999
+      },
+      "top_factors": [
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 3.3,
+          "impact": 5.0308,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 3.52 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "department_resilience_index",
+          "label": "Department Resilience Index",
+          "value": 5.215,
+          "impact": 2.8318,
+          "direction": "increases_risk",
+          "reason": "Department Resilience Index is 2.21 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Manual QA + Regression Testing",
+          "impact": 2.4424,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Tech Stack: Manual QA + Regression Testing."
+        },
+        {
+          "feature": "department",
+          "label": "Department",
+          "value": "HR",
+          "impact": 2.0308,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Department: HR."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.665,
+          "impact": 1.5796,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.14 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 6.43,
+          "impact": 1.5542,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 10.89 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "Keep your stack current: add one market-in-demand tool or framework this quarter."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For QA Engineer in Q4 2025",
+      "compared_stacks": 3,
+      "current_stack": "Manual QA + Regression Testing",
+      "current_stack_rank": 3,
+      "current_stack_signal": "weak",
+      "current_stack_low_risk_share": 0.0588,
+      "current_stack_avg_layoff_rate": 2.901,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Selenium + Cypress + API Testing",
+          "sample_size": 18,
+          "low_risk_share": 0.3889,
+          "high_risk_share": 0.2222,
+          "avg_role_layoff_rate": 2.072
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        },
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        }
+      ],
+      "narrative": "Manual QA + Regression Testing is in a weaker resilience tier for current role demand."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.4534,
+      "company_return_90d": -7.846,
+      "market_return_90d": 4.873,
+      "relative_return_90d": -12.718,
+      "company_volatility_90d": 1.9871,
+      "market_volatility_90d": 1.0112,
+      "india_vix": 36.45,
+      "company_last_price": 207.66,
+      "company_previous_close": 213.12,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "AMZN",
+      "market_universe": "us",
+      "us_index_price": 593.18,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "AMZN",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Vikram Singh",
+      "years_of_experience": 9,
+      "certifications": [
+        "SCRUM"
+      ],
+      "skills": [
+        "sql",
+        "selenium",
+        "jira",
+        "Manual QA",
+        "Regression Testing"
+      ],
+      "ai_readiness_score": 45,
+      "parse_confidence": 0.7,
+      "declared_stack_profile": "Manual QA + Regression Testing"
+    },
+    "stack_resolution": {
+      "resolved_tech_stack": "Manual QA + Regression Testing",
+      "mapping_type": "direct",
+      "confidence": 1,
+      "reason": "Exact stack selected from model catalog."
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "trending_tech_stacks": [
+        {
+          "name": "AI-assisted SDLC (GitHub Copilot, Codeium, Cursor)",
+          "why": "Teams now expect faster delivery with AI-augmented development workflows."
+        },
+        {
+          "name": "Cloud-native platform stack (Kubernetes, Terraform, observability)",
+          "why": "Infra automation and reliability ownership reduce layoff exposure."
+        },
+        {
+          "name": "Backend modernization (FastAPI/Node microservices + event streaming)",
+          "why": "Scalable service ownership is retained in cost-constrained cycles."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified Developer / Solutions Architect",
+          "provider": "AWS",
+          "level": "Associate",
+          "why": "Cloud cost/performance ownership is strongly valued."
+        },
+        {
+          "name": "CKA / CKAD",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Kubernetes depth supports platform and reliability tracks."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC is now baseline in modern engineering teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Prompt engineering for developer workflows",
+          "why": "Improves coding velocity and review quality."
+        },
+        {
+          "name": "System design for scale and resilience",
+          "why": "Architecture capability improves role criticality."
+        },
+        {
+          "name": "Cost optimization and production telemetry",
+          "why": "Direct business impact in optimization cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Prompt engineering for developer workflows",
+        "System design for scale and resilience",
+        "Cost optimization and production telemetry"
+      ],
+      "certification_gaps": [
+        "AWS Certified Developer / Solutions Architect",
+        "CKA / CKAD",
+        "HashiCorp Terraform Associate"
+      ],
+      "shift_path": [
+        "Move toward AI-assisted SDLC (GitHub Copilot, Codeium, Cursor) with one production project in 30-45 days.",
+        "Add Prompt engineering for developer workflows with measurable project evidence.",
+        "Pursue AWS Certified Developer / Solutions Architect for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For QA Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.9564,
+      "model_confidence": 0.98,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-09T14:14:32.778Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:14:32.780Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Contribute to initiatives that make your department revenue-critical and hard to downsize.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:14:32.780Z"
+      },
+      {
+        "id": "tip-3",
+        "title": "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T14:14:32.780Z"
+      }
+    ]
   }
 ]

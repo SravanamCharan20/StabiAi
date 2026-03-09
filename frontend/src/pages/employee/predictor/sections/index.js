@@ -7,6 +7,8 @@ export {
   WorkspacePanelFrame,
 } from "./core";
 export { ResultPanel } from "./result";
+export { InputPanel } from "./inputPanel";
+export { PredictionWorkspace } from "./predictionWorkspace";
 export {
   ActionTrackerPanel,
   HistoryPanel,

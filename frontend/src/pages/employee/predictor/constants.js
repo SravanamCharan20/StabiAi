@@ -291,24 +291,6 @@ export const WORKSPACE_FRAME_THEME = {
     text: "text-sky-800",
     label: "Scenario Lab",
   },
-  actions: {
-    border: "border-emerald-200",
-    bg: "bg-emerald-50/45",
-    text: "text-emerald-800",
-    label: "Execution Tracker",
-  },
-  review: {
-    border: "border-amber-200",
-    bg: "bg-amber-50/45",
-    text: "text-amber-900",
-    label: "Governance Review",
-  },
-  history: {
-    border: "border-slate-300",
-    bg: "bg-slate-100/60",
-    text: "text-slate-800",
-    label: "Historical Trend",
-  },
   quality: {
     border: "border-indigo-200",
     bg: "bg-indigo-50/45",
