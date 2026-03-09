@@ -12,6 +12,8 @@ import {
   HiOutlineUserGroup,
 } from "react-icons/hi";
 import AiSuggestions from "./aiSuggestions";
+import SimplifiedResults from "../../components/SimplifiedResults";
+import EnhancedAiGuidance from "../../components/EnhancedAiGuidance";
 import { API_BASE_URL } from "../../config/api";
 import {
   ACTION_STATUS_OPTIONS,
@@ -100,6 +102,8 @@ const EmployeePred = () => {
   const [resumeMissingFields, setResumeMissingFields] = useState([]);
   const [resumeTrendGuidance, setResumeTrendGuidance] = useState(null);
   const [resumeMessage, setResumeMessage] = useState("");
+  const [viewMode, setViewMode] = useState("simple"); // NEW: simple or advanced
+  const [resumeIntelligence, setResumeIntelligence] = useState(null); // NEW: enhanced resume data
 
   useEffect(() => {
     const fetchInputSpec = async () => {
@@ -233,7 +237,57 @@ const EmployeePred = () => {
     try {
       const payload = new FormData();
       payload.append("resume", resumeFile);
-      const response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse`, payload, {
+      
+      // Try enhanced parser first
+      let response;
+      try {
+        response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse-enhanced`, payload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        
+        if (response.data?.success && response.data?.resumeIntelligence) {
+          // Enhanced parsing succeeded
+          const extractedProfile = response.data.profile || {};
+          const intelligence = response.data.resumeIntelligence || {};
+          
+          setFormData((prev) => {
+            const next = { ...prev };
+            for (const [key, value] of Object.entries(extractedProfile)) {
+              if (value != null && String(value).trim() !== "") {
+                next[key] = String(value);
+              }
+            }
+            
+            // Auto-fill skill tags from enhanced intelligence
+            if (!String(next.skill_tags || "").trim() && Array.isArray(intelligence.skills) && intelligence.skills.length) {
+              next.skill_tags = intelligence.skills.slice(0, 10).map(s => s.name).join(", ");
+            }
+            
+            // Auto-fill certifications
+            if (!String(next.certifications || "").trim() && Array.isArray(intelligence.certifications) && intelligence.certifications.length) {
+              next.certifications = intelligence.certifications.slice(0, 8).map(c => c.name).join(", ");
+            }
+            
+            return next;
+          });
+
+          setResumeIntelligence(intelligence);
+          setResumeTrendGuidance(response.data.trend_guidance || null);
+          
+          const scores = intelligence.scores || {};
+          setResumeMessage(
+            `✨ Resume analyzed! Overall Strength: ${scores.overallStrength || 0}/100. ` +
+            `Found ${intelligence.skills?.length || 0} skills with ${intelligence.skillGaps?.length || 0} gaps identified.`
+          );
+          
+          return;
+        }
+      } catch (enhancedError) {
+        console.warn('Enhanced parser failed, falling back to basic parser:', enhancedError.message);
+      }
+      
+      // Fallback to basic parser
+      response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse`, payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -827,7 +881,7 @@ const EmployeePred = () => {
         y += (lines.length * gap);
       };
 
-      addTextBlock("StabiAI Employee Risk Report", 16, "bold", 18);
+      addTextBlock("Career Shield Employee Risk Report", 16, "bold", 18);
       addTextBlock(`Generated: ${new Date().toLocaleString("en-IN")}`, 10, "normal", 13);
       addTextBlock(`Run ID: ${activeRunId || "N/A"}`, 10, "normal", 13);
       y += 6;
@@ -866,7 +920,7 @@ const EmployeePred = () => {
       }
 
       const fileDate = new Date().toISOString().slice(0, 10);
-      doc.save(`stabiai_employee_report_${fileDate}.pdf`);
+      doc.save(`career_shield_employee_report_${fileDate}.pdf`);
     } catch (exportError) {
       setError(exportError.message || "Unable to export PDF report.");
     }
@@ -1156,7 +1210,50 @@ const EmployeePred = () => {
               </div>
             ) : (
               <>
-                <ResultPanel predictionData={predictionData} inputQuality={inputQuality} />
+                {/* View Mode Toggle */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Results View</p>
+                      <p className="mt-1 text-xs text-slate-600">
+                        Choose how you want to see your analysis
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setViewMode('simple')}
+                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                          viewMode === 'simple'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        Simple View
+                      </button>
+                      <button
+                        onClick={() => setViewMode('advanced')}
+                        className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                          viewMode === 'advanced'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        Advanced View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conditional Results Display */}
+                {viewMode === 'simple' ? (
+                  <SimplifiedResults 
+                    predictionData={predictionData}
+                    resumeIntelligence={resumeIntelligence}
+                  />
+                ) : (
+                  <ResultPanel predictionData={predictionData} inputQuality={inputQuality} />
+                )}
+                
                 <section className="rounded-3xl border border-slate-300 bg-gradient-to-br from-slate-50 to-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -1195,10 +1292,10 @@ const EmployeePred = () => {
 
                 {workspaceTab === "guidance" ? (
                   <WorkspacePanelFrame tabId="guidance">
-                    <AiSuggestions
+                    <EnhancedAiGuidance
                       employeeData={employeeDataForSuggestions}
                       predictionData={predictionData}
-                      loading={loading}
+                      resumeIntelligence={resumeIntelligence}
                     />
                   </WorkspacePanelFrame>
                 ) : null}
