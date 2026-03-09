@@ -827,7 +827,7 @@ const EmployeePred = () => {
         y += (lines.length * gap);
       };
 
-      addTextBlock("StabiAI Employee Risk Report", 16, "bold", 18);
+      addTextBlock("Career Shield Employee Risk Report", 16, "bold", 18);
       addTextBlock(`Generated: ${new Date().toLocaleString("en-IN")}`, 10, "normal", 13);
       addTextBlock(`Run ID: ${activeRunId || "N/A"}`, 10, "normal", 13);
       y += 6;

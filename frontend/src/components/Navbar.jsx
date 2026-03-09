@@ -36,7 +36,7 @@ const Navbar = () => {
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white">
               <RiRobot2Line className="text-lg" />
             </span>
-            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-700">StabiAI</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-700">Career Shield</span>
           </Link>
 
           <span className="mx-1 h-5 w-px bg-slate-200" />

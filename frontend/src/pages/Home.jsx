@@ -52,16 +52,17 @@ const PILLARS = [
 ];
 
 const Home = () => (
-  <div className="min-h-screen bg-[#f3f5f8] text-slate-900">
+  <div className="min-h-screen bg-[#f3f5f8] text-slate-900 
+[background-image:linear-gradient(to_right,rgba(15,23,42,0.07)_1px,transparent_1px)] 
+[background-size:132px_100%]">
     <div className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.07)_1px,transparent_1px)] [background-size:132px_100%]" />
 
       <section className="relative mx-auto max-w-6xl px-6 pb-10 pt-24">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Employee Risk Intelligence</p>
             <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl">
-              StabiAI turns employee-risk signals into decision-ready clarity.
+              Career Shield turns employee-risk signals into decision-ready clarity.
             </h1>
           </div>
           <div>
@@ -99,7 +100,7 @@ const Home = () => (
 
             <div className="rounded-2xl border border-slate-200/60 bg-white/90 p-4 shadow-sm">
               <p className="text-sm leading-relaxed text-slate-700">
-                For this employee submission, StabiAI predicts <span className="font-semibold text-slate-900">medium layoff risk</span> with
+                For this employee submission, Career Shield predicts <span className="font-semibold text-slate-900">medium layoff risk</span> with
                 {" "}
                 <span className="font-semibold text-indigo-700">92% confidence</span>. The system evaluates role, tenure, performance, and company context against live market signals to explain both pressure factors and protective factors.
               </p>
@@ -112,7 +113,7 @@ const Home = () => (
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white">Prediction Run</span>
                 <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700">Company + Market Context</span>
-                <span className="ml-auto text-[11px] text-slate-500">Powered by StabiAI Employee Risk Engine</span>
+                <span className="ml-auto text-[11px] text-slate-500">Powered by Career Shield Employee Risk Engine</span>
               </div>
             </div>
           </div>
@@ -121,9 +122,9 @@ const Home = () => (
 
       <section className="relative mx-auto max-w-6xl px-6 pb-20">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Why Teams Choose StabiAI</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Why Teams Choose Career Shield</p>
           <p className="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">
-            StabiAI connects model reasoning, market signals, and governance workflow in one continuous decision surface.
+          Career Shield connects model reasoning, market signals, and governance workflow in one continuous decision surface.
           </p>
         </div>
 

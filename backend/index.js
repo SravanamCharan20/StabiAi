@@ -125,7 +125,7 @@ const getLatestQuarterOption = () => {
 };
 
 app.get('/', (req, res) => {
-  res.send('StabiAI Employee API is running');
+  res.send('Career Shield Employee API is running');
 });
 
 app.get('/api/employee/model-meta', (req, res) => {
