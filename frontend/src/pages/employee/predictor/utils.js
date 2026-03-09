@@ -146,7 +146,6 @@ export const getContextualFactorReason = (factor, predictionData) => {
   const feature = String(factor.feature || "");
   const direction = String(factor.direction || "");
   const isRiskUp = direction === "increases_risk";
-  const value = toFiniteNumber(factor.value);
 
   const marketSignals = predictionData?.market_signals || {};
   const modelFeatures = predictionData?.data || {};
@@ -181,62 +180,50 @@ export const getContextualFactorReason = (factor, predictionData) => {
       return isRiskUp
         ? `Your sector is in a tighter layoff cycle, so baseline risk is higher.${volatilityContext}`
         : `Your sector is currently more stable, which helps contain baseline risk.${volatilityContext}`;
-      break;
     case "role_demand_index":
       return isRiskUp
         ? "Current hiring demand for this job title is weaker than safer ranges, which increases exposure."
         : "Current hiring demand for this job title is healthy, which improves survivability.";
-      break;
     case "department_resilience_index":
       return isRiskUp
         ? "This department is currently under stronger cost or restructuring pressure."
         : "This department is relatively resilient in the current operating cycle.";
-      break;
     case "tech_stack_trend_score":
       return isRiskUp
         ? "Your stack appears less aligned with current AI/cloud demand, which can increase role risk."
         : "Your stack aligns with current AI/cloud demand, which lowers role risk.";
-      break;
     case "revenue_growth":
       return isRiskUp
         ? `Business momentum is softer, which adds organizational pressure.${relativeContext}`
         : `Business momentum is supportive and helps overall stability.${relativeContext}`;
-      break;
     case "profit_margin":
       return isRiskUp
         ? `Profit cushion is constrained, which can tighten team budgets.${volatilityContext}`
         : `Profit cushion is healthier, giving more room to protect roles.${volatilityContext}`;
-      break;
     case "stock_price_change":
       return isRiskUp
         ? `Market signal is weak, which is a secondary pressure indicator.${volatilityContext}`
         : `Market signal is supportive, but role-skill fit remains the primary driver.${volatilityContext}`;
-      break;
     case "performance_rating":
       return isRiskUp
         ? "Current performance signal is below the safer range for this role context."
         : "Current performance signal is a strong protective factor.";
-      break;
     case "job_title":
       return isRiskUp
         ? "This job title is currently in a tighter demand band compared with safer role clusters."
         : "This job title sits in a stronger demand band, supporting role continuity.";
-      break;
     case "tech_stack":
       return isRiskUp
         ? "Current stack appears less aligned with the strongest hiring demand for this role segment."
         : "Current stack aligns well with resilient and in-demand capability clusters.";
-      break;
     case "department":
       return isRiskUp
         ? "Department-level pressure is elevated, so this role faces more review sensitivity."
         : "Department context is relatively stable, which helps reduce disruption risk.";
-      break;
     case "years_at_company":
       return isRiskUp
         ? "Tenure is relatively short, which usually means higher exposure during restructuring."
         : "Tenure is relatively strong, which usually improves role resilience.";
-      break;
     case "salary_range":
       if (perf != null) {
         return isRiskUp
@@ -246,25 +233,19 @@ export const getContextualFactorReason = (factor, predictionData) => {
       return isRiskUp
         ? "Compensation level may create higher cost scrutiny in this market."
         : "Compensation level appears manageable for this profile.";
-      break;
-    case "economic_condition_tag":
-      {
-        const regimeText = marketRegime || String(factor.value || "current");
-        return isRiskUp
-          ? `Current market regime (${regimeText}) is defensive and adds broad pressure.${volatilityContext}`
-          : `Current market regime (${regimeText}) is relatively supportive.${volatilityContext}`;
-      }
-      break;
+    case "economic_condition_tag": {
+      const regimeText = marketRegime || String(factor.value || "current");
+      return isRiskUp
+        ? `Current market regime (${regimeText}) is defensive and adds broad pressure.${volatilityContext}`
+        : `Current market regime (${regimeText}) is relatively supportive.${volatilityContext}`;
+    }
     case "past_layoffs":
       return isRiskUp
         ? "Recent layoff history indicates recurring restructuring pressure."
         : "Recent layoff history does not indicate immediate restructuring pressure.";
-      break;
     default:
-      break;
+      return factor.reason || "No additional context available.";
   }
-
-  return factor.reason || "No additional context available.";
 };
 
 export const buildRiskStory = (predictionData) => {

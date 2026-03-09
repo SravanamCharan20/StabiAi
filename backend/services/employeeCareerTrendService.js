@@ -109,6 +109,93 @@ const TREND_LIBRARY = {
   },
 };
 
+const ENGINEERING_SPECIALIZATIONS = [
+  {
+    id: 'frontend',
+    match: ['frontend', 'react', 'angular', 'vue', 'javascript', 'typescript', 'ui', 'ux', 'next.js', 'nextjs'],
+    profile: {
+      trending_tech_stacks: [
+        { name: 'Frontend AI workflows (Copilot + testing + accessibility)', why: 'Teams expect faster release cycles with higher UI quality.' },
+        { name: 'Modern web stack (React/Next.js + TypeScript + observability)', why: 'Type-safe and measurable frontend delivery is more resilient.' },
+        { name: 'Performance-first frontend (Core Web Vitals + edge caching)', why: 'User experience metrics are increasingly tied to business outcomes.' },
+      ],
+      trending_certifications: [
+        { name: 'Meta Front-End Developer Professional Certificate', provider: 'Meta', level: 'Foundational', why: 'Signals structured frontend depth and project readiness.' },
+        { name: 'JavaScript Algorithms and Data Structures', provider: 'freeCodeCamp', level: 'Foundational', why: 'Strengthens core frontend engineering fundamentals.' },
+        { name: 'Google UX Design Certificate', provider: 'Google', level: 'Foundational', why: 'Improves UX collaboration and product impact delivery.' },
+      ],
+      trending_skills: [
+        { name: 'Frontend performance optimization', why: 'Directly improves conversion and engagement metrics.' },
+        { name: 'Component test automation', why: 'Reliable releases reduce production risk and rework.' },
+        { name: 'Accessibility engineering', why: 'Compliance and inclusivity are now baseline expectations.' },
+      ],
+    },
+  },
+  {
+    id: 'backend',
+    match: ['backend', 'node', 'express', 'java', 'spring', 'api', 'microservice', 'server', 'golang', 'go'],
+    profile: {
+      trending_tech_stacks: [
+        { name: 'API platform stack (Node/Java + async jobs + tracing)', why: 'Reliable service ownership remains a strong retention signal.' },
+        { name: 'Event-driven backend (queues, streaming, idempotency)', why: 'Scalable backend architecture is harder to replace.' },
+        { name: 'Secure backend delivery (authz, rate-limits, observability)', why: 'Security-aware systems work has durable demand.' },
+      ],
+      trending_certifications: [
+        { name: 'AWS Certified Developer - Associate', provider: 'AWS', level: 'Associate', why: 'Cloud-native backend delivery is strongly valued.' },
+        { name: 'Microsoft Azure Developer Associate', provider: 'Microsoft', level: 'Associate', why: 'Enterprise backend delivery often relies on Azure services.' },
+        { name: 'Oracle Java SE Developer', provider: 'Oracle', level: 'Intermediate', why: 'Validates strong Java backend fundamentals for service teams.' },
+      ],
+      trending_skills: [
+        { name: 'Distributed system design', why: 'Improves backend criticality and ownership scope.' },
+        { name: 'Production observability and incident analysis', why: 'Shortens recovery time and improves service reliability.' },
+        { name: 'Database performance tuning', why: 'Directly affects latency, cost, and user experience.' },
+      ],
+    },
+  },
+  {
+    id: 'devops_platform',
+    match: ['devops', 'sre', 'kubernetes', 'docker', 'terraform', 'platform', 'infra', 'cloud', 'ci cd', 'prometheus', 'grafana'],
+    profile: {
+      trending_tech_stacks: [
+        { name: 'Cloud platform engineering (Kubernetes + IaC + observability)', why: 'Platform ownership remains resilient in cost-control cycles.' },
+        { name: 'Reliability automation (SLO/SLI + incident automation)', why: 'Reliability work directly protects business continuity.' },
+        { name: 'FinOps-oriented infrastructure management', why: 'Cloud cost governance is now a critical business requirement.' },
+      ],
+      trending_certifications: [
+        { name: 'Certified Kubernetes Administrator (CKA)', provider: 'CNCF', level: 'Intermediate', why: 'Signals operational depth in cloud-native environments.' },
+        { name: 'HashiCorp Terraform Associate', provider: 'HashiCorp', level: 'Foundational', why: 'IaC competency is baseline for modern platform teams.' },
+        { name: 'AWS Certified DevOps Engineer - Professional', provider: 'AWS', level: 'Advanced', why: 'Shows strong production cloud operations capability.' },
+      ],
+      trending_skills: [
+        { name: 'SRE incident automation', why: 'Improves uptime and reduces operational fatigue.' },
+        { name: 'Infrastructure cost optimization', why: 'Demonstrates measurable financial impact for the business.' },
+        { name: 'Release pipeline hardening', why: 'Faster and safer releases improve organizational agility.' },
+      ],
+    },
+  },
+  {
+    id: 'qa_automation',
+    match: ['qa', 'quality', 'test', 'selenium', 'playwright', 'cypress', 'automation testing'],
+    profile: {
+      trending_tech_stacks: [
+        { name: 'Shift-left QA automation (API/UI/perf + CI)', why: 'Automation-led QA teams are favored over manual-only workflows.' },
+        { name: 'AI-assisted test generation and maintenance', why: 'AI tooling significantly increases QA throughput.' },
+        { name: 'Reliability test engineering (chaos + resilience tests)', why: 'Reliability testing supports critical production quality goals.' },
+      ],
+      trending_certifications: [
+        { name: 'ISTQB Certified Tester Foundation Level', provider: 'ISTQB', level: 'Foundational', why: 'Widely recognized baseline for structured QA competency.' },
+        { name: 'ISTQB Test Automation Engineer', provider: 'ISTQB', level: 'Intermediate', why: 'Signals deeper capability in automation strategy and tooling.' },
+        { name: 'Certified Agile Tester', provider: 'ICAgile', level: 'Intermediate', why: 'Agile testing capability improves fit in modern product teams.' },
+      ],
+      trending_skills: [
+        { name: 'Test automation architecture', why: 'Scalable automation frameworks improve release confidence.' },
+        { name: 'Quality metrics and release analytics', why: 'Data-backed QA insights improve decision-making.' },
+        { name: 'API and integration testing', why: 'Catches high-impact failures earlier in delivery cycles.' },
+      ],
+    },
+  },
+];
+
 const GLOBAL_TRENDS = {
   skills: [
     'AI productivity workflows',
@@ -180,6 +267,53 @@ function hasMeaningfulOverlap(targetName, sourceText) {
   return coverage >= 0.5 || overlap >= 2;
 }
 
+function pickEngineeringProfile(sourceText) {
+  const normalizedSource = normalizeText(sourceText);
+  let best = null;
+
+  for (const candidate of ENGINEERING_SPECIALIZATIONS) {
+    const score = candidate.match.reduce((acc, token) => (
+      normalizedSource.includes(normalizeText(token)) ? acc + 1 : acc
+    ), 0);
+    if (!best || score > best.score) {
+      best = { candidate, score };
+    }
+  }
+
+  return best && best.score > 0 ? best.candidate : null;
+}
+
+function rankTrendItems(items = [], sourceText = '', limit = 3) {
+  const list = Array.isArray(items) ? items : [];
+  if (!list.length) {
+    return [];
+  }
+  const sourceTokens = buildTokenSet(sourceText);
+
+  const ranked = list
+    .map((item) => {
+      const name = String(item?.name || '').trim();
+      const why = String(item?.why || '').trim();
+      const label = `${name} ${why}`.trim();
+      const isRelevant = hasMeaningfulOverlap(label, sourceText);
+      const baseScore = isRelevant ? 2 : 0;
+      const tokenOverlap = [...buildTokenSet(label)].filter((token) => sourceTokens.has(token)).length;
+      return {
+        item,
+        score: baseScore + tokenOverlap,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const relevant = ranked.filter((entry) => entry.score > 0).map((entry) => entry.item);
+  if (relevant.length >= 2) {
+    return relevant.slice(0, limit);
+  }
+
+  const fallback = ranked.map((entry) => entry.item);
+  return fallback.slice(0, limit);
+}
+
 function computeGaps(trendingItems = [], sourceText = '') {
   const missing = [];
   for (const item of trendingItems) {
@@ -197,15 +331,51 @@ function computeGaps(trendingItems = [], sourceText = '') {
 
 export function buildCareerTrendGuidance(userData = {}, predictionData = {}) {
   const roleFamily = guessRoleFamily(userData.job_title, userData.department);
-  const profile = TREND_LIBRARY[roleFamily] || TREND_LIBRARY.engineering;
   const resumeSignals = flattenResumeSignals(userData?.resume_insights || predictionData?.resume_insights || {});
+  const combinedSignalText = normalizeText([
+    userData?.job_title,
+    userData?.department,
+    userData?.tech_stack,
+    userData?.stack_profile,
+    userData?.skill_tags,
+    userData?.certifications,
+    resumeSignals.skillText,
+    resumeSignals.certText,
+  ].filter(Boolean).join(' '));
+
+  let profile = TREND_LIBRARY[roleFamily] || TREND_LIBRARY.engineering;
+  const engineeringProfile = roleFamily === 'engineering'
+    ? pickEngineeringProfile(combinedSignalText)
+    : null;
+  if (engineeringProfile?.profile) {
+    profile = engineeringProfile.profile;
+  }
 
   const stackText = normalizeText(userData.tech_stack);
-  const missingSkills = computeGaps(profile.trending_skills, `${resumeSignals.skillText} ${stackText}`);
-  const missingCertifications = computeGaps(profile.trending_certifications, resumeSignals.certText);
+  const rankedTechStacks = rankTrendItems(
+    profile.trending_tech_stacks,
+    `${resumeSignals.skillText} ${stackText} ${combinedSignalText}`,
+    3
+  );
+  const rankedSkills = rankTrendItems(
+    profile.trending_skills,
+    `${resumeSignals.skillText} ${stackText} ${combinedSignalText}`,
+    3
+  );
+  const rankedCertifications = rankTrendItems(
+    profile.trending_certifications,
+    `${resumeSignals.certText} ${resumeSignals.skillText} ${combinedSignalText}`,
+    3
+  );
+
+  const missingSkills = computeGaps(rankedSkills, `${resumeSignals.skillText} ${stackText} ${combinedSignalText}`);
+  const missingCertifications = computeGaps(
+    rankedCertifications,
+    `${resumeSignals.certText} ${resumeSignals.skillText} ${combinedSignalText}`
+  );
 
   const shiftPath = unique([
-    `Move toward ${profile.trending_tech_stacks?.[0]?.name || 'AI/cloud stack'} with one production project in 30-45 days.`,
+    `Move toward ${rankedTechStacks?.[0]?.name || 'AI/cloud stack'} with one production project in 30-45 days.`,
     missingSkills[0] ? `Add ${missingSkills[0]} with measurable project evidence.` : null,
     missingCertifications[0] ? `Pursue ${missingCertifications[0]} for market credibility.` : null,
     'Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills.',
@@ -213,9 +383,10 @@ export function buildCareerTrendGuidance(userData = {}, predictionData = {}) {
 
   return {
     role_family: roleFamily,
-    trending_tech_stacks: profile.trending_tech_stacks || [],
-    trending_certifications: profile.trending_certifications || [],
-    trending_skills: profile.trending_skills || [],
+    role_track: engineeringProfile?.id || roleFamily,
+    trending_tech_stacks: rankedTechStacks,
+    trending_certifications: rankedCertifications,
+    trending_skills: rankedSkills,
     global_priority_skills: GLOBAL_TRENDS.skills,
     skill_gaps: missingSkills,
     certification_gaps: missingCertifications,

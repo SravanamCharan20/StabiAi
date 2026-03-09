@@ -277,11 +277,26 @@ app.post('/api/employee/resume-parse-enhanced', resumeUpload.single('resume'), a
       resume_insights: result.resumeIntelligence || {},
     });
 
+    const missingRequiredFields = Object.entries(inputSpec?.fields || {})
+      .filter(([, config]) => config?.required)
+      .filter(([fieldName]) => {
+        const hasValue = String(profile[fieldName] || '').trim().length > 0;
+        if (hasValue) {
+          return false;
+        }
+        if (fieldName === 'tech_stack') {
+          return !Array.isArray(result.resumeIntelligence?.skills)
+            || result.resumeIntelligence.skills.length === 0;
+        }
+        return true;
+      })
+      .map(([fieldName]) => fieldName);
+
     return res.status(200).json({
       success: true,
       profile,
       resumeIntelligence: result.resumeIntelligence || {},
-      missing_required_fields: [],
+      missing_required_fields: missingRequiredFields,
       trend_guidance: trendGuidance,
       raw_text_preview: result.rawText || '',
     });

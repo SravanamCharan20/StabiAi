@@ -1,12 +1,13 @@
 import path from 'path';
 import { createRequire } from 'module';
 import mammoth from 'mammoth';
+import { resolveTechStackForModel } from './employeeSignalFusionService.js';
 const require = createRequire(import.meta.url);
 
 // Import pdf-parse
-let pdfParse = null;
+let pdfParseModule = null;
 try {
-  pdfParse = require('pdf-parse');
+  pdfParseModule = require('pdf-parse');
 } catch (err) {
   console.warn('pdf-parse not available:', err.message);
 }
@@ -61,12 +62,240 @@ const CERTIFICATION_VALUE = {
   'ceh': 82,
 };
 
+const MONTH_LOOKUP = {
+  jan: 0,
+  feb: 1,
+  mar: 2,
+  apr: 3,
+  may: 4,
+  jun: 5,
+  jul: 6,
+  aug: 7,
+  sep: 8,
+  oct: 9,
+  nov: 10,
+  dec: 11,
+};
+
 function normalizeText(value) {
   return String(value || '')
     .toLowerCase()
     .replace(/[^a-z0-9\s+#.]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function optionCandidates(options = []) {
+  return options
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .map((value) => ({
+      value,
+      norm: normalizeText(value),
+      tokens: normalizeText(value).split(' ').filter(Boolean),
+    }));
+}
+
+function matchBestOption(text, options = [], threshold = 0.42) {
+  const normalized = normalizeText(text);
+  if (!normalized || !options.length) {
+    return '';
+  }
+
+  const sourceTokens = new Set(normalized.split(' ').filter(Boolean));
+  let best = { value: '', score: 0 };
+
+  for (const candidate of optionCandidates(options)) {
+    if (normalized.includes(candidate.norm)) {
+      return candidate.value;
+    }
+
+    const overlap = candidate.tokens.filter((token) => sourceTokens.has(token)).length;
+    const score = overlap / Math.max(candidate.tokens.length, 1);
+    if (score > best.score) {
+      best = { value: candidate.value, score };
+    }
+  }
+
+  return best.score >= threshold ? best.value : '';
+}
+
+function findExactOption(value, options = []) {
+  const normalized = normalizeText(value);
+  if (!normalized) {
+    return '';
+  }
+  return options.find((item) => normalizeText(item) === normalized) || '';
+}
+
+function findExistingOption(preferred, options = []) {
+  const exact = findExactOption(preferred, options);
+  return exact || '';
+}
+
+function extractCandidateName(text) {
+  const lines = String(text || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 10);
+
+  for (const line of lines) {
+    if (line.length < 3 || line.length > 45) {
+      continue;
+    }
+    if (/@|\d/.test(line)) {
+      continue;
+    }
+    if (/(resume|curriculum|vitae|profile|summary)/i.test(line)) {
+      continue;
+    }
+    if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$/.test(line)) {
+      return line;
+    }
+  }
+  return null;
+}
+
+function extractWorkExperienceSection(text) {
+  const source = String(text || '');
+  const match = source.match(
+    /(?:^|\n)(?:work experience|experience|employment|professional experience)[\s:]*\n([^]*?)(?:\n(?:projects?|education|skills|certifications|achievements|summary)\b|$)/i
+  );
+  return (match?.[1] || source).trim();
+}
+
+function extractTechnologySignals(text) {
+  const lines = String(text || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const signals = [];
+  for (const line of lines) {
+    if (/^(technologies?|tech stack|stack|skills?)\s*[:\-]/i.test(line)) {
+      signals.push(line.replace(/^(technologies?|tech stack|stack|skills?)\s*[:\-]\s*/i, '').trim());
+      continue;
+    }
+
+    if (line.length <= 180
+      && /[,|+]/.test(line)
+      && /(react|node|next|express|python|java|docker|kubernetes|aws|azure|gcp|sql|mongodb|llm|mlops|terraform|pytorch|tensorflow)/i.test(line)) {
+      signals.push(line);
+    }
+  }
+
+  return signals.join(', ');
+}
+
+function pickJobTitleByRules(signalText, jobTitleOptions = []) {
+  const signal = normalizeText(signalText);
+  const pick = (name) => findExistingOption(name, jobTitleOptions);
+
+  const rules = [
+    { option: pick('Machine Learning Engineer'), pattern: /\b(machine learning|ml engineer|ai engineer|deep learning|model training|pytorch|tensorflow)\b/ },
+    { option: pick('Data Scientist'), pattern: /\b(data scientist|predictive model|statistical modeling)\b/ },
+    { option: pick('Data Analyst'), pattern: /\b(data analyst|analytics dashboard|power bi|tableau|sql reporting)\b/ },
+    { option: pick('DevOps Engineer'), pattern: /\b(devops|dev ops|infrastructure as code|platform engineer|ci cd)\b/ },
+    { option: pick('Site Reliability Engineer'), pattern: /\b(site reliability|sre|reliability engineer)\b/ },
+    { option: pick('Cloud Engineer'), pattern: /\b(cloud engineer|cloud platform|cloud operations)\b/ },
+    { option: pick('Solution Architect'), pattern: /\b(solution architect|enterprise architecture|architecture reviews)\b/ },
+    { option: pick('Cybersecurity Analyst'), pattern: /\b(cybersecurity|security analyst|siem|soc|threat)\b/ },
+    { option: pick('QA Engineer'), pattern: /\b(qa engineer|quality assurance|test automation|selenium|playwright|cypress)\b/ },
+    { option: pick('UI/UX Designer'), pattern: /\b(ui ux|user experience|figma|design system)\b/ },
+    { option: pick('Product Manager'), pattern: /\b(product manager|roadmap|product strategy|stakeholder)\b/ },
+    { option: pick('Project Manager'), pattern: /\b(project manager|program manager|delivery manager)\b/ },
+    { option: pick('Business Analyst'), pattern: /\b(business analyst|requirements gathering|brd|functional specs)\b/ },
+    { option: pick('Engineering Manager'), pattern: /\b(engineering manager|team lead manager|people manager)\b/ },
+    { option: pick('Technical Lead'), pattern: /\b(technical lead|tech lead|lead engineer)\b/ },
+    { option: pick('Senior Software Engineer'), pattern: /\b(senior software engineer|sde ?2|sde ?3|staff engineer)\b/ },
+    { option: pick('Software Engineer'), pattern: /\b(software development|software engineer|developer|full stack|frontend|backend|react|node|express|next js|next\.js|intern)\b/ },
+  ];
+
+  for (const rule of rules) {
+    if (rule.option && rule.pattern.test(signal)) {
+      return rule.option;
+    }
+  }
+
+  return '';
+}
+
+function inferJobTitle({ workExperienceSection, fullText, skills, jobTitleOptions }) {
+  const directFromWork = matchBestOption(workExperienceSection, jobTitleOptions, 0.52);
+  if (directFromWork) {
+    return directFromWork;
+  }
+
+  const directFromResume = matchBestOption(fullText, jobTitleOptions, 0.64);
+  if (directFromResume) {
+    return directFromResume;
+  }
+
+  const skillText = (skills || []).map((item) => item.name).join(' ');
+  const combined = `${workExperienceSection}\n${fullText}\n${skillText}`;
+
+  const fromRules = pickJobTitleByRules(combined, jobTitleOptions);
+  if (fromRules) {
+    return fromRules;
+  }
+
+  return matchBestOption(combined, jobTitleOptions, 0.33);
+}
+
+function inferDepartmentFromSignals(jobTitle, skills, departmentOptions = []) {
+  const role = normalizeText(jobTitle);
+  const skillText = normalizeText((skills || []).map((item) => item.name || item).join(' '));
+  const pick = (name) => findExistingOption(name, departmentOptions);
+
+  if (!role && !skillText) {
+    return pick('Engineering') || '';
+  }
+
+  if (/\b(finance|account)\b/.test(role)) {
+    return pick('Finance') || pick('Operations') || '';
+  }
+  if (/\b(hr|recruit)\b/.test(role)) {
+    return pick('HR') || '';
+  }
+  if (/\b(sales|customer success)\b/.test(role)) {
+    return pick('Sales') || '';
+  }
+  if (/\b(product)\b/.test(role)) {
+    return pick('Product') || pick('Management') || '';
+  }
+  if (/\b(project manager|engineering manager|manager)\b/.test(role)) {
+    return pick('Management') || pick('Engineering') || '';
+  }
+  if (/\b(cyber|security|support|it)\b/.test(role)) {
+    return pick('IT') || pick('Engineering') || '';
+  }
+  if (/\b(data analyst|data scientist|analytics|business analyst)\b/.test(role)) {
+    return pick('Analytics') || pick('Engineering') || '';
+  }
+  if (/\b(software|developer|frontend|backend|technical lead|qa)\b/.test(role)) {
+    return pick('Engineering') || '';
+  }
+  if (/\b(ml|machine learning|ai)\b/.test(role) || /\b(llm|mlops|pytorch|tensorflow)\b/.test(skillText)) {
+    return pick('Engineering') || pick('Analytics') || '';
+  }
+
+  return pick('Engineering') || departmentOptions[0] || '';
+}
+
+function formatYearsValue(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return '';
+  }
+  const rounded = Math.round(parsed * 2) / 2;
+  const bounded = Math.max(0.5, Math.min(18, rounded));
+  return String(bounded);
+}
+
+function monthTokenToIndex(token) {
+  const key = String(token || '').trim().toLowerCase().slice(0, 3);
+  return Number.isInteger(MONTH_LOOKUP[key]) ? MONTH_LOOKUP[key] : null;
 }
 
 function extractSkillWithContext(text, skillKeyword) {
@@ -138,7 +367,6 @@ function extractEnhancedSkills(text) {
 }
 
 function extractWorkExperience(text) {
-  const normalized = normalizeText(text);
   let totalYears = 0;
   let currentCompanyYears = 0;
   
@@ -147,7 +375,6 @@ function extractWorkExperience(text) {
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const nextLine = i < lines.length - 1 ? lines[i + 1] : '';
     
     // Pattern 1: "5 years of experience"
     const expMatch = line.match(/(\d+)\+?\s*(?:years?|yrs?)\s*(?:of)?\s*(?:experience|exp)/i);
@@ -155,18 +382,44 @@ function extractWorkExperience(text) {
       totalYears = Math.max(totalYears, parseInt(expMatch[1]));
     }
     
-    // Pattern 2: Date ranges like "Jan 2020 - Present" or "2020 - 2024"
-    const dateRangeMatch = line.match(/(\d{4})\s*[-–—]\s*(?:present|current|(\d{4}))/i);
-    if (dateRangeMatch) {
-      const startYear = parseInt(dateRangeMatch[1]);
-      const endYear = dateRangeMatch[2] ? parseInt(dateRangeMatch[2]) : new Date().getFullYear();
+    // Pattern 2: Month ranges like "May 2024 - Jun 2025"
+    const monthRangeMatch = line.match(
+      /(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+(\d{4})\s*[-–—]\s*(present|current|(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\s+(\d{4}))/i
+    );
+    if (monthRangeMatch) {
+      const startMonth = monthTokenToIndex(monthRangeMatch[1]);
+      const startYear = Number(monthRangeMatch[2]);
+      const isPresent = /present|current/i.test(monthRangeMatch[3] || '');
+      const endMonth = isPresent ? new Date().getMonth() : monthTokenToIndex(monthRangeMatch[4]);
+      const endYear = isPresent ? new Date().getFullYear() : Number(monthRangeMatch[5]);
+
+      if (Number.isFinite(startYear)
+        && Number.isFinite(endYear)
+        && Number.isInteger(startMonth)
+        && Number.isInteger(endMonth)) {
+        const monthSpan = (endYear - startYear) * 12 + (endMonth - startMonth);
+        if (monthSpan >= 0 && monthSpan < 600) {
+          const years = monthSpan / 12;
+          totalYears = Math.max(totalYears, years);
+          currentCompanyYears = Math.max(currentCompanyYears, years);
+        }
+      }
+      continue;
+    }
+
+    // Pattern 3: Year ranges like "2021 - 2024" or "2022 - Present"
+    const yearRangeMatch = line.match(/(?:[A-Za-z]{3,9}\s+)?(\d{4})\s*[-–—]\s*(?:present|current|(?:[A-Za-z]{3,9}\s+)?(\d{4}))/i);
+    if (yearRangeMatch) {
+      const startYear = Number(yearRangeMatch[1]);
+      const endYear = yearRangeMatch[2] ? Number(yearRangeMatch[2]) : new Date().getFullYear();
       const years = endYear - startYear;
-      if (years > 0 && years < 50) { // Sanity check
+      if (years > 0 && years < 50) {
         totalYears = Math.max(totalYears, years);
       }
+      continue;
     }
     
-    // Pattern 3: "X years at Company"
+    // Pattern 4: "X years at Company"
     const atCompanyMatch = line.match(/(\d+)\+?\s*(?:years?|yrs?)\s*(?:at|with|in)/i);
     if (atCompanyMatch) {
       currentCompanyYears = Math.max(currentCompanyYears, parseInt(atCompanyMatch[1]));
@@ -439,37 +692,62 @@ function identifyOutdatedSkills(skills) {
 async function extractTextFromFile(file) {
   const originalName = String(file?.originalname || '').trim();
   const extension = path.extname(originalName).toLowerCase();
+  const mimeType = String(file?.mimetype || '').toLowerCase();
   const buffer = file?.buffer;
 
   if (!buffer || !Buffer.isBuffer(buffer)) {
     throw new Error('Resume upload is empty');
   }
 
-  if (extension === '.txt') {
+  if (extension === '.txt' || mimeType.includes('text/plain')) {
     return buffer.toString('utf-8');
   }
 
-  if (extension === '.docx') {
+  if (extension === '.docx' || mimeType.includes('wordprocessingml')) {
     const result = await mammoth.extractRawText({ buffer });
     return result?.value || '';
   }
 
-  // PDF parsing
-  if (extension === '.pdf') {
-    if (!pdfParse) {
-      throw new Error('PDF parsing not available. Please upload TXT or DOCX file.');
-    }
-    
-    try {
-      const parsed = await pdfParse(buffer);
-      return parsed?.text || '';
-    } catch (pdfError) {
-      console.error('PDF parsing error:', pdfError.message);
-      throw new Error('Unable to parse PDF file. Please try TXT or DOCX format.');
-    }
+  if (extension !== '.pdf' && !mimeType.includes('pdf')) {
+    throw new Error(`Unsupported file format: ${extension}. Please upload PDF, DOCX, or TXT file.`);
   }
 
-  throw new Error(`Unsupported file format: ${extension}. Please upload PDF, DOCX, or TXT file.`);
+  if (!pdfParseModule) {
+    throw new Error('PDF parsing not available. Please upload TXT or DOCX file.');
+  }
+
+  try {
+    const legacyParserFn = typeof pdfParseModule === 'function' ? pdfParseModule : null;
+    if (legacyParserFn) {
+      const parsed = await legacyParserFn(buffer);
+      return parsed?.text || '';
+    }
+
+    const PdfParseConstructor =
+      pdfParseModule?.PDFParse
+      || pdfParseModule?.default?.PDFParse
+      || pdfParseModule?.default;
+
+    if (typeof PdfParseConstructor === 'function') {
+      const parser = new PdfParseConstructor({ data: buffer });
+      try {
+        const parsed = await parser.getText();
+        return parsed?.text || '';
+      } finally {
+        if (typeof parser.destroy === 'function') {
+          await parser.destroy().catch(() => {});
+        }
+      }
+    }
+
+    throw new Error('Unable to initialize PDF parser for this environment.');
+  } catch (pdfError) {
+    console.error('PDF parsing error:', pdfError.message);
+    if (pdfError.message.includes('initialize PDF parser')) {
+      throw pdfError;
+    }
+    throw new Error('Unable to parse PDF file. Please try TXT or DOCX format.');
+  }
 }
 
 export async function parseResumeEnhanced({ file, inputSpec, defaultQuarter }) {
@@ -488,32 +766,64 @@ export async function parseResumeEnhanced({ file, inputSpec, defaultQuarter }) {
   const skills = extractEnhancedSkills(cleanText);
   const certifications = extractCertificationsWithValue(cleanText);
   const projects = extractProjects(cleanText);
-  const workExp = extractWorkExperience(cleanText);
+  const workExperienceSection = extractWorkExperienceSection(cleanText);
+  const workExp = extractWorkExperience(workExperienceSection);
+  const candidateName = extractCandidateName(cleanText);
   
   // Basic info extraction
   const fields = inputSpec?.fields || {};
   const jobTitles = fields.job_title?.options || [];
   const companyOptions = fields.company_name?.options || [];
   const locationOptions = fields.company_location?.options || [];
+  const techStackOptions = fields.tech_stack?.options || [];
+  const departmentOptions = fields.department?.options || [];
   
-  // Job title matching - only in work experience section
-  let jobTitle = '';
-  const workExpMatch = cleanText.match(/(?:work experience|experience|employment)[\s:]*\n([^]*?)(?:\n\n|education|skills|certifications|$)/i);
-  const workExpSection = workExpMatch ? workExpMatch[1] : cleanText;
-  
-  for (const title of jobTitles) {
-    if (normalizeText(workExpSection).includes(normalizeText(title))) {
-      jobTitle = title;
-      break;
-    }
-  }
+  const jobTitle = inferJobTitle({
+    workExperienceSection,
+    fullText: cleanText,
+    skills,
+    jobTitleOptions: jobTitles,
+  });
   
   // Company name extraction - only from work experience
-  const companyName = extractCompanyName(cleanText, companyOptions);
+  const companyNameRaw = extractCompanyName(workExperienceSection, companyOptions);
+  const companyName = findExistingOption(companyNameRaw, companyOptions);
   
   // Location extraction - only from work experience or contact
-  const location = extractLocation(cleanText, locationOptions);
+  const locationRaw = extractLocation(cleanText, locationOptions);
+  const location = findExistingOption(locationRaw, locationOptions);
 
+  const skillNames = skills.map((item) => item.name);
+  const stackSignals = extractTechnologySignals(cleanText);
+  const stackResolution = resolveTechStackForModel({
+    primaryTechStack: '',
+    stackProfile: stackSignals,
+    skillTagsText: skillNames.join(', '),
+    resumeInsights: { skills: skillNames },
+    techStackOptions,
+    jobTitle,
+  });
+  const techStack = findExistingOption(stackResolution.resolved_tech_stack, techStackOptions)
+    || matchBestOption(`${stackSignals} ${skillNames.join(' ')}`, techStackOptions, 0.34);
+
+  const department = inferDepartmentFromSignals(jobTitle, skills, departmentOptions);
+  const yearsAtCompany = formatYearsValue(workExp.currentCompanyYears);
+  const parseConfidence = Math.max(
+    0.35,
+    Math.min(
+      0.95,
+      Number((
+        (skills.length ? 0.25 : 0)
+        + (jobTitle ? 0.2 : 0)
+        + (techStack ? 0.2 : 0)
+        + (department ? 0.15 : 0)
+        + (companyName ? 0.1 : 0)
+        + (location ? 0.05 : 0)
+        + (certifications.length ? 0.05 : 0)
+      ).toFixed(2))
+    )
+  );
+  
   // Calculate scores
   const skillDepthScore = calculateSkillDepthScore(skills);
   const marketAlignment = calculateMarketAlignment(skills);
@@ -526,6 +836,11 @@ export async function parseResumeEnhanced({ file, inputSpec, defaultQuarter }) {
     : 0;
 
   const resumeIntelligence = {
+    candidate_name: candidateName,
+    years_of_experience: Number.isFinite(workExp.totalExperience) && workExp.totalExperience > 0
+      ? Number(workExp.totalExperience.toFixed(1))
+      : null,
+    parse_confidence: parseConfidence,
     skills: skills.map(s => ({
       name: s.name,
       years: s.years,
@@ -542,6 +857,7 @@ export async function parseResumeEnhanced({ file, inputSpec, defaultQuarter }) {
     projects: projects,
     skillGaps: skillGaps,
     outdatedSkills: outdatedSkills,
+    stack_resolution: stackResolution,
     scores: {
       skillDepth: skillDepthScore,
       marketAlignment: marketAlignment,
@@ -558,17 +874,16 @@ export async function parseResumeEnhanced({ file, inputSpec, defaultQuarter }) {
   return {
     profile: {
       job_title: jobTitle,
-      company_name: '',  // Don't auto-fill company name
-      company_location: '',  // Don't auto-fill location
-      tech_stack: skills.length > 0 ? skills[0].name : '',
-      years_at_company: workExp.currentCompanyYears || '',
-      performance_rating: '',  // Don't auto-fill performance rating
+      company_name: companyName,
+      company_location: location,
+      tech_stack: techStack,
+      department,
+      remote_work: /remote|hybrid|work from home/i.test(cleanText) ? 'Yes' : '',
+      years_at_company: yearsAtCompany,
+      performance_rating: '',
       reporting_quarter: defaultQuarter || '',
     },
-    resumeIntelligence: {
-      ...resumeIntelligence,
-      certifications: [],  // Don't auto-fill certifications
-    },
+    resumeIntelligence,
     rawText: cleanText.slice(0, 2000),
   };
 }

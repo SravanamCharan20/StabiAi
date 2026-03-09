@@ -618,60 +618,177 @@ function normalizeLoose(text) {
     .trim();
 }
 
-function ensureCertificationCoverage(skills, actions, trends) {
-  const certGaps = Array.isArray(trends?.certification_gaps) ? trends.certification_gaps : [];
-  if (!certGaps.length) {
-    return { skills, actions };
-  }
+const GROUNDING_STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'from', 'that', 'this', 'your', 'you', 'are', 'into', 'over',
+  'using', 'use', 'build', 'improve', 'team', 'role', 'market', 'risk', 'high', 'medium', 'low',
+  'weeks', 'months', 'quarter', 'project', 'delivery', 'impact', 'current', 'future',
+  'engineering', 'software', 'developer', 'analyst', 'management', 'manager', 'business',
+  'operations', 'technology', 'technical', 'internal', 'mobility', 'preparation', 'plan',
+  'visibility', 'growth', 'stability',
+]);
 
-  const firstGap = String(certGaps[0] || '').trim();
-  if (!firstGap) {
-    return { skills, actions };
-  }
-  const firstGapNorm = normalizeLoose(firstGap);
-
-  const skillHasCert = skills.some((item) => {
-    const text = normalizeLoose(`${item?.name || ''} ${item?.why || ''} ${item?.how || ''}`);
-    return text.includes('certif') || text.includes(firstGapNorm);
-  });
-
-  const actionHasCert = actions.some((item) => {
-    const text = normalizeLoose(`${item?.title || ''} ${item?.indicators || ''} ${(item?.steps || []).join(' ')}`);
-    return text.includes('certif') || text.includes(firstGapNorm);
-  });
-
-  const nextSkills = [...skills];
-  const nextActions = [...actions];
-
-  if (!skillHasCert) {
-    nextSkills.push({
-      name: `Certification track: ${firstGap}`,
-      why: 'Certification proof strengthens screening and internal mobility confidence.',
-      how: `Prepare for ${firstGap} with one practical project and weekly milestones.`,
-      impact: 'Improves credibility for role continuity in competitive markets.',
-    });
-  }
-
-  if (!actionHasCert) {
-    nextActions.push({
-      title: `Complete ${firstGap} certification sprint`,
-      timeline: '6-10 weeks',
-      steps: [
-        'Map certification domains to current role tasks',
-        'Build one applied project aligned to exam outcomes',
-        'Schedule exam and document outcomes in your impact log',
-      ],
-      indicators: 'Certification completed with role-relevant project evidence.',
-    });
-  }
-
-  return {
-    skills: nextSkills.slice(0, 6),
-    actions: nextActions.slice(0, 6),
-  };
+function tokenizeGrounding(text) {
+  return normalizeLoose(text)
+    .split(' ')
+    .map((token) => token.trim())
+    .filter((token) => token.length > 2 && !GROUNDING_STOP_WORDS.has(token));
 }
 
-function normalizeSuggestionsShape(payload, fallback) {
+function gatherOwnedCertifications(userData = {}) {
+  const direct = normalizeStringList(String(userData?.certifications || '').split(','), 16);
+  const resume = normalizeStringList(
+    (userData?.resume_insights?.certifications || []).map((item) => item?.name || item),
+    16
+  );
+
+  return new Set(
+    [...direct, ...resume]
+      .map((value) => normalizeLoose(value))
+      .filter(Boolean)
+  );
+}
+
+function buildGroundingKeywords(userData = {}, predictionData = {}, fallback = {}) {
+  const keywords = new Set();
+  const addText = (value) => {
+    for (const token of tokenizeGrounding(value)) {
+      keywords.add(token);
+    }
+  };
+  const addList = (values = []) => {
+    for (const value of values) {
+      addText(value);
+    }
+  };
+
+  addText(userData?.job_title);
+  addText(userData?.department);
+  addText(userData?.tech_stack);
+  addText(userData?.stack_profile);
+  addText(userData?.skill_tags);
+  addText(userData?.certifications);
+
+  addList((userData?.resume_insights?.skills || []).map((item) => item?.name || item));
+  addList((userData?.resume_insights?.certifications || []).map((item) => item?.name || item));
+
+  const topFactors = Array.isArray(predictionData?.prediction?.top_factors) ? predictionData.prediction.top_factors : [];
+  for (const factor of topFactors.slice(0, 6)) {
+    addText(factor?.feature);
+    addText(factor?.label);
+    addText(factor?.reason);
+  }
+
+  const trendGuidance = predictionData?.trend_guidance || {};
+  addList(trendGuidance?.skill_gaps || []);
+  addList(trendGuidance?.certification_gaps || []);
+  addList((trendGuidance?.trending_skills || []).map((item) => item?.name || item));
+  addList((trendGuidance?.trending_certifications || []).map((item) => item?.name || item));
+
+  addList((fallback?.skills || []).map((item) => item?.name));
+  addList((fallback?.actions || []).map((item) => item?.title));
+  addList((fallback?.opportunities || []).map((item) => item?.title));
+  addList((fallback?.trends?.skill_gaps || []).map((item) => item));
+  addList((fallback?.trends?.certification_gaps || []).map((item) => item));
+
+  return keywords;
+}
+
+function groundingOverlapScore(text, keywords) {
+  if (!(keywords instanceof Set) || keywords.size === 0) {
+    return 0;
+  }
+  const tokens = tokenizeGrounding(text);
+  if (!tokens.length) {
+    return 0;
+  }
+  return tokens.filter((token) => keywords.has(token)).length;
+}
+
+function filterGroundedItems(items, fallbackItems, toText, keywords, limit = 4, minScore = 1) {
+  const selected = Array.isArray(items) ? items : [];
+  const fallback = Array.isArray(fallbackItems) ? fallbackItems : [];
+  const seen = new Set();
+  const scoreItem = (item) => groundingOverlapScore(toText(item), keywords);
+  const rankedSelected = selected
+    .map((item) => ({ item, score: scoreItem(item) }))
+    .sort((a, b) => b.score - a.score);
+  const rankedFallback = fallback
+    .map((item) => ({ item, score: scoreItem(item) }))
+    .sort((a, b) => b.score - a.score);
+
+  const grounded = [];
+  const pushIfValid = (entry) => {
+    const text = toText(entry.item);
+    const key = normalizeLoose(text);
+    if (!key || seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    grounded.push(entry.item);
+  };
+
+  for (const entry of rankedSelected) {
+    if (entry.score < minScore || grounded.length >= limit) {
+      continue;
+    }
+    pushIfValid(entry);
+  }
+
+  for (const entry of rankedFallback) {
+    if (entry.score < minScore || grounded.length >= limit) {
+      continue;
+    }
+    pushIfValid(entry);
+  }
+
+  if (grounded.length === 0) {
+    const best = [...rankedSelected, ...rankedFallback]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+    for (const entry of best) {
+      pushIfValid(entry);
+    }
+  }
+
+  return grounded.slice(0, limit);
+}
+
+function isOwnedCertification(certName, ownedCerts = new Set()) {
+  const normalizedName = normalizeLoose(certName);
+  if (!normalizedName) {
+    return false;
+  }
+  for (const owned of ownedCerts) {
+    if (!owned) {
+      continue;
+    }
+    if (normalizedName === owned || normalizedName.includes(owned) || owned.includes(normalizedName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function dedupeByField(items = [], fieldName, limit) {
+  const output = [];
+  const seen = new Set();
+  for (const item of items) {
+    const key = normalizeLoose(item?.[fieldName]);
+    if (!key || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    output.push(item);
+    if (output.length >= limit) {
+      break;
+    }
+  }
+  return output;
+}
+
+function normalizeSuggestionsShape(payload, fallback, context = {}) {
+  const userData = context?.userData || {};
+  const predictionData = context?.predictionData || {};
   const safe = payload && typeof payload === 'object' ? payload : {};
   const skills = Array.isArray(safe.skills) ? safe.skills : fallback.skills;
   const actions = Array.isArray(safe.actions) ? safe.actions : fallback.actions;
@@ -775,13 +892,105 @@ function normalizeSuggestionsShape(payload, fallback) {
 
   const selectedSkills = normalizedSkills.length > 0 ? normalizedSkills : fallbackSkills;
   const selectedActions = normalizedActions.length > 0 ? normalizedActions : fallbackActions;
-  const certificationAdjusted = ensureCertificationCoverage(selectedSkills, selectedActions, normalizedTrends);
+
+  const groundingKeywords = buildGroundingKeywords(userData, predictionData, fallback);
+  const ownedCertifications = gatherOwnedCertifications(userData);
+
+  const groundedSkills = filterGroundedItems(
+    selectedSkills,
+    fallbackSkills,
+    (item) => `${item?.name || ''} ${item?.why || ''} ${item?.how || ''} ${item?.impact || ''}`,
+    groundingKeywords,
+    4,
+    2
+  );
+
+  const groundedActions = filterGroundedItems(
+    selectedActions,
+    fallbackActions,
+    (item) => `${item?.title || ''} ${(item?.steps || []).join(' ')} ${item?.indicators || ''}`,
+    groundingKeywords,
+    4,
+    2
+  );
+
+  const groundedOpportunities = filterGroundedItems(
+    normalizedOpportunities.length > 0 ? normalizedOpportunities : fallbackOpportunities,
+    fallbackOpportunities,
+    (item) => `${item?.title || ''} ${item?.requirements || ''} ${item?.impact || ''}`,
+    groundingKeywords,
+    3,
+    2
+  );
+
+  const groundedTrendStacks = filterGroundedItems(
+    normalizedTrends.trending_tech_stacks,
+    normalizeTrendNameWhy(fallbackTrends?.trending_tech_stacks, 5),
+    (item) => `${item?.name || ''} ${item?.why || ''}`,
+    groundingKeywords,
+    4
+  );
+
+  const groundedTrendSkills = filterGroundedItems(
+    normalizedTrends.trending_skills,
+    normalizeTrendNameWhy(fallbackTrends?.trending_skills, 6),
+    (item) => `${item?.name || ''} ${item?.why || ''}`,
+    groundingKeywords,
+    5
+  );
+
+  const groundedTrendCerts = filterGroundedItems(
+    normalizedTrends.trending_certifications.filter((item) => !isOwnedCertification(item?.name, ownedCertifications)),
+    normalizeTrendCerts(fallbackTrends?.trending_certifications, 5)
+      .filter((item) => !isOwnedCertification(item?.name, ownedCertifications)),
+    (item) => `${item?.name || ''} ${item?.why || ''} ${item?.provider || ''}`,
+    groundingKeywords,
+    4
+  );
+
+  const groundedSkillGaps = filterGroundedItems(
+    normalizedTrends.skill_gaps,
+    normalizeStringList(fallbackTrends?.skill_gaps, 6),
+    (item) => String(item || ''),
+    groundingKeywords,
+    5
+  );
+
+  const groundedCertGaps = filterGroundedItems(
+    normalizedTrends.certification_gaps.filter((item) => !isOwnedCertification(item, ownedCertifications)),
+    normalizeStringList(fallbackTrends?.certification_gaps, 6)
+      .filter((item) => !isOwnedCertification(item, ownedCertifications)),
+    (item) => String(item || ''),
+    groundingKeywords,
+    4
+  );
+
+  const groundedShiftPath = filterGroundedItems(
+    normalizedTrends.shift_path,
+    normalizeStringList(fallbackTrends?.shift_path, 6),
+    (item) => String(item || ''),
+    groundingKeywords,
+    5
+  );
+
+  const summaryText = String(normalizedTrends.summary || '').trim();
+  const summaryGrounded = groundingOverlapScore(summaryText, groundingKeywords) > 0;
+  const fallbackSummary = String(fallbackTrends?.summary || '').trim();
 
   return {
-    skills: certificationAdjusted.skills,
-    actions: certificationAdjusted.actions,
-    opportunities: normalizedOpportunities.length > 0 ? normalizedOpportunities : fallbackOpportunities,
-    trends: normalizedTrends,
+    skills: dedupeByField(groundedSkills, 'name', 4),
+    actions: dedupeByField(groundedActions, 'title', 4),
+    opportunities: dedupeByField(groundedOpportunities, 'title', 3),
+    trends: {
+      ...normalizedTrends,
+      summary: summaryGrounded ? summaryText : fallbackSummary,
+      trending_tech_stacks: groundedTrendStacks,
+      trending_certifications: groundedTrendCerts,
+      trending_skills: groundedTrendSkills,
+      skill_gaps: groundedSkillGaps,
+      certification_gaps: groundedCertGaps,
+      shift_path: groundedShiftPath,
+    },
     insights,
   };
 }
@@ -821,6 +1030,20 @@ function compactSuggestionContext(ragSuggestions) {
 
 function buildPrompt(userData, predictionData, ragSuggestions) {
   const compactRag = compactSuggestionContext(ragSuggestions);
+  const profileAnchors = normalizeStringList([
+    userData?.job_title,
+    userData?.department,
+    userData?.tech_stack,
+    userData?.stack_profile,
+    ...(String(userData?.skill_tags || '').split(',')),
+    ...(String(userData?.certifications || '').split(',')),
+    ...((userData?.resume_insights?.skills || []).map((item) => item?.name || item)),
+    ...((userData?.resume_insights?.certifications || []).map((item) => item?.name || item)),
+  ], 16);
+  const existingCertifications = normalizeStringList([
+    ...(String(userData?.certifications || '').split(',')),
+    ...((userData?.resume_insights?.certifications || []).map((item) => item?.name || item)),
+  ], 12);
   const compactUserData = {
     company_name: userData?.company_name || null,
     job_title: userData?.job_title || null,
@@ -900,10 +1123,15 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     '- Avoid repeating the same idea across multiple sections.',
     '- Prioritize market-relevant trends for 2026 role demand in India.',
     '- Include one realistic shift path from current stack to stronger stack.',
+    '- Every skill/action/opportunity must reference at least one profile anchor token.',
+    '- Keep suggestions tied to current role, stack, and detected skill/cert gaps.',
+    '- Never recommend certifications already present in employee profile.',
     '- If certification gaps exist, include one skill and one action to close them.',
     '- Return compact JSON (no pretty-print indentation).',
     '- Use strict JSON only (double quotes, no comments, no trailing commas).',
     '',
+    `profile_anchors: ${JSON.stringify(profileAnchors)}`,
+    `existing_certifications: ${JSON.stringify(existingCertifications)}`,
     `employee_data: ${JSON.stringify(compactUserData)}`,
     `prediction_context: ${JSON.stringify(compactPrediction)}`,
     `baseline_rag_suggestions: ${JSON.stringify(compactRag)}`,
@@ -1054,7 +1282,7 @@ export async function generateGeminiCustomizedSuggestions(userData, predictionDa
       }
     }
 
-    const normalized = normalizeSuggestionsShape(parsed, ragSuggestions);
+    const normalized = normalizeSuggestionsShape(parsed, ragSuggestions, { userData, predictionData });
     lastGeminiFailure = null;
 
     return {

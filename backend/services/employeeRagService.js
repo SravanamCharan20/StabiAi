@@ -9,6 +9,15 @@ const KNOWLEDGE_PATH = path.resolve(__dirname, '../data/employee_rag_knowledge.j
 
 let knowledgeBase = null;
 
+const RAG_STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'from', 'that', 'this', 'your', 'you', 'are', 'into', 'over',
+  'using', 'use', 'build', 'improve', 'team', 'role', 'market', 'risk', 'high', 'medium', 'low',
+  'weeks', 'months', 'quarter', 'project', 'delivery', 'impact', 'current', 'future',
+  'first', 'during', 'all', 'across',
+  'engineering', 'software', 'developer', 'analyst', 'management', 'manager', 'business',
+  'operations', 'technology', 'technical',
+]);
+
 function loadKnowledgeBase() {
   if (knowledgeBase) {
     return knowledgeBase;
@@ -28,7 +37,7 @@ function tokenize(text) {
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .map((token) => token.trim())
-    .filter((token) => token.length > 1);
+    .filter((token) => token.length > 2 && !RAG_STOP_WORDS.has(token));
 }
 
 function unique(items) {
@@ -177,6 +186,15 @@ function buildGapDrivenBoosters(trendGuidance = {}, resumeInsights = {}) {
   const skillGaps = Array.isArray(trendGuidance?.skill_gaps)
     ? trendGuidance.skill_gaps.slice(0, 2)
     : [];
+  const trendingSkills = Array.isArray(trendGuidance?.trending_skills)
+    ? trendGuidance.trending_skills.slice(0, 2)
+    : [];
+  const shiftPath = Array.isArray(trendGuidance?.shift_path)
+    ? trendGuidance.shift_path.filter(Boolean).slice(0, 2)
+    : [];
+  const trendingStacks = Array.isArray(trendGuidance?.trending_tech_stacks)
+    ? trendGuidance.trending_tech_stacks.slice(0, 2)
+    : [];
   const certifications = Array.isArray(resumeInsights?.certifications) ? resumeInsights.certifications : [];
 
   const skills = [];
@@ -211,6 +229,37 @@ function buildGapDrivenBoosters(trendGuidance = {}, resumeInsights = {}) {
       how: 'Build one measurable deliverable using this skill in your current team context.',
       impact: 'Improves role defensibility and adjacent-role readiness.',
     });
+    actions.push({
+      title: `Ship one artifact using ${target}`,
+      timeline: '4-8 weeks',
+      steps: [
+        'Define one role-relevant problem where this skill improves outcomes',
+        'Deliver a measurable artifact and document before/after metrics',
+        'Share outcome summary with manager and team stakeholders',
+      ],
+      indicators: `One production-relevant result delivered using ${target} with measurable impact.`,
+    });
+  }
+  if (skillGaps.length === 0 && trendingSkills.length > 0) {
+    const aligned = String(trendingSkills[0]?.name || '').trim();
+    const alignedWhy = String(trendingSkills[0]?.why || '').trim();
+    if (aligned) {
+      skills.push({
+        name: `Role-aligned skill: ${aligned}`,
+        why: alignedWhy || 'Strengthens resilience in your current role track.',
+        how: `Apply ${aligned} in one role-relevant deliverable this month.`,
+        impact: 'Improves role continuity through visible capability depth.',
+      });
+      actions.push({
+        title: `Apply ${aligned} in current workflow`,
+        timeline: '3-6 weeks',
+        steps: [
+          `Select one current task where ${aligned} improves speed, quality, or reliability`,
+          'Implement and share before/after evidence with stakeholders',
+        ],
+        indicators: `${aligned} demonstrated in a measurable role-relevant outcome.`,
+      });
+    }
   }
 
   if (certifications.length > 0) {
@@ -220,6 +269,62 @@ function buildGapDrivenBoosters(trendGuidance = {}, resumeInsights = {}) {
       requirements: 'Update profile with certified outcomes tied to business metrics.',
       impact: 'Increases visibility for higher-demand internal opportunities.',
     });
+  }
+
+  if (shiftPath.length > 0) {
+    actions.push({
+      title: 'Execute stack shift milestone',
+      timeline: '6-12 weeks',
+      steps: [
+        shiftPath[0],
+        shiftPath[1] || 'Deliver one measurable business outcome using the upgraded stack path.',
+      ],
+      indicators: 'Documented capability shift with manager-validated business value.',
+    });
+  }
+
+  if (trendingStacks.length > 0) {
+    const targetStack = String(trendingStacks[0]?.name || '').trim();
+    if (targetStack) {
+      opportunities.push({
+        title: `Transition toward ${targetStack}`,
+        timeline: '2-5 months',
+        requirements: 'One role-aligned project and measurable output quality/cost improvements',
+        impact: 'Improves survivability by aligning profile to higher-demand capability clusters.',
+      });
+    }
+  }
+
+  if (skills.length < 2 && trendingSkills.length > 0) {
+    for (const item of trendingSkills) {
+      const candidate = String(item?.name || '').trim();
+      const why = String(item?.why || '').trim();
+      if (!candidate) {
+        continue;
+      }
+      const exists = skills.some((skill) => String(skill?.name || '').toLowerCase().includes(candidate.toLowerCase()));
+      if (exists) {
+        continue;
+      }
+      skills.push({
+        name: `Role-aligned skill: ${candidate}`,
+        why: why || 'Strengthens resilience in the current role track.',
+        how: `Practice ${candidate} through one measurable deliverable in the next sprint.`,
+        impact: 'Improves role defensibility through current-market capability alignment.',
+      });
+      actions.push({
+        title: `Demonstrate ${candidate} impact`,
+        timeline: '4-8 weeks',
+        steps: [
+          `Identify one task where ${candidate} can improve outcomes`,
+          'Implement and report measurable before/after evidence',
+        ],
+        indicators: `${candidate} applied with measurable business or delivery impact.`,
+      });
+      if (skills.length >= 2) {
+        break;
+      }
+    }
   }
 
   return { skills, actions, opportunities };
@@ -397,15 +502,53 @@ export function generateRagSuggestions(userData, predictionData) {
     .filter((item) => item.score > 0)
     .slice(0, 4);
 
+  const trendTokens = new Set(tokenize([
+    userData?.job_title,
+    userData?.department,
+    userData?.tech_stack,
+    userData?.stack_profile,
+    userData?.skill_tags,
+    trendGuidance?.role_family,
+    trendGuidance?.role_track,
+    ...(trendGuidance?.skill_gaps || []),
+    ...(trendGuidance?.certification_gaps || []),
+    ...((trendGuidance?.trending_skills || []).map((item) => item?.name || item)),
+    ...((trendGuidance?.trending_tech_stacks || []).map((item) => item?.name || item)),
+  ].filter(Boolean).join(' ')));
+
+  const rankedAligned = ranked.filter(({ doc }) => {
+    const docTokens = new Set(tokenize([
+      doc?.title,
+      doc?.summary,
+      ...(doc?.tags || []),
+    ].filter(Boolean).join(' ')));
+    const overlap = [...trendTokens].filter((token) => docTokens.has(token)).length;
+    return overlap >= 2;
+  });
+
   let skills = [];
   let actions = [];
   let opportunities = [];
 
-  for (const item of ranked) {
+  for (const item of rankedAligned) {
     const doc = item.doc;
     skills.push(...(doc.skills || []));
     actions.push(...(doc.actions || []));
     opportunities.push(...(doc.opportunities || []));
+  }
+
+  const boosters = buildGapDrivenBoosters(trendGuidance, resumeInsights);
+  const shouldBlendKnowledge = boosters.skills.length < 2
+    || boosters.actions.length < 2
+    || boosters.opportunities.length < 1;
+  if (shouldBlendKnowledge) {
+    skills = [...boosters.skills, ...skills];
+    actions = [...boosters.actions, ...actions];
+    opportunities = [...boosters.opportunities, ...opportunities];
+  } else {
+    skills = [...boosters.skills];
+    actions = [...boosters.actions];
+    opportunities = [...boosters.opportunities];
   }
 
   if (skills.length === 0 && actions.length === 0 && opportunities.length === 0) {
@@ -415,17 +558,9 @@ export function generateRagSuggestions(userData, predictionData) {
     opportunities = fallback.opportunities;
   }
 
-  const boosters = buildGapDrivenBoosters(trendGuidance, resumeInsights);
-  skills.push(...boosters.skills);
-  actions.push(...boosters.actions);
-  opportunities.push(...boosters.opportunities);
-
   skills = dedupeByKey(skills, (item) => String(item.name || '').toLowerCase(), 4);
   actions = dedupeByKey(actions, (item) => String(item.title || '').toLowerCase(), 4);
   opportunities = dedupeByKey(opportunities, (item) => String(item.title || '').toLowerCase(), 3);
-  const certified = ensureCertificationMentions(skills, actions, trendGuidance);
-  skills = certified.skills;
-  actions = certified.actions;
 
   const prediction = predictionData?.prediction || {};
   const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors.slice(0, 4) : [];

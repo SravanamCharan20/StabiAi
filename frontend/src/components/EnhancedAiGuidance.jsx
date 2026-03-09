@@ -165,11 +165,19 @@ const normalizeSuggestions = (raw, predictionData, resumeIntelligence) => {
     .filter((item) => item.name)
     .slice(0, 6);
 
-  const certFocus = uniqueList([
+  let certFocus = uniqueList([
     ...asArray(guidanceMix?.certification_focus),
     ...asArray(trends?.certification_gaps),
-    ...trendingCertifications.map((item) => item.name),
   ], 6);
+
+  if (!certFocus.length) {
+    certFocus = uniqueList(
+      trendingCertifications
+        .map((item) => item.name)
+        .filter((name) => !resumeCertifications.some((cert) => cert.toLowerCase() === String(name).toLowerCase())),
+      2
+    );
+  }
 
   const certificationCards = certFocus.map((name) => {
     const trendDetail = trendingCertifications.find((item) => item.name.toLowerCase() === name.toLowerCase());

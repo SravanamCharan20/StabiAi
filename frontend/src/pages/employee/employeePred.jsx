@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/api";
 import {
@@ -215,6 +215,22 @@ const EmployeePred = () => {
         if (response.data?.success && response.data?.resumeIntelligence) {
           const extractedProfile = response.data.profile || {};
           const intelligence = response.data.resumeIntelligence || {};
+          const missingFields = Array.isArray(response.data.missing_required_fields)
+            ? response.data.missing_required_fields
+            : [];
+          const normalizedSkills = Array.isArray(intelligence.skills)
+            ? intelligence.skills
+              .map((item) => (typeof item === "string" ? item : item?.name))
+              .filter(Boolean)
+            : [];
+          const normalizedCertifications = Array.isArray(intelligence.certifications)
+            ? intelligence.certifications
+              .map((item) => (typeof item === "string" ? item : item?.name))
+              .filter(Boolean)
+            : [];
+          const filledFieldCount = Object.values(extractedProfile)
+            .filter((value) => value != null && String(value).trim() !== "")
+            .length;
 
           setFormData((prev) => {
             const next = { ...prev };
@@ -225,22 +241,46 @@ const EmployeePred = () => {
             }
 
             if (!String(next.skill_tags || "").trim() && Array.isArray(intelligence.skills) && intelligence.skills.length) {
-              next.skill_tags = intelligence.skills.slice(0, 10).map((item) => item.name).join(", ");
+              next.skill_tags = intelligence.skills
+                .slice(0, 10)
+                .map((item) => (typeof item === "string" ? item : item?.name))
+                .filter(Boolean)
+                .join(", ");
             }
 
             if (!String(next.certifications || "").trim() && Array.isArray(intelligence.certifications) && intelligence.certifications.length) {
-              next.certifications = intelligence.certifications.slice(0, 8).map((item) => item.name).join(", ");
+              next.certifications = intelligence.certifications
+                .slice(0, 8)
+                .map((item) => (typeof item === "string" ? item : item?.name))
+                .filter(Boolean)
+                .join(", ");
             }
 
             return next;
           });
 
+          setResumeInsights({
+            candidate_name: intelligence.candidate_name || null,
+            years_of_experience: Number.isFinite(Number(intelligence.years_of_experience))
+              ? Number(intelligence.years_of_experience)
+              : null,
+            certifications: normalizedCertifications,
+            skills: normalizedSkills,
+            ai_readiness_score: Number.isFinite(Number(intelligence?.scores?.overallStrength))
+              ? Number(intelligence.scores.overallStrength)
+              : 0,
+            parse_confidence: Number.isFinite(Number(intelligence.parse_confidence))
+              ? Number(intelligence.parse_confidence)
+              : 0.7,
+          });
+          setResumeMissingFields(missingFields);
           setResumeIntelligence(intelligence);
           setResumeTrendGuidance(response.data.trend_guidance || null);
           const scores = intelligence.scores || {};
           setResumeMessage(
-            `Resume analyzed. Overall strength: ${scores.overallStrength || 0}/100. `
-            + `Skills found: ${intelligence.skills?.length || 0}.`
+            missingFields.length
+              ? `Resume analyzed. Auto-filled ${filledFieldCount} fields. Fill remaining: ${missingFields.join(", ")}.`
+              : `Resume analyzed. Overall strength: ${scores.overallStrength || 0}/100. Skills found: ${intelligence.skills?.length || 0}.`
           );
           return;
         }
@@ -304,7 +344,7 @@ const EmployeePred = () => {
     }
   };
 
-  const validateFormData = (data = formData, unit = salaryUnit) => {
+  const validateFormData = useCallback((data, unit) => {
     const errors = {};
     const requiredText = "This field is required.";
 
@@ -382,7 +422,19 @@ const EmployeePred = () => {
     }
 
     return errors;
-  };
+  }, [
+    options.companies,
+    options.departments,
+    options.jobs,
+    options.locations,
+    options.perfMax,
+    options.perfMin,
+    options.quarters,
+    options.remote,
+    options.techStacks,
+    options.yearsMax,
+    resumeInsights,
+  ]);
 
   useEffect(() => {
     if (!Object.keys(fieldErrors).length) {
@@ -397,7 +449,7 @@ const EmployeePred = () => {
     if (!isSame) {
       setFieldErrors(nextErrors);
     }
-  }, [fieldErrors, formData, salaryUnit]);
+  }, [fieldErrors, formData, salaryUnit, validateFormData]);
 
   const validate = () => {
     const nextErrors = validateFormData(formData, salaryUnit);
@@ -457,7 +509,7 @@ const EmployeePred = () => {
     const payload = buildPayloadFromForm();
     try {
       await runPrediction(payload);
-    } catch (errorResponse) {
+    } catch {
       // error state already handled in runPrediction
     }
   };

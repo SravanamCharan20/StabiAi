@@ -11,7 +11,6 @@ import {
   formatFeatureLabel,
   formatFeatureValue,
   getContextualFactorReason,
-  getRiskBadgeClass,
   getSignalStrengthLabel,
 } from "../utils";
 import { ReliabilityBanner, ResponsibleBrief, SegmentTabs } from "./core";
