@@ -267,9 +267,6 @@ export const RESULT_VIEW_TABS = [
 
 export const WORKSPACE_TABS = [
   { id: "simulator", label: "What-If" },
-  { id: "actions", label: "Actions" },
-  { id: "review", label: "Review" },
-  { id: "history", label: "History" },
   { id: "quality", label: "Quality" },
   { id: "guidance", label: "AI Guidance" },
 ];

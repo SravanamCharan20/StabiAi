@@ -37,10 +37,7 @@ import {
   toAnnualInr,
 } from "./predictor/utils";
 import {
-  ActionTrackerPanel,
   Field,
-  HistoryPanel,
-  HumanReviewPanel,
   ModelQualityPanel,
   ResumeIntakeCard,
   ResultPanel,
@@ -1166,7 +1163,7 @@ const EmployeePred = () => {
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Operator Console</p>
                       <p className="font-display mt-1 text-sm font-semibold text-slate-900">Decision Workspace</p>
                       <p className="mt-1 text-xs text-slate-500">
-                        One compact control center for simulation, actions, governance, and quality.
+                        One compact control center for simulation, AI guidance, and model quality checks.
                       </p>
                     </div>
                     <button
@@ -1196,53 +1193,12 @@ const EmployeePred = () => {
                   </WorkspacePanelFrame>
                 ) : null}
 
-                {workspaceTab === "actions" ? (
-                  <WorkspacePanelFrame tabId="actions">
-                    <ActionTrackerPanel
-                      actions={actionTracker}
-                      onUpdateStatus={handleActionStatusUpdate}
-                      onSave={handleSaveActionTracker}
-                      onRescore={handleRescore}
-                      saving={actionSaving}
-                      rescoreLoading={rescoreLoading}
-                      message={actionMessage}
-                      rescoreSummary={rescoreSummary}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-
-                {workspaceTab === "review" ? (
-                  <WorkspacePanelFrame tabId="review">
-                    <HumanReviewPanel
-                      runId={activeRunId}
-                      reviewForm={reviewForm}
-                      setReviewForm={setReviewForm}
-                      onSubmit={handleSaveReview}
-                      saving={reviewSaving}
-                      savedReview={predictionData?.history_entry?.review || null}
-                      message={reviewMessage}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-
                 {workspaceTab === "guidance" ? (
                   <WorkspacePanelFrame tabId="guidance">
                     <AiSuggestions
                       employeeData={employeeDataForSuggestions}
                       predictionData={predictionData}
                       loading={loading}
-                    />
-                  </WorkspacePanelFrame>
-                ) : null}
-
-                {workspaceTab === "history" ? (
-                  <WorkspacePanelFrame tabId="history">
-                    <HistoryPanel
-                      historyEntries={historyEntries}
-                      trend={historyTrend}
-                      loading={historyLoading}
-                      onRefresh={handleRefreshHistory}
-                      onLoadRun={handleLoadHistorySnapshot}
                     />
                   </WorkspacePanelFrame>
                 ) : null}
