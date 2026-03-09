@@ -1,5 +1,6 @@
 import React from "react";
-import { ACTION_STATUS_OPTIONS } from "../constants";
+import { ACTION_STATUS_OPTIONS, REVIEW_DECISIONS } from "../constants";
+import { formatCheckedAt, getRiskBadgeClass } from "../utils";
 import { SelectControl } from "./core";
 
 export const WhatIfSimulator = ({

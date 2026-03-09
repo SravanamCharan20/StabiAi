@@ -117,10 +117,10 @@ export const ResultPanel = ({ predictionData, inputQuality }) => {
 
       <ResponsibleBrief predictionData={predictionData} inputQuality={inputQuality} />
 
-      <section className="rounded-2xl border border-slate-200 bg-rose-200/20 p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-300 bg-slate-100/60 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Risk Insight Workspace</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-800">Risk Insight Workspace</p>
             <p className="mt-1 text-xs text-slate-500">Switch views to keep analysis concise and focused.</p>
           </div>
           <SegmentTabs tabs={RESULT_VIEW_TABS} active={resultView} onChange={setResultView} />
