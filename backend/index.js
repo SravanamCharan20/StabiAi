@@ -125,7 +125,7 @@ const getLatestQuarterOption = () => {
 };
 
 app.get('/', (req, res) => {
-  res.send('StabiAI Employee API is running');
+  res.send('Career Shield Employee API is running');
 });
 
 app.get('/api/employee/model-meta', (req, res) => {
@@ -210,8 +210,8 @@ app.post('/api/employee/resume-parse', resumeUpload.single('resume'), async (req
 
     const profile = {
       ...parsed.profile,
-      company_name: applyCanonicalIfPresent(parsed.profile?.company_name, canonicalCandidate.company_name),
-      company_location: applyCanonicalIfPresent(parsed.profile?.company_location, canonicalCandidate.company_location),
+      company_name: '',  // Don't auto-fill company name
+      company_location: '',  // Don't auto-fill location
       reporting_quarter: applyCanonicalIfPresent(parsed.profile?.reporting_quarter, canonicalCandidate.reporting_quarter),
       job_title: applyCanonicalIfPresent(parsed.profile?.job_title, canonicalCandidate.job_title),
       tech_stack: applyCanonicalIfPresent(parsed.profile?.tech_stack, canonicalCandidate.tech_stack),
@@ -238,6 +238,58 @@ app.post('/api/employee/resume-parse', resumeUpload.single('resume'), async (req
     return res.status(400).json({
       success: false,
       message: error.message || 'Unable to parse resume',
+    });
+  }
+});
+
+app.post('/api/employee/resume-parse-enhanced', resumeUpload.single('resume'), async (req, res) => {
+  try {
+    const { parseResumeEnhanced } = await import('./services/enhancedResumeParser.js');
+    const inputSpec = getEmployeeInputSpec();
+    
+    const result = await parseResumeEnhanced({
+      file: req.file,
+      inputSpec,
+      defaultQuarter: getLatestQuarterOption(),
+    });
+
+    const canonicalCandidate = canonicalizeEmployeeInput(result.profile || {});
+    const applyCanonicalIfPresent = (rawValue, canonicalValue) => (
+      String(rawValue || '').trim() ? canonicalValue : ''
+    );
+
+    const profile = {
+      ...result.profile,
+      company_name: applyCanonicalIfPresent(result.profile?.company_name, canonicalCandidate.company_name),
+      company_location: applyCanonicalIfPresent(result.profile?.company_location, canonicalCandidate.company_location),
+      reporting_quarter: applyCanonicalIfPresent(result.profile?.reporting_quarter, canonicalCandidate.reporting_quarter),
+      job_title: applyCanonicalIfPresent(result.profile?.job_title, canonicalCandidate.job_title),
+      tech_stack: applyCanonicalIfPresent(result.profile?.tech_stack, canonicalCandidate.tech_stack),
+      department: applyCanonicalIfPresent(result.profile?.department, canonicalCandidate.department),
+      remote_work: applyCanonicalIfPresent(result.profile?.remote_work, canonicalCandidate.remote_work),
+      years_at_company: String(result.profile?.years_at_company || '').trim(),
+      salary_range: String(result.profile?.salary_range || '').trim(),
+      performance_rating: String(result.profile?.performance_rating || '').trim(),
+    };
+
+    const trendGuidance = buildCareerTrendGuidance({
+      ...profile,
+      resume_insights: result.resumeIntelligence || {},
+    });
+
+    return res.status(200).json({
+      success: true,
+      profile,
+      resumeIntelligence: result.resumeIntelligence || {},
+      missing_required_fields: [],
+      trend_guidance: trendGuidance,
+      raw_text_preview: result.rawText || '',
+    });
+  } catch (error) {
+    console.error('Enhanced resume parsing error:', error);
+    return res.status(400).json({
+      success: false,
+      message: error.message || 'Unable to parse resume with enhanced parser',
     });
   }
 });
