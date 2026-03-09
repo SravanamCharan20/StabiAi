@@ -31,6 +31,8 @@ import {
   buildActionTrackerSeed,
   buildRiskStory,
   getResponsibleAssessment,
+  mergeResumeInsightsFromForm,
+  parseListInput,
   sanitizeResumeInsights,
   toAnnualInr,
 } from "./predictor/utils";
@@ -54,6 +56,9 @@ const EmployeePred = () => {
     reporting_quarter: "",
     job_title: "",
     tech_stack: "",
+    stack_profile: "",
+    skill_tags: "",
+    certifications: "",
     department: "",
     remote_work: "",
     years_at_company: "",
@@ -166,9 +171,16 @@ const EmployeePred = () => {
       warnings.push("Use the exact job title from available options.");
     }
 
-    if (!formData.tech_stack || !options.techStacks.includes(formData.tech_stack)) {
-      score -= 12;
-      warnings.push("Select the primary tech stack used in your current role.");
+    const hasPrimaryStack = String(formData.tech_stack || "").trim() && options.techStacks.includes(formData.tech_stack);
+    const hasMixedStack = String(formData.stack_profile || "").trim().length > 0;
+    const hasSkillTags = parseListInput(formData.skill_tags, 12).length > 0;
+    const hasResumeSkills = Array.isArray(resumeInsights?.skills) && resumeInsights.skills.length > 0;
+    if (!hasPrimaryStack && !hasMixedStack && !hasSkillTags && !hasResumeSkills) {
+      score -= 16;
+      warnings.push("Add stack signals: choose primary stack, or enter mixed stack profile / skill tags.");
+    } else if (!hasPrimaryStack) {
+      score -= 6;
+      warnings.push("Primary stack is optional if mixed stack and skill tags are clearly provided.");
     }
 
     const years = Number(formData.years_at_company);
@@ -191,7 +203,7 @@ const EmployeePred = () => {
     const clampedScore = Math.max(0, score);
     const level = clampedScore >= 85 ? "high" : clampedScore >= 65 ? "medium" : "low";
     return { score: clampedScore, level, warnings };
-  }, [annualSalaryInr, formData, options]);
+  }, [annualSalaryInr, formData, options, resumeInsights]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -233,6 +245,7 @@ const EmployeePred = () => {
       }
 
       const extractedProfile = response.data.profile || {};
+      const parsedInsights = response.data.resume_insights || {};
       setFormData((prev) => {
         const next = { ...prev };
         for (const [key, value] of Object.entries(extractedProfile)) {
@@ -240,10 +253,21 @@ const EmployeePred = () => {
             next[key] = String(value);
           }
         }
+        if (!String(next.skill_tags || "").trim() && Array.isArray(parsedInsights.skills) && parsedInsights.skills.length) {
+          next.skill_tags = parsedInsights.skills.slice(0, 10).join(", ");
+        }
+        if (!String(next.certifications || "").trim()
+          && Array.isArray(parsedInsights.certifications)
+          && parsedInsights.certifications.length) {
+          next.certifications = parsedInsights.certifications.slice(0, 8).join(", ");
+        }
+        if (!String(next.stack_profile || "").trim() && String(next.tech_stack || "").trim()) {
+          next.stack_profile = next.tech_stack;
+        }
         return next;
       });
 
-      const nextInsights = response.data.resume_insights || null;
+      const nextInsights = parsedInsights || null;
       const nextMissing = Array.isArray(response.data.missing_required_fields)
         ? response.data.missing_required_fields
         : [];
@@ -320,9 +344,13 @@ const EmployeePred = () => {
       errors.job_title = "Select a valid job title from the list.";
     }
 
-    if (!String(data.tech_stack || "").trim()) {
-      errors.tech_stack = requiredText;
-    } else if (!options.techStacks.includes(data.tech_stack)) {
+    const hasPrimaryStack = String(data.tech_stack || "").trim().length > 0;
+    const hasMixedStackProfile = String(data.stack_profile || "").trim().length > 0;
+    const hasSkillTags = parseListInput(data.skill_tags, 12).length > 0;
+    const hasResumeSkills = Array.isArray(resumeInsights?.skills) && resumeInsights.skills.length > 0;
+    if (!hasPrimaryStack && !hasMixedStackProfile && !hasSkillTags && !hasResumeSkills) {
+      errors.tech_stack = "Select primary stack or provide mixed stack profile / skill tags.";
+    } else if (hasPrimaryStack && !options.techStacks.includes(data.tech_stack)) {
       errors.tech_stack = "Select a valid tech stack from the list.";
     }
 
@@ -366,7 +394,7 @@ const EmployeePred = () => {
     }
 
     return errors;
-  }, [formData, options, salaryUnit]);
+  }, [formData, options, salaryUnit, resumeInsights]);
 
   useEffect(() => {
     if (!Object.keys(fieldErrors).length) {
@@ -392,13 +420,19 @@ const EmployeePred = () => {
     return Object.values(nextErrors)[0] || "Please correct highlighted fields before prediction.";
   };
 
-  const buildPayloadFromForm = () => ({
-    ...formData,
-    years_at_company: Number(formData.years_at_company),
-    salary_range: annualSalaryInr,
-    performance_rating: Number(formData.performance_rating),
-    resume_insights: sanitizeResumeInsights(resumeInsights),
-  });
+  const buildPayloadFromForm = () => {
+    const mergedResumeInsights = mergeResumeInsightsFromForm(resumeInsights, formData);
+    return {
+      ...formData,
+      years_at_company: Number(formData.years_at_company),
+      salary_range: annualSalaryInr,
+      performance_rating: Number(formData.performance_rating),
+      stack_profile: String(formData.stack_profile || "").trim(),
+      skill_tags: String(formData.skill_tags || "").trim(),
+      certifications: String(formData.certifications || "").trim(),
+      resume_insights: mergedResumeInsights,
+    };
+  };
 
   const runPrediction = async (payload, mode = "predict") => {
     const isRescore = mode === "rescore";
@@ -415,6 +449,13 @@ const EmployeePred = () => {
 
       const response = await axios.post(`${API_BASE_URL}/api/employee/predict`, payload);
       setPredictionData(response.data);
+      const resolvedStack = String(response.data?.normalized_input?.tech_stack || "").trim();
+      if (resolvedStack) {
+        setFormData((prev) => ({
+          ...prev,
+          tech_stack: resolvedStack,
+        }));
+      }
 
       const runId = response.data?.run_id || response.data?.history_entry?.run_id || null;
       const persistedActions = response.data?.history_entry?.action_tracker;
@@ -483,13 +524,22 @@ const EmployeePred = () => {
   };
 
   const employeeDataForSuggestions = useMemo(
-    () => ({
-      ...formData,
-      years_at_company: Number(formData.years_at_company) || 0,
-      performance_rating: Number(formData.performance_rating) || 0,
-      salary_range: annualSalaryInr || 0,
-      resume_insights: sanitizeResumeInsights(resumeInsights || predictionData?.resume_insights),
-    }),
+    () => {
+      const mergedResumeInsights = mergeResumeInsightsFromForm(
+        resumeInsights || predictionData?.resume_insights,
+        formData
+      );
+      return {
+        ...formData,
+        years_at_company: Number(formData.years_at_company) || 0,
+        performance_rating: Number(formData.performance_rating) || 0,
+        salary_range: annualSalaryInr || 0,
+        stack_profile: String(formData.stack_profile || "").trim(),
+        skill_tags: String(formData.skill_tags || "").trim(),
+        certifications: String(formData.certifications || "").trim(),
+        resume_insights: sanitizeResumeInsights(mergedResumeInsights),
+      };
+    },
     [annualSalaryInr, formData, predictionData?.resume_insights, resumeInsights]
   );
 
@@ -687,6 +737,7 @@ const EmployeePred = () => {
       return;
     }
     const profile = entry.employee_profile || {};
+    const savedResume = sanitizeResumeInsights(entry.resume_insights || {});
     const salaryInr = Number(profile.salary_range || 0);
     const salaryLpa = salaryInr > 0 ? (salaryInr / 100000).toFixed(1) : "";
 
@@ -697,6 +748,9 @@ const EmployeePred = () => {
       reporting_quarter: profile.reporting_quarter || "",
       job_title: profile.job_title || "",
       tech_stack: profile.tech_stack || "",
+      stack_profile: profile.stack_profile || savedResume.declared_stack_profile || "",
+      skill_tags: profile.skill_tags || (savedResume.skills || []).join(", "),
+      certifications: profile.certifications || (savedResume.certifications || []).join(", "),
       department: profile.department || "",
       remote_work: profile.remote_work || "",
       years_at_company: profile.years_at_company != null ? String(profile.years_at_company) : "",
@@ -719,12 +773,13 @@ const EmployeePred = () => {
       stack_survival: entry.stack_survival || null,
       market_signals: entry.market_signals || null,
       resume_insights: entry.resume_insights || null,
+      stack_resolution: entry.stack_resolution || null,
       trend_guidance: entry.trend_guidance || null,
       reliability: entry.reliability || {},
     });
     setWhatIfResult(null);
     setActionTracker(Array.isArray(entry.action_tracker) ? entry.action_tracker : []);
-    setResumeInsights(entry.resume_insights || null);
+    setResumeInsights(savedResume || null);
     setResumeTrendGuidance(entry.trend_guidance || null);
     setResumeMissingFields([]);
     setResumeMessage("Loaded profile snapshot from history.");
@@ -937,6 +992,39 @@ const EmployeePred = () => {
                     options={options.techStacks}
                     error={fieldErrors.tech_stack}
                   />
+                  <label className="space-y-2 sm:col-span-2">
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <HiOutlineBriefcase className="h-4 w-4 text-slate-500" />
+                      Mixed Stack Profile (Optional)
+                    </span>
+                    <textarea
+                      name="stack_profile"
+                      value={formData.stack_profile}
+                      onChange={handleChange}
+                      rows={2}
+                      placeholder="Example: MERN + DevOps + ML (Python), Kubernetes, Terraform"
+                      className={`${FORM_INPUT_CLASS} min-h-[74px] resize-y border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
+                    />
+                    <p className="text-xs text-slate-500">
+                      Free-form stack details are auto-mapped to the closest model-supported stack.
+                    </p>
+                  </label>
+                  <label className="space-y-2 sm:col-span-2">
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <HiOutlineChartBar className="h-4 w-4 text-slate-500" />
+                      Skill Tags (Optional)
+                    </span>
+                    <input
+                      name="skill_tags"
+                      value={formData.skill_tags}
+                      onChange={handleChange}
+                      placeholder="Comma-separated: Python, MLOps, AWS, React, Microservices"
+                      className={`${FORM_INPUT_CLASS} border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
+                    />
+                    <p className="text-xs text-slate-500">
+                      Use comma-separated skills if your stack is broader than dropdown options.
+                    </p>
+                  </label>
                   <Field
                     icon={HiOutlineUserGroup}
                     label="Department"
@@ -963,6 +1051,22 @@ const EmployeePred = () => {
               <div className="space-y-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Step 3: Employee Profile</p>
                 <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2 sm:col-span-2">
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <HiOutlineChartBar className="h-4 w-4 text-slate-500" />
+                      Certifications (Optional)
+                    </span>
+                    <input
+                      name="certifications"
+                      value={formData.certifications}
+                      onChange={handleChange}
+                      placeholder="Comma-separated: AWS Certified Developer, CKA, Databricks Associate"
+                      className={`${FORM_INPUT_CLASS} border-slate-200 focus:border-slate-400 focus:ring-slate-200`}
+                    />
+                    <p className="text-xs text-slate-500">
+                      Certifications directly influence AI guidance and certification-gap recommendations.
+                    </p>
+                  </label>
                   <Field
                     icon={HiOutlineClock}
                     label="Years At Company"
@@ -1048,7 +1152,7 @@ const EmployeePred = () => {
 
           <section className="space-y-6">
             {!predictionData ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-8 text-center">
+              <div className="rounded-3xl border border-dashed border-slate-300 bg-blue/70 p-8 text-center">
                 <p className="text-sm text-slate-500">
                   Complete the three-step flow to get calibrated risk, reliability diagnostics, and targeted actions.
                 </p>

@@ -377,6 +377,7 @@ export function getEmployeeInputSpec() {
     guidance: [
       'Use values that match HR records (title, department, performance).',
       'Select the primary tech stack you use most in your current role.',
+      'If you use a mixed stack, provide additional skill tags/certifications so guidance can map combinations correctly.',
       'Enter current-year CTC correctly; salary scale strongly affects prediction.',
       'Use the latest reporting quarter for better market alignment.',
       'If unsure about performance rating, use your latest appraisal score.',

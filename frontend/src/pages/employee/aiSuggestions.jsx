@@ -18,6 +18,7 @@ const sanitizeResumeInsights = (value) => {
     parse_confidence: Number.isFinite(Number(source.parse_confidence))
       ? Number(source.parse_confidence)
       : null,
+    declared_stack_profile: source.declared_stack_profile || null,
   };
 };
 
@@ -166,6 +167,15 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
     };
   }, [suggestions]);
 
+  const consideredSignals = useMemo(() => {
+    const signals = sanitizeResumeInsights(employeeData?.resume_insights || predictionData?.resume_insights);
+    return {
+      skills: Array.isArray(signals.skills) ? signals.skills : [],
+      certifications: Array.isArray(signals.certifications) ? signals.certifications : [],
+      stackProfile: String(signals.declared_stack_profile || employeeData?.stack_profile || "").trim(),
+    };
+  }, [employeeData, predictionData]);
+
   if (loading || isLoading) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -212,6 +222,14 @@ const AiSuggestions = ({ employeeData, predictionData, loading }) => {
               Engine: {String(suggestions?.generator || "rag").toUpperCase()}
               {suggestions?.generator_model ? ` (${suggestions.generator_model})` : ""}
             </p>
+            {(consideredSignals.skills.length || consideredSignals.certifications.length || consideredSignals.stackProfile) ? (
+              <p className="mt-1 text-xs text-slate-600">
+                Signals considered:
+                {consideredSignals.stackProfile ? ` Stack profile (${consideredSignals.stackProfile}).` : ""}
+                {consideredSignals.skills.length ? ` Skills (${consideredSignals.skills.slice(0, 5).join(", ")}).` : ""}
+                {consideredSignals.certifications.length ? ` Certifications (${consideredSignals.certifications.slice(0, 4).join(", ")}).` : ""}
+              </p>
+            ) : null}
             {String(suggestions?.generator || "").toLowerCase() === "rag" ? (
               <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-900">
                 Live Gemini suggestions are temporarily unavailable (usually provider quota/rate limits). Showing grounded RAG guidance.

@@ -53,6 +53,7 @@ export const ResultPanel = ({ predictionData, inputQuality }) => {
   const riskStory = buildRiskStory(predictionData);
   const stabilizationPlan = buildStabilizationPlan(predictionData);
   const stackSurvival = predictionData?.stack_survival || null;
+  const stackResolution = predictionData?.stack_resolution || null;
   const stackSignal = String(stackSurvival?.current_stack_signal || "unknown").toLowerCase();
   const stackSignalTone = stackSignal === "strong"
     ? "border-emerald-200 bg-emerald-50/40 text-emerald-800"
@@ -116,7 +117,7 @@ export const ResultPanel = ({ predictionData, inputQuality }) => {
 
       <ResponsibleBrief predictionData={predictionData} inputQuality={inputQuality} />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-rose-200/20 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Risk Insight Workspace</p>
@@ -169,6 +170,17 @@ export const ResultPanel = ({ predictionData, inputQuality }) => {
                     </div>
                   </div>
                 </div>
+              </div>
+            ) : null}
+            {stackResolution?.mapping_type && stackResolution.mapping_type !== "direct" ? (
+              <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-sky-800">Stack Mapping Applied</p>
+                <p className="mt-1 text-sm text-sky-900">
+                  Free-form stack input was mapped to <span className="font-semibold">{stackResolution.resolved_tech_stack}</span> for model compatibility.
+                </p>
+                {stackResolution.reason ? (
+                  <p className="mt-1 text-xs text-sky-800">{stackResolution.reason}</p>
+                ) : null}
               </div>
             ) : null}
             <div className="grid gap-3 lg:grid-cols-2">

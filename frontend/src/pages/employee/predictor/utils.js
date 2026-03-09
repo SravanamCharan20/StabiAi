@@ -58,6 +58,22 @@ export const toFiniteNumber = (value) => {
   return Number.isFinite(numeric) ? numeric : null;
 };
 
+export const parseListInput = (value, limit = 18) => {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map((item) => String(item || "").trim()).filter(Boolean))].slice(0, limit);
+  }
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return [];
+  }
+  return [...new Set(
+    raw
+      .split(/[\n,;|/]+/g)
+      .map((item) => item.trim())
+      .filter(Boolean)
+  )].slice(0, limit);
+};
+
 export const sanitizeResumeInsights = (value) => {
   const source = value && typeof value === "object" ? value : {};
   return {
@@ -65,15 +81,33 @@ export const sanitizeResumeInsights = (value) => {
     years_of_experience: Number.isFinite(Number(source.years_of_experience))
       ? Number(source.years_of_experience)
       : null,
-    certifications: Array.isArray(source.certifications) ? source.certifications.slice(0, 8) : [],
-    skills: Array.isArray(source.skills) ? source.skills.slice(0, 12) : [],
+    certifications: parseListInput(source.certifications, 12),
+    skills: parseListInput(source.skills, 18),
     ai_readiness_score: Number.isFinite(Number(source.ai_readiness_score))
       ? Number(source.ai_readiness_score)
       : null,
     parse_confidence: Number.isFinite(Number(source.parse_confidence))
       ? Number(source.parse_confidence)
       : null,
+    declared_stack_profile: source.declared_stack_profile || null,
   };
+};
+
+export const mergeResumeInsightsFromForm = (baseInsights, formData = {}) => {
+  const base = sanitizeResumeInsights(baseInsights || {});
+  const manualSkills = parseListInput(formData.skill_tags, 18);
+  const manualCerts = parseListInput(formData.certifications, 12);
+  const stackProfileSkills = parseListInput(
+    String(formData.stack_profile || "").replace(/\s*\+\s*/g, ","),
+    12
+  );
+
+  return sanitizeResumeInsights({
+    ...base,
+    skills: [...base.skills, ...manualSkills, ...stackProfileSkills],
+    certifications: [...base.certifications, ...manualCerts],
+    declared_stack_profile: String(formData.stack_profile || "").trim() || base.declared_stack_profile || null,
+  });
 };
 
 export const getRiskBadgeClass = (label) => {

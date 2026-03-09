@@ -22,6 +22,11 @@ import {
 } from './services/employeeHistoryService.js';
 import { parseResumeAndBuildProfile } from './services/employeeResumeService.js';
 import { buildCareerTrendGuidance } from './services/employeeCareerTrendService.js';
+import {
+  mergeResumeInsightsSignals,
+  parseFreeformList,
+  resolveTechStackForModel,
+} from './services/employeeSignalFusionService.js';
 
 dotenv.config();
 
@@ -85,6 +90,19 @@ const isAllowedValue = (fieldName, value) => {
     return true;
   }
   return options.includes(value);
+};
+
+const hasAnySkillSignal = ({ techStack, stackProfile, skillTags, resumeInsights }) => {
+  if (String(techStack || '').trim()) {
+    return true;
+  }
+  if (String(stackProfile || '').trim()) {
+    return true;
+  }
+  if (parseFreeformList(skillTags, 8).length > 0) {
+    return true;
+  }
+  return Array.isArray(resumeInsights?.skills) && resumeInsights.skills.length > 0;
 };
 
 const quarterSortKey = (value) => {
@@ -418,6 +436,7 @@ const toHistoryResponseEntry = (entry = {}) => ({
   stack_survival: entry.stack_survival || null,
   market_signals: entry.market_signals || null,
   resume_insights: entry.resume_insights || null,
+  stack_resolution: entry.stack_resolution || null,
   trend_guidance: entry.trend_guidance || null,
   reliability: entry.reliability || {},
   review: entry.review || null,
@@ -432,6 +451,9 @@ app.post('/api/employee/predict', async (req, res) => {
       reporting_quarter,
       job_title,
       tech_stack,
+      stack_profile,
+      skill_tags,
+      certifications,
       department,
       remote_work,
       years_at_company,
@@ -446,19 +468,42 @@ app.post('/api/employee/predict', async (req, res) => {
     if (!job_title) {
       return res.status(400).json({ success: false, message: 'Job title is required' });
     }
-    if (!tech_stack) {
-      return res.status(400).json({ success: false, message: 'Tech stack is required' });
-    }
     if (!department) {
       return res.status(400).json({ success: false, message: 'Department is required' });
     }
+
+    const mergedResumeInsights = mergeResumeInsightsSignals(resume_insights || {}, {
+      stack_profile,
+      skill_tags,
+      certifications,
+    });
+    if (!hasAnySkillSignal({
+      techStack: tech_stack,
+      stackProfile: stack_profile,
+      skillTags: skill_tags,
+      resumeInsights: mergedResumeInsights,
+    })) {
+      return res.status(400).json({
+        success: false,
+        message: 'Provide at least one stack signal: primary stack, mixed stack profile, skill tags, or resume skills.',
+      });
+    }
+
+    const techStackResolution = resolveTechStackForModel({
+      primaryTechStack: tech_stack,
+      stackProfile: stack_profile,
+      skillTagsText: skill_tags,
+      resumeInsights: mergedResumeInsights,
+      techStackOptions: getSpecOptions('tech_stack'),
+      jobTitle: job_title,
+    });
 
     const canonicalInput = canonicalizeEmployeeInput({
       company_name,
       company_location,
       reporting_quarter,
       job_title,
-      tech_stack,
+      tech_stack: techStackResolution.resolved_tech_stack,
       department,
       remote_work,
       years_at_company,
@@ -479,7 +524,10 @@ app.post('/api/employee/predict', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Select a valid job title from the list' });
     }
     if (!isAllowedValue('tech_stack', canonicalInput.tech_stack)) {
-      return res.status(400).json({ success: false, message: 'Select a valid tech stack from the list' });
+      return res.status(400).json({
+        success: false,
+        message: 'Unable to map this stack to model-supported categories. Add clearer skill tags or stack profile.',
+      });
     }
     if (!isAllowedValue('department', canonicalInput.department)) {
       return res.status(400).json({ success: false, message: 'Select a valid department from the list' });
@@ -499,7 +547,11 @@ app.post('/api/employee/predict', async (req, res) => {
       years_at_company,
       salary_range,
       performance_rating,
-      resume_insights: resume_insights || null,
+      stack_profile: String(stack_profile || '').trim(),
+      skill_tags: String(skill_tags || '').trim(),
+      certifications: parseFreeformList(certifications, 12).join(', '),
+      resume_insights: mergedResumeInsights,
+      stack_resolution: techStackResolution,
     };
 
     let marketContext = {};
@@ -555,7 +607,8 @@ app.post('/api/employee/predict', async (req, res) => {
         prediction: modelResult.prediction,
         stack_survival: modelResult.stack_survival || null,
         market_signals: marketContext.market_signals || null,
-        resume_insights: resume_insights || null,
+        resume_insights: mergedResumeInsights,
+        stack_resolution: techStackResolution,
         trend_guidance: trendGuidance,
         reliability,
         action_tracker: buildDefaultActionTracker(modelResult.prediction),
@@ -573,7 +626,8 @@ app.post('/api/employee/predict', async (req, res) => {
       prediction: modelResult.prediction,
       stack_survival: modelResult.stack_survival || null,
       market_signals: marketContext.market_signals || null,
-      resume_insights: resume_insights || null,
+      resume_insights: mergedResumeInsights,
+      stack_resolution: techStackResolution,
       trend_guidance: trendGuidance,
       reliability,
       history_entry: historyEntry ? toHistoryResponseEntry(historyEntry) : null,
@@ -599,8 +653,30 @@ app.post('/api/employee/what-if', (req, res) => {
     }
 
     const marketContext = extractMarketContextFromReference(referencePrediction || {});
-    const scenarioResult = buildAndPredict(employeeData, marketContext);
-    const scenarioTrendGuidance = buildCareerTrendGuidance(employeeData, {
+    const scenarioResumeInsights = mergeResumeInsightsSignals(
+      employeeData?.resume_insights || referencePrediction?.resume_insights || {},
+      {
+        stack_profile: employeeData?.stack_profile,
+        skill_tags: employeeData?.skill_tags,
+        certifications: employeeData?.certifications,
+      }
+    );
+    const scenarioStackResolution = resolveTechStackForModel({
+      primaryTechStack: employeeData?.tech_stack || referencePrediction?.normalized_input?.tech_stack,
+      stackProfile: employeeData?.stack_profile,
+      skillTagsText: employeeData?.skill_tags,
+      resumeInsights: scenarioResumeInsights,
+      techStackOptions: getSpecOptions('tech_stack'),
+      jobTitle: employeeData?.job_title,
+    });
+    const scenarioInput = {
+      ...employeeData,
+      tech_stack: scenarioStackResolution.resolved_tech_stack || employeeData?.tech_stack,
+      resume_insights: scenarioResumeInsights,
+    };
+
+    const scenarioResult = buildAndPredict(scenarioInput, marketContext);
+    const scenarioTrendGuidance = buildCareerTrendGuidance(scenarioInput, {
       ...scenarioResult,
       market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
     });
@@ -630,12 +706,14 @@ app.post('/api/employee/what-if', (req, res) => {
 
     return res.status(200).json({
       success: true,
+      stack_resolution: scenarioStackResolution,
       scenario: {
         normalized_input: scenarioResult.normalized_input,
         data: scenarioResult.features,
         prediction: scenarioResult.prediction,
         stack_survival: scenarioResult.stack_survival || null,
         market_signals: referencePrediction?.market_signals || marketContext.market_signals || null,
+        resume_insights: scenarioResumeInsights,
         trend_guidance: scenarioTrendGuidance,
       },
       delta: {

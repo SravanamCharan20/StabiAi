@@ -75,6 +75,7 @@ export function createPredictionHistoryEntry(payload = {}) {
     stack_survival: payload.stack_survival || null,
     market_signals: payload.market_signals || null,
     resume_insights: payload.resume_insights || null,
+    stack_resolution: payload.stack_resolution || null,
     trend_guidance: payload.trend_guidance || null,
     reliability: payload.reliability || {},
     review: null,

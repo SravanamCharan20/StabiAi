@@ -142,10 +142,42 @@ function guessRoleFamily(jobTitle, department) {
 function flattenResumeSignals(resumeInsights = {}) {
   const skills = Array.isArray(resumeInsights?.skills) ? resumeInsights.skills : [];
   const certifications = Array.isArray(resumeInsights?.certifications) ? resumeInsights.certifications : [];
+  const stackProfile = String(resumeInsights?.declared_stack_profile || '').trim();
   return {
-    skillText: normalizeText(skills.join(' ')),
+    skillText: normalizeText(`${skills.join(' ')} ${stackProfile}`),
     certText: normalizeText(certifications.join(' ')),
   };
+}
+
+const STOP_WORDS = new Set(['and', 'or', 'for', 'the', 'with', 'associate', 'professional', 'certified']);
+
+function buildTokenSet(text = '') {
+  return new Set(
+    normalizeText(text)
+      .split(' ')
+      .map((token) => token.trim())
+      .filter((token) => token.length > 1 && !STOP_WORDS.has(token))
+  );
+}
+
+function hasMeaningfulOverlap(targetName, sourceText) {
+  const sourceTokens = buildTokenSet(sourceText);
+  if (!sourceTokens.size) {
+    return false;
+  }
+
+  const targetTokens = [...buildTokenSet(targetName)];
+  if (!targetTokens.length) {
+    return false;
+  }
+
+  const overlap = targetTokens.filter((token) => sourceTokens.has(token)).length;
+  if (overlap <= 0) {
+    return false;
+  }
+
+  const coverage = overlap / targetTokens.length;
+  return coverage >= 0.5 || overlap >= 2;
 }
 
 function computeGaps(trendingItems = [], sourceText = '') {
@@ -155,8 +187,7 @@ function computeGaps(trendingItems = [], sourceText = '') {
     if (!name) {
       continue;
     }
-    const key = normalizeText(name);
-    const hit = key && sourceText.includes(key.split(' ')[0]);
+    const hit = hasMeaningfulOverlap(name, sourceText);
     if (!hit) {
       missing.push(name);
     }

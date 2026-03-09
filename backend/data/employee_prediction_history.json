@@ -2598,5 +2598,347 @@
         "updated_at_utc": "2026-03-09T07:29:07.077Z"
       }
     ]
+  },
+  {
+    "run_id": "9f9cc6a1-c434-45a5-a6ba-7af4938d2512",
+    "created_at_utc": "2026-03-09T07:52:41.758Z",
+    "updated_at_utc": "2026-03-09T07:52:41.758Z",
+    "employee_profile": {
+      "company_name": "Facebook India",
+      "company_location": "Gurugram",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Data Analyst",
+      "tech_stack": "Node.js + React",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 6,
+      "salary_range": 1200000,
+      "performance_rating": 5,
+      "stack_profile": "Node.js + React",
+      "skill_tags": "python, java, node, react, docker, sql, llm",
+      "certifications": "cloud",
+      "resume_insights": {
+        "candidate_name": "Sravanam Charan",
+        "years_of_experience": 0,
+        "certifications": [
+          "cloud"
+        ],
+        "skills": [
+          "python",
+          "java",
+          "node",
+          "react",
+          "docker",
+          "sql",
+          "llm",
+          "Node.js"
+        ],
+        "ai_readiness_score": 73,
+        "parse_confidence": 0.6,
+        "declared_stack_profile": "Node.js + React"
+      },
+      "stack_resolution": {
+        "resolved_tech_stack": "Node.js + React",
+        "mapping_type": "direct",
+        "confidence": 1,
+        "reason": "Exact stack selected from model catalog."
+      }
+    },
+    "normalized_input": {
+      "company_name": "Facebook India",
+      "company_location": "Gurugram",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Data Analyst",
+      "tech_stack": "Node.js + React",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 6,
+      "salary_range": 1200000,
+      "performance_rating": 5
+    },
+    "feature_vector": {
+      "company_name": "Facebook India",
+      "company_location": "Gurugram",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Recovery",
+      "past_layoffs": "Yes",
+      "job_title": "Data Analyst",
+      "tech_stack": "Node.js + React",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "industry": "Information Technology",
+      "revenue_growth": 1.33,
+      "profit_margin": 4.9,
+      "stock_price_change": -2.324,
+      "total_employees": 6586,
+      "role_demand_index": 6.95,
+      "department_resilience_index": 8.09,
+      "tech_stack_trend_score": 6.88,
+      "years_at_company": 6,
+      "salary_range": 1200000,
+      "performance_rating": 5,
+      "industry_layoff_rate": 2.908,
+      "unemployment_rate": 6.69,
+      "inflation_rate": 5.36,
+      "employee_stability": 30,
+      "economic_pressure": 10.72
+    },
+    "prediction": {
+      "layoff_risk": "Medium",
+      "confidence": 0.8255,
+      "risk_score": 53.21,
+      "probabilities": {
+        "Low": 0.0092,
+        "Medium": 0.9173,
+        "High": 0.0735
+      },
+      "top_factors": [
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 4.9,
+          "impact": 0.7975,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 12.42 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "industry_layoff_rate",
+          "label": "Industry Layoff Rate",
+          "value": 2.908,
+          "impact": 0.7404,
+          "direction": "increases_risk",
+          "reason": "Industry Layoff Rate is 1.39 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "job_title",
+          "label": "Job Title",
+          "value": "Data Analyst",
+          "impact": 0.5483,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Job Title: Data Analyst."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 6.95,
+          "impact": 0.4883,
+          "direction": "increases_risk",
+          "reason": "Role Demand Index is 0.45 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Node.js + React",
+          "impact": 0.3618,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: Node.js + React."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 6.88,
+          "impact": 0.229,
+          "direction": "reduces_risk",
+          "reason": "Tech Stack Trend Score is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Prioritize projects tied to current hiring demand in your role track."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Data Analyst in Q4 2025",
+      "compared_stacks": 3,
+      "current_stack": "Node.js + React",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "SQL + Tableau + Python",
+          "sample_size": 19,
+          "low_risk_share": 0.5789,
+          "high_risk_share": 0.1053,
+          "avg_role_layoff_rate": 1.735
+        },
+        {
+          "tech_stack": "SQL + Power BI + Excel",
+          "sample_size": 19,
+          "low_risk_share": 0.4211,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.917
+        },
+        {
+          "tech_stack": "Excel + SQL + Reporting",
+          "sample_size": 17,
+          "low_risk_share": 0.3529,
+          "high_risk_share": 0.1176,
+          "avg_role_layoff_rate": 2.136
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Excel + SQL + Reporting",
+          "sample_size": 17,
+          "low_risk_share": 0.3529,
+          "high_risk_share": 0.1176,
+          "avg_role_layoff_rate": 2.136
+        },
+        {
+          "tech_stack": "SQL + Power BI + Excel",
+          "sample_size": 19,
+          "low_risk_share": 0.4211,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.917
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Recovery",
+      "marketStressScore": 0.5373,
+      "company_return_90d": -12.703,
+      "market_return_90d": 5.16,
+      "relative_return_90d": -17.863,
+      "company_volatility_90d": 2.0759,
+      "market_volatility_90d": 1.0091,
+      "india_vix": 35.67,
+      "company_last_price": 644.86,
+      "company_previous_close": 660.205,
+      "benchmark_symbol": "QQQ",
+      "company_symbol": "META",
+      "market_universe": "us",
+      "us_index_price": 599.83,
+      "proxyMode": false,
+      "dataSource": "stooq_daily_api",
+      "symbol_used": "META",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Sravanam Charan",
+      "years_of_experience": 0,
+      "certifications": [
+        "cloud"
+      ],
+      "skills": [
+        "python",
+        "java",
+        "node",
+        "react",
+        "docker",
+        "sql",
+        "llm",
+        "Node.js"
+      ],
+      "ai_readiness_score": 73,
+      "parse_confidence": 0.6,
+      "declared_stack_profile": "Node.js + React"
+    },
+    "stack_resolution": {
+      "resolved_tech_stack": "Node.js + React",
+      "mapping_type": "direct",
+      "confidence": 1,
+      "reason": "Exact stack selected from model catalog."
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "trending_tech_stacks": [
+        {
+          "name": "AI-assisted SDLC (GitHub Copilot, Codeium, Cursor)",
+          "why": "Teams now expect faster delivery with AI-augmented development workflows."
+        },
+        {
+          "name": "Cloud-native platform stack (Kubernetes, Terraform, observability)",
+          "why": "Infra automation and reliability ownership reduce layoff exposure."
+        },
+        {
+          "name": "Backend modernization (FastAPI/Node microservices + event streaming)",
+          "why": "Scalable service ownership is retained in cost-constrained cycles."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified Developer / Solutions Architect",
+          "provider": "AWS",
+          "level": "Associate",
+          "why": "Cloud cost/performance ownership is strongly valued."
+        },
+        {
+          "name": "CKA / CKAD",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Kubernetes depth supports platform and reliability tracks."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC is now baseline in modern engineering teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Prompt engineering for developer workflows",
+          "why": "Improves coding velocity and review quality."
+        },
+        {
+          "name": "System design for scale and resilience",
+          "why": "Architecture capability improves role criticality."
+        },
+        {
+          "name": "Cost optimization and production telemetry",
+          "why": "Direct business impact in optimization cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Prompt engineering for developer workflows",
+        "System design for scale and resilience",
+        "Cost optimization and production telemetry"
+      ],
+      "certification_gaps": [
+        "AWS Certified Developer / Solutions Architect",
+        "CKA / CKAD",
+        "HashiCorp Terraform Associate"
+      ],
+      "shift_path": [
+        "Move toward AI-assisted SDLC (GitHub Copilot, Codeium, Cursor) with one production project in 30-45 days.",
+        "Add Prompt engineering for developer workflows with measurable project evidence.",
+        "Pursue AWS Certified Developer / Solutions Architect for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For Data Analyst, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.8668,
+      "model_confidence": 0.8255,
+      "market_data_score": 0.9,
+      "market_data_status": "live_market",
+      "source": "stooq_daily_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-03-09T07:52:41.758Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Prioritize projects tied to current hiring demand in your role track.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-03-09T07:52:41.760Z"
+      }
+    ]
   }
 ]

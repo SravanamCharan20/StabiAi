@@ -170,6 +170,117 @@ function dedupeByKey(items, keyGetter, limit) {
   return output;
 }
 
+function buildGapDrivenBoosters(trendGuidance = {}, resumeInsights = {}) {
+  const certGaps = Array.isArray(trendGuidance?.certification_gaps)
+    ? trendGuidance.certification_gaps.slice(0, 2)
+    : [];
+  const skillGaps = Array.isArray(trendGuidance?.skill_gaps)
+    ? trendGuidance.skill_gaps.slice(0, 2)
+    : [];
+  const certifications = Array.isArray(resumeInsights?.certifications) ? resumeInsights.certifications : [];
+
+  const skills = [];
+  const actions = [];
+  const opportunities = [];
+
+  if (certGaps.length > 0) {
+    const target = certGaps[0];
+    skills.push({
+      name: `Certification alignment: ${target}`,
+      why: 'Certification signals improve credibility in screenings and internal role transitions.',
+      how: `Plan exam prep and project evidence for ${target} in a 6-10 week sprint.`,
+      impact: 'Stronger market-fit signal for role continuity and mobility.',
+    });
+    actions.push({
+      title: `Earn ${target}`,
+      timeline: '6-10 weeks',
+      steps: [
+        'Map exam blueprint to current role tasks',
+        'Complete one practical project aligned to certification topics',
+        'Schedule exam and document outcomes in your impact log',
+      ],
+      indicators: 'Certification completed plus one production-relevant project artifact.',
+    });
+  }
+
+  if (skillGaps.length > 0) {
+    const target = skillGaps[0];
+    skills.push({
+      name: `Gap-closure skill: ${target}`,
+      why: 'Closing high-demand skill gaps reduces restructuring exposure.',
+      how: 'Build one measurable deliverable using this skill in your current team context.',
+      impact: 'Improves role defensibility and adjacent-role readiness.',
+    });
+  }
+
+  if (certifications.length > 0) {
+    opportunities.push({
+      title: 'Leverage existing certifications for internal mobility',
+      timeline: '1-2 months',
+      requirements: 'Update profile with certified outcomes tied to business metrics.',
+      impact: 'Increases visibility for higher-demand internal opportunities.',
+    });
+  }
+
+  return { skills, actions, opportunities };
+}
+
+function ensureCertificationMentions(skills, actions, trendGuidance = {}) {
+  const certGaps = Array.isArray(trendGuidance?.certification_gaps)
+    ? trendGuidance.certification_gaps.filter(Boolean)
+    : [];
+  if (!certGaps.length) {
+    return { skills, actions };
+  }
+
+  const target = String(certGaps[0] || '').trim();
+  if (!target) {
+    return { skills, actions };
+  }
+  const targetLower = target.toLowerCase();
+
+  const hasCertSkill = skills.some((item) => (
+    String(item?.name || '').toLowerCase().includes('certif')
+    || String(item?.name || '').toLowerCase().includes(targetLower)
+    || String(item?.why || '').toLowerCase().includes(targetLower)
+  ));
+  const hasCertAction = actions.some((item) => (
+    String(item?.title || '').toLowerCase().includes('certif')
+    || String(item?.title || '').toLowerCase().includes(targetLower)
+    || String(item?.indicators || '').toLowerCase().includes(targetLower)
+  ));
+
+  const nextSkills = [...skills];
+  const nextActions = [...actions];
+
+  if (!hasCertSkill) {
+    nextSkills.unshift({
+      name: `Certification alignment: ${target}`,
+      why: 'Certification proof improves role defensibility and internal mobility signals.',
+      how: `Prepare for ${target} with one applied project and weekly progress checkpoints.`,
+      impact: 'Improves screening confidence for resilient roles.',
+    });
+  }
+
+  if (!hasCertAction) {
+    nextActions.unshift({
+      title: `Certification sprint for ${target}`,
+      timeline: '6-10 weeks',
+      steps: [
+        'Map certification syllabus to your current project scope',
+        'Build one artifact demonstrating applied competency',
+        'Attempt exam and log measurable impact outcomes',
+      ],
+      indicators: 'Certification achieved with project-backed evidence.',
+    });
+  }
+
+  return {
+    skills: nextSkills.slice(0, 4),
+    actions: nextActions.slice(0, 4),
+  };
+}
+
 function buildFallbackSuggestions(query) {
   const risk = String(query.layoffRisk || 'Medium').toLowerCase();
 
@@ -275,6 +386,7 @@ export function generateRagSuggestions(userData, predictionData) {
   const knowledge = loadKnowledgeBase();
   const query = buildQueryContext(userData, predictionData);
   const trendGuidance = predictionData?.trend_guidance || buildCareerTrendGuidance(userData, predictionData);
+  const resumeInsights = userData?.resume_insights || predictionData?.resume_insights || {};
 
   const ranked = knowledge
     .map((doc) => ({
@@ -303,9 +415,17 @@ export function generateRagSuggestions(userData, predictionData) {
     opportunities = fallback.opportunities;
   }
 
+  const boosters = buildGapDrivenBoosters(trendGuidance, resumeInsights);
+  skills.push(...boosters.skills);
+  actions.push(...boosters.actions);
+  opportunities.push(...boosters.opportunities);
+
   skills = dedupeByKey(skills, (item) => String(item.name || '').toLowerCase(), 4);
   actions = dedupeByKey(actions, (item) => String(item.title || '').toLowerCase(), 4);
   opportunities = dedupeByKey(opportunities, (item) => String(item.title || '').toLowerCase(), 3);
+  const certified = ensureCertificationMentions(skills, actions, trendGuidance);
+  skills = certified.skills;
+  actions = certified.actions;
 
   const prediction = predictionData?.prediction || {};
   const topFactors = Array.isArray(prediction.top_factors) ? prediction.top_factors.slice(0, 4) : [];

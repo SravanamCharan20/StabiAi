@@ -16,6 +16,7 @@ function sanitizeResumeInsights(value) {
     parse_confidence: Number.isFinite(Number(source.parse_confidence))
       ? Number(source.parse_confidence)
       : null,
+    declared_stack_profile: source.declared_stack_profile || null,
   };
 }
 

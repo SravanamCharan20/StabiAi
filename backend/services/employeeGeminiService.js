@@ -427,6 +427,67 @@ function normalizeStringList(items, limit = 5) {
     .slice(0, limit);
 }
 
+function normalizeLoose(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function ensureCertificationCoverage(skills, actions, trends) {
+  const certGaps = Array.isArray(trends?.certification_gaps) ? trends.certification_gaps : [];
+  if (!certGaps.length) {
+    return { skills, actions };
+  }
+
+  const firstGap = String(certGaps[0] || '').trim();
+  if (!firstGap) {
+    return { skills, actions };
+  }
+  const firstGapNorm = normalizeLoose(firstGap);
+
+  const skillHasCert = skills.some((item) => {
+    const text = normalizeLoose(`${item?.name || ''} ${item?.why || ''} ${item?.how || ''}`);
+    return text.includes('certif') || text.includes(firstGapNorm);
+  });
+
+  const actionHasCert = actions.some((item) => {
+    const text = normalizeLoose(`${item?.title || ''} ${item?.indicators || ''} ${(item?.steps || []).join(' ')}`);
+    return text.includes('certif') || text.includes(firstGapNorm);
+  });
+
+  const nextSkills = [...skills];
+  const nextActions = [...actions];
+
+  if (!skillHasCert) {
+    nextSkills.push({
+      name: `Certification track: ${firstGap}`,
+      why: 'Certification proof strengthens screening and internal mobility confidence.',
+      how: `Prepare for ${firstGap} with one practical project and weekly milestones.`,
+      impact: 'Improves credibility for role continuity in competitive markets.',
+    });
+  }
+
+  if (!actionHasCert) {
+    nextActions.push({
+      title: `Complete ${firstGap} certification sprint`,
+      timeline: '6-10 weeks',
+      steps: [
+        'Map certification domains to current role tasks',
+        'Build one applied project aligned to exam outcomes',
+        'Schedule exam and document outcomes in your impact log',
+      ],
+      indicators: 'Certification completed with role-relevant project evidence.',
+    });
+  }
+
+  return {
+    skills: nextSkills.slice(0, 6),
+    actions: nextActions.slice(0, 6),
+  };
+}
+
 function normalizeSuggestionsShape(payload, fallback) {
   const safe = payload && typeof payload === 'object' ? payload : {};
   const skills = Array.isArray(safe.skills) ? safe.skills : fallback.skills;
@@ -529,9 +590,13 @@ function normalizeSuggestionsShape(payload, fallback) {
     })(),
   };
 
+  const selectedSkills = normalizedSkills.length > 0 ? normalizedSkills : fallbackSkills;
+  const selectedActions = normalizedActions.length > 0 ? normalizedActions : fallbackActions;
+  const certificationAdjusted = ensureCertificationCoverage(selectedSkills, selectedActions, normalizedTrends);
+
   return {
-    skills: normalizedSkills.length > 0 ? normalizedSkills : fallbackSkills,
-    actions: normalizedActions.length > 0 ? normalizedActions : fallbackActions,
+    skills: certificationAdjusted.skills,
+    actions: certificationAdjusted.actions,
     opportunities: normalizedOpportunities.length > 0 ? normalizedOpportunities : fallbackOpportunities,
     trends: normalizedTrends,
     insights,
@@ -621,6 +686,7 @@ function buildPrompt(userData, predictionData, ragSuggestions) {
     '- Keep each steps array to 2-4 short bullets.',
     '- Prioritize market-relevant trends for 2026 role demand.',
     '- Include a realistic shift path from current stack to stronger stack.',
+    '- Ensure at least one skill and one action directly address certification-gap closure when gaps exist.',
     '- Return compact JSON (no pretty-print indentation).',
     '- Use strict JSON only (double quotes, no comments, no trailing commas).',
     '',
