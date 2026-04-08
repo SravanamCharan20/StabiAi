@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import { API_BASE_URL } from "../../config/api";
+import { apiClient } from "../../utils/api";
 import {
   ACTION_STATUS_OPTIONS,
   FALLBACK_COMPANY_OPTIONS,
@@ -71,7 +70,7 @@ const EmployeePred = () => {
   useEffect(() => {
     const fetchInputSpec = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/employee/input-spec`);
+        const response = await apiClient.get(`/api/employee/input-spec`);
         if (response.data?.success && response.data?.spec) {
           setInputSpec(response.data.spec);
         }
@@ -208,7 +207,7 @@ const EmployeePred = () => {
 
       let response;
       try {
-        response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse-enhanced`, payload, {
+        response = await apiClient.post(`/api/employee/resume-parse-enhanced`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
@@ -288,7 +287,7 @@ const EmployeePred = () => {
         console.warn("Enhanced parser failed, falling back to basic parser:", enhancedError.message);
       }
 
-      response = await axios.post(`${API_BASE_URL}/api/employee/resume-parse`, payload, {
+      response = await apiClient.post(`/api/employee/resume-parse`, payload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -479,7 +478,7 @@ const EmployeePred = () => {
     setError("");
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/employee/predict`, payload);
+      const response = await apiClient.post(`/api/employee/predict`, payload);
       setPredictionData(response.data);
 
       const resolvedStack = String(response.data?.normalized_input?.tech_stack || "").trim();
@@ -585,7 +584,7 @@ const EmployeePred = () => {
         performance_rating: performance,
         salary_range: Math.round(salaryLpa * 100000),
       };
-      const response = await axios.post(`${API_BASE_URL}/api/employee/what-if`, {
+      const response = await apiClient.post(`/api/employee/what-if`, {
         employeeData: scenarioPayload,
         referencePrediction: predictionData,
       });
@@ -613,7 +612,7 @@ const EmployeePred = () => {
     setEvalLoading(true);
     setEvalError("");
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/employee/eval`, {
+      const response = await apiClient.get(`/api/employee/eval`, {
         params: { sample_size: 4000 },
       });
       if (response.data?.success && response.data?.report) {

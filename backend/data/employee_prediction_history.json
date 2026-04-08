@@ -26479,5 +26479,688 @@
         "updated_at_utc": "2026-03-09T17:27:30.360Z"
       }
     ]
+  },
+  {
+    "run_id": "3573f277-e980-4849-8134-aaab6abc1cae",
+    "created_at_utc": "2026-04-08T05:37:50.987Z",
+    "updated_at_utc": "2026-04-08T05:37:50.987Z",
+    "employee_profile": {
+      "company_name": "Wipro Limited",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 5,
+      "salary_range": 1600000,
+      "performance_rating": 1,
+      "stack_profile": "",
+      "skill_tags": "sql, selenium",
+      "certifications": "SCRUM",
+      "resume_insights": {
+        "candidate_name": "Vikram Singh",
+        "years_of_experience": 9,
+        "certifications": [
+          "SCRUM"
+        ],
+        "skills": [
+          "sql",
+          "selenium"
+        ],
+        "ai_readiness_score": 42,
+        "parse_confidence": 0.85,
+        "declared_stack_profile": null
+      },
+      "stack_resolution": {
+        "resolved_tech_stack": "Manual QA + Regression Testing",
+        "mapping_type": "direct",
+        "confidence": 1,
+        "reason": "Exact stack selected from model catalog."
+      }
+    },
+    "normalized_input": {
+      "company_name": "Wipro Limited",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 5,
+      "salary_range": 1600000,
+      "performance_rating": 1
+    },
+    "feature_vector": {
+      "company_name": "Wipro Limited",
+      "company_location": "Chennai",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "QA Engineer",
+      "tech_stack": "Manual QA + Regression Testing",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "industry": "Information Technology",
+      "revenue_growth": 3.37,
+      "profit_margin": 10.73,
+      "stock_price_change": -37.6,
+      "total_employees": 241218,
+      "role_demand_index": 6.13,
+      "department_resilience_index": 8.09,
+      "tech_stack_trend_score": 3.3,
+      "years_at_company": 5,
+      "salary_range": 1600000,
+      "performance_rating": 1,
+      "industry_layoff_rate": 2.009,
+      "unemployment_rate": 6.435,
+      "inflation_rate": 4.856,
+      "employee_stability": 5,
+      "economic_pressure": 7.921
+    },
+    "prediction": {
+      "layoff_risk": "High",
+      "confidence": 0.98,
+      "risk_score": 99.77,
+      "probabilities": {
+        "Low": 0,
+        "Medium": 0.0046,
+        "High": 0.9954
+      },
+      "top_factors": [
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 3.3,
+          "impact": 5.0308,
+          "direction": "increases_risk",
+          "reason": "Tech Stack Trend Score is 3.52 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "stock_price_change",
+          "label": "Stock Price Change",
+          "value": -37.6,
+          "impact": 2.45,
+          "direction": "increases_risk",
+          "reason": "Stock Price Change is 51.67 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "Manual QA + Regression Testing",
+          "impact": 2.4424,
+          "direction": "increases_risk",
+          "reason": "This profile tends to push risk upward for Tech Stack: Manual QA + Regression Testing."
+        },
+        {
+          "feature": "performance_rating",
+          "label": "Performance Rating",
+          "value": 1,
+          "impact": 1.7841,
+          "direction": "increases_risk",
+          "reason": "Performance Rating is 2.69 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 6.13,
+          "impact": 1.2995,
+          "direction": "increases_risk",
+          "reason": "Role Demand Index is 1.27 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "department_resilience_index",
+          "label": "Department Resilience Index",
+          "value": 8.09,
+          "impact": 1.0698,
+          "direction": "reduces_risk",
+          "reason": "Department Resilience Index is currently in a risk-reducing range."
+        }
+      ],
+      "improvement_tips": [
+        "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "Improve your performance score by setting measurable quarterly targets with your manager."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For QA Engineer in Q4 2025",
+      "compared_stacks": 3,
+      "current_stack": "Manual QA + Regression Testing",
+      "current_stack_rank": 3,
+      "current_stack_signal": "weak",
+      "current_stack_low_risk_share": 0.0588,
+      "current_stack_avg_layoff_rate": 2.901,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Selenium + Cypress + API Testing",
+          "sample_size": 18,
+          "low_risk_share": 0.3889,
+          "high_risk_share": 0.2222,
+          "avg_role_layoff_rate": 2.072
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        },
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Manual QA + Regression Testing",
+          "sample_size": 17,
+          "low_risk_share": 0.0588,
+          "high_risk_share": 0.6471,
+          "avg_role_layoff_rate": 2.901
+        },
+        {
+          "tech_stack": "Playwright + CI Test Automation",
+          "sample_size": 14,
+          "low_risk_share": 0.2143,
+          "high_risk_share": 0.4286,
+          "avg_role_layoff_rate": 2.444
+        }
+      ],
+      "narrative": "Manual QA + Regression Testing is in a weaker resilience tier for current role demand."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.3478,
+      "company_return_90d": -2.257,
+      "market_return_90d": -5.61,
+      "relative_return_90d": 3.353,
+      "company_volatility_90d": 1.7362,
+      "market_volatility_90d": 6.768,
+      "india_vix": 19.51,
+      "nse_index_price": 23994.25,
+      "company_last_price": 203.95,
+      "company_previous_close": 204.72,
+      "market_breadth_ratio": 0.14,
+      "benchmark_symbol": "^NSEI",
+      "company_symbol": "WIPRO.NS",
+      "market_universe": "india",
+      "dataSource": "nse_live_api",
+      "proxyMode": false,
+      "derived_window_estimate": true,
+      "symbol_used": "WIPRO",
+      "symbol_resolution": "alias_match",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "alias_match"
+    },
+    "resume_insights": {
+      "candidate_name": "Vikram Singh",
+      "years_of_experience": 9,
+      "certifications": [
+        "SCRUM"
+      ],
+      "skills": [
+        "sql",
+        "selenium"
+      ],
+      "ai_readiness_score": 42,
+      "parse_confidence": 0.85,
+      "declared_stack_profile": null
+    },
+    "stack_resolution": {
+      "resolved_tech_stack": "Manual QA + Regression Testing",
+      "mapping_type": "direct",
+      "confidence": 1,
+      "reason": "Exact stack selected from model catalog."
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "role_track": "qa_automation",
+      "trending_tech_stacks": [
+        {
+          "name": "Shift-left QA automation (API/UI/perf + CI)",
+          "why": "Automation-led QA teams are favored over manual-only workflows."
+        },
+        {
+          "name": "Reliability test engineering (chaos + resilience tests)",
+          "why": "Reliability testing supports critical production quality goals."
+        },
+        {
+          "name": "AI-assisted test generation and maintenance",
+          "why": "AI tooling significantly increases QA throughput."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "ISTQB Certified Tester Foundation Level",
+          "provider": "ISTQB",
+          "level": "Foundational",
+          "why": "Widely recognized baseline for structured QA competency."
+        },
+        {
+          "name": "ISTQB Test Automation Engineer",
+          "provider": "ISTQB",
+          "level": "Intermediate",
+          "why": "Signals deeper capability in automation strategy and tooling."
+        },
+        {
+          "name": "Certified Agile Tester",
+          "provider": "ICAgile",
+          "level": "Intermediate",
+          "why": "Agile testing capability improves fit in modern product teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "Quality metrics and release analytics",
+          "why": "Data-backed QA insights improve decision-making."
+        },
+        {
+          "name": "API and integration testing",
+          "why": "Catches high-impact failures earlier in delivery cycles."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "Quality metrics and release analytics",
+        "API and integration testing"
+      ],
+      "certification_gaps": [
+        "ISTQB Certified Tester Foundation Level",
+        "ISTQB Test Automation Engineer",
+        "Certified Agile Tester"
+      ],
+      "shift_path": [
+        "Move toward Shift-left QA automation (API/UI/perf + CI) with one production project in 30-45 days.",
+        "Add Quality metrics and release analytics with measurable project evidence.",
+        "Pursue ISTQB Certified Tester Foundation Level for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For QA Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "high",
+      "score": 0.9372,
+      "model_confidence": 0.98,
+      "market_data_score": 0.84,
+      "market_data_status": "live_market",
+      "source": "nse_live_api",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "live",
+      "used_fallback_defaults": false,
+      "message": "Prediction reliability is high with live market data and strong model confidence.",
+      "checked_at_utc": "2026-04-08T05:37:50.983Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Shift from legacy tooling to AI/cloud automation stack over the next quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-04-08T05:37:50.989Z"
+      },
+      {
+        "id": "tip-2",
+        "title": "Keep your stack current: add one market-in-demand tool or framework this quarter.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-04-08T05:37:50.989Z"
+      },
+      {
+        "id": "tip-3",
+        "title": "Improve your performance score by setting measurable quarterly targets with your manager.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-04-08T05:37:50.989Z"
+      }
+    ]
+  },
+  {
+    "run_id": "69ade726-4def-4673-aac8-db33109f959c",
+    "created_at_utc": "2026-04-08T05:43:11.818Z",
+    "updated_at_utc": "2026-04-08T05:43:11.818Z",
+    "employee_profile": {
+      "company_name": "Microsoft India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 5,
+      "salary_range": 7500000,
+      "performance_rating": 4,
+      "stack_profile": "",
+      "skill_tags": "python, react, node, kubernetes, docker, terraform, aws, llm, mlops, sql",
+      "certifications": "aws certified developer",
+      "resume_insights": {
+        "candidate_name": "Arvind Rao",
+        "years_of_experience": 7,
+        "certifications": [
+          "aws certified developer"
+        ],
+        "skills": [
+          "python",
+          "react",
+          "node",
+          "kubernetes",
+          "docker",
+          "terraform",
+          "aws",
+          "llm",
+          "mlops",
+          "sql"
+        ],
+        "ai_readiness_score": 70,
+        "parse_confidence": 0.9,
+        "declared_stack_profile": null
+      },
+      "stack_resolution": {
+        "resolved_tech_stack": "AWS + Terraform + Kubernetes",
+        "mapping_type": "direct",
+        "confidence": 1,
+        "reason": "Exact stack selected from model catalog."
+      }
+    },
+    "normalized_input": {
+      "company_name": "Microsoft India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "years_at_company": 5,
+      "salary_range": 7500000,
+      "performance_rating": 4
+    },
+    "feature_vector": {
+      "company_name": "Microsoft India",
+      "company_location": "Bengaluru",
+      "reporting_quarter": "Q4 2025",
+      "economic_condition_tag": "Stable",
+      "past_layoffs": "No",
+      "job_title": "Senior Software Engineer",
+      "tech_stack": "AWS + Terraform + Kubernetes",
+      "department": "Engineering",
+      "remote_work": "Yes",
+      "industry": "Information Technology",
+      "revenue_growth": 0,
+      "profit_margin": 0,
+      "stock_price_change": 0,
+      "total_employees": 23829,
+      "role_demand_index": 7.85,
+      "department_resilience_index": 8.09,
+      "tech_stack_trend_score": 8.345,
+      "years_at_company": 5,
+      "salary_range": 7500000,
+      "performance_rating": 4,
+      "industry_layoff_rate": 2.218,
+      "unemployment_rate": 6.408,
+      "inflation_rate": 4.972,
+      "employee_stability": 20,
+      "economic_pressure": 11.38
+    },
+    "prediction": {
+      "layoff_risk": "Low",
+      "confidence": 0.9017,
+      "risk_score": 2.18,
+      "probabilities": {
+        "Low": 0.9563,
+        "Medium": 0.0437,
+        "High": 0
+      },
+      "top_factors": [
+        {
+          "feature": "salary_range",
+          "label": "Salary",
+          "value": 7500000,
+          "impact": 6.4113,
+          "direction": "reduces_risk",
+          "reason": "Salary is currently in a risk-reducing range."
+        },
+        {
+          "feature": "profit_margin",
+          "label": "Profit Margin",
+          "value": 0,
+          "impact": 4.6169,
+          "direction": "increases_risk",
+          "reason": "Profit Margin is 17.32 away from baseline in a risk-increasing direction."
+        },
+        {
+          "feature": "tech_stack",
+          "label": "Tech Stack",
+          "value": "AWS + Terraform + Kubernetes",
+          "impact": 2.1152,
+          "direction": "reduces_risk",
+          "reason": "This profile acts as a protective signal for Tech Stack: AWS + Terraform + Kubernetes."
+        },
+        {
+          "feature": "tech_stack_trend_score",
+          "label": "Tech Stack Trend Score",
+          "value": 8.345,
+          "impact": 1.9905,
+          "direction": "reduces_risk",
+          "reason": "Tech Stack Trend Score is currently in a risk-reducing range."
+        },
+        {
+          "feature": "role_demand_index",
+          "label": "Role Demand Index",
+          "value": 7.85,
+          "impact": 1.625,
+          "direction": "reduces_risk",
+          "reason": "Role Demand Index is currently in a risk-reducing range."
+        },
+        {
+          "feature": "revenue_growth",
+          "label": "Revenue Growth",
+          "value": 0,
+          "impact": 1.3691,
+          "direction": "increases_risk",
+          "reason": "Revenue Growth is 8.23 away from baseline in a risk-increasing direction."
+        }
+      ],
+      "improvement_tips": [
+        "Keep documenting measurable impact each month to maintain low layoff risk."
+      ],
+      "model_version": "2026-03-06T11:18:42.395904+00:00"
+    },
+    "stack_survival": {
+      "scope": "For Senior Software Engineer in Q4 2025",
+      "compared_stacks": 4,
+      "current_stack": "AWS + Terraform + Kubernetes",
+      "current_stack_rank": null,
+      "current_stack_signal": "unknown",
+      "current_stack_low_risk_share": null,
+      "current_stack_avg_layoff_rate": null,
+      "top_resilient_stacks": [
+        {
+          "tech_stack": "Node.js + React",
+          "sample_size": 34,
+          "low_risk_share": 0.8529,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.243
+        },
+        {
+          "tech_stack": ".NET + Azure",
+          "sample_size": 18,
+          "low_risk_share": 0.8333,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.133
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "watchlist_stacks": [
+        {
+          "tech_stack": "Java + Spring Boot",
+          "sample_size": 24,
+          "low_risk_share": 0.625,
+          "high_risk_share": 0.0417,
+          "avg_role_layoff_rate": 1.527
+        },
+        {
+          "tech_stack": "Python + Django",
+          "sample_size": 25,
+          "low_risk_share": 0.76,
+          "high_risk_share": 0,
+          "avg_role_layoff_rate": 1.332
+        }
+      ],
+      "narrative": "Stack survival signal is unavailable for this profile."
+    },
+    "market_signals": {
+      "marketRegime": "Stable",
+      "marketStressScore": 0.42,
+      "company_return_90d": null,
+      "market_return_90d": null,
+      "relative_return_90d": null,
+      "company_volatility_90d": null,
+      "market_volatility_90d": null,
+      "india_vix": null,
+      "dataSource": "fallback",
+      "market_universe": "us",
+      "symbol_used": "MSFT",
+      "symbol_resolution": "global_parent_listing",
+      "market_mapping_type": "direct_listing",
+      "market_mapping_reason": "global_parent_listing"
+    },
+    "resume_insights": {
+      "candidate_name": "Arvind Rao",
+      "years_of_experience": 7,
+      "certifications": [
+        "aws certified developer"
+      ],
+      "skills": [
+        "python",
+        "react",
+        "node",
+        "kubernetes",
+        "docker",
+        "terraform",
+        "aws",
+        "llm",
+        "mlops",
+        "sql"
+      ],
+      "ai_readiness_score": 70,
+      "parse_confidence": 0.9,
+      "declared_stack_profile": null
+    },
+    "stack_resolution": {
+      "resolved_tech_stack": "AWS + Terraform + Kubernetes",
+      "mapping_type": "direct",
+      "confidence": 1,
+      "reason": "Exact stack selected from model catalog."
+    },
+    "trend_guidance": {
+      "role_family": "engineering",
+      "role_track": "devops_platform",
+      "trending_tech_stacks": [
+        {
+          "name": "Cloud platform engineering (Kubernetes + IaC + observability)",
+          "why": "Platform ownership remains resilient in cost-control cycles."
+        },
+        {
+          "name": "Reliability automation (SLO/SLI + incident automation)",
+          "why": "Reliability work directly protects business continuity."
+        },
+        {
+          "name": "FinOps-oriented infrastructure management",
+          "why": "Cloud cost governance is now a critical business requirement."
+        }
+      ],
+      "trending_certifications": [
+        {
+          "name": "AWS Certified DevOps Engineer - Professional",
+          "provider": "AWS",
+          "level": "Advanced",
+          "why": "Shows strong production cloud operations capability."
+        },
+        {
+          "name": "Certified Kubernetes Administrator (CKA)",
+          "provider": "CNCF",
+          "level": "Intermediate",
+          "why": "Signals operational depth in cloud-native environments."
+        },
+        {
+          "name": "HashiCorp Terraform Associate",
+          "provider": "HashiCorp",
+          "level": "Foundational",
+          "why": "IaC competency is baseline for modern platform teams."
+        }
+      ],
+      "trending_skills": [
+        {
+          "name": "SRE incident automation",
+          "why": "Improves uptime and reduces operational fatigue."
+        },
+        {
+          "name": "Infrastructure cost optimization",
+          "why": "Demonstrates measurable financial impact for the business."
+        },
+        {
+          "name": "Release pipeline hardening",
+          "why": "Faster and safer releases improve organizational agility."
+        }
+      ],
+      "global_priority_skills": [
+        "AI productivity workflows",
+        "Business impact quantification",
+        "Automation-first mindset"
+      ],
+      "skill_gaps": [
+        "SRE incident automation",
+        "Infrastructure cost optimization",
+        "Release pipeline hardening"
+      ],
+      "certification_gaps": [
+        "Certified Kubernetes Administrator (CKA)"
+      ],
+      "shift_path": [
+        "Move toward Cloud platform engineering (Kubernetes + IaC + observability) with one production project in 30-45 days.",
+        "Add SRE incident automation with measurable project evidence.",
+        "Pursue Certified Kubernetes Administrator (CKA) for market credibility.",
+        "Publish a monthly impact log showing cost, speed, or quality outcomes tied to new skills."
+      ],
+      "summary": "For Senior Software Engineer, market momentum favors AI-enabled, automation-oriented profiles with measurable business impact."
+    },
+    "reliability": {
+      "gate": "warning",
+      "score": 0.735,
+      "model_confidence": 0.9017,
+      "market_data_score": 0.35,
+      "market_data_status": "fallback_defaults",
+      "source": "fallback",
+      "market_mapping_type": "direct_listing",
+      "data_mode": "fallback",
+      "used_fallback_defaults": true,
+      "message": "Live market feed is temporarily unavailable. Core role, tech-stack, and department signals are active; market context is estimated.",
+      "checked_at_utc": "2026-04-08T05:43:11.815Z"
+    },
+    "review": null,
+    "action_tracker": [
+      {
+        "id": "tip-1",
+        "title": "Keep documenting measurable impact each month to maintain low layoff risk.",
+        "detail": "Model-generated action item",
+        "status": "not_started",
+        "updated_at_utc": "2026-04-08T05:43:11.819Z"
+      }
+    ]
   }
 ]

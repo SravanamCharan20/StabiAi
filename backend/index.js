@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import multer from 'multer';
+import { signup, login, getProfile, updateProfile } from './controllers/authController.js';
+import { authenticate, optionalAuth } from './middleware/auth.js';
 import { resolveCompanySymbol } from './controllers/employee/SymbolConvertor.js';
 import { getCompanyStats } from './controllers/employee/compantStats.js';
 import getSuggestions from './controllers/employee/suggestionController.js';
@@ -128,6 +130,12 @@ app.get('/', (req, res) => {
   res.send('Career Shield Employee API is running');
 });
 
+// Auth routes (public)
+app.post('/api/auth/signup', signup);
+app.post('/api/auth/login', login);
+app.get('/api/auth/profile', authenticate, getProfile);
+app.put('/api/auth/profile', authenticate, updateProfile);
+
 app.get('/api/employee/model-meta', (req, res) => {
   try {
     const metadata = getRiskModelMetadata();
@@ -194,7 +202,7 @@ app.get('/api/employee/eval', (req, res) => {
   }
 });
 
-app.post('/api/employee/resume-parse', resumeUpload.single('resume'), async (req, res) => {
+app.post('/api/employee/resume-parse', authenticate, resumeUpload.single('resume'), async (req, res) => {
   try {
     const inputSpec = getEmployeeInputSpec();
     const parsed = await parseResumeAndBuildProfile({
@@ -242,7 +250,7 @@ app.post('/api/employee/resume-parse', resumeUpload.single('resume'), async (req
   }
 });
 
-app.post('/api/employee/resume-parse-enhanced', resumeUpload.single('resume'), async (req, res) => {
+app.post('/api/employee/resume-parse-enhanced', authenticate, resumeUpload.single('resume'), async (req, res) => {
   try {
     const { parseResumeEnhanced } = await import('./services/enhancedResumeParser.js');
     const inputSpec = getEmployeeInputSpec();
@@ -510,7 +518,7 @@ const toHistoryResponseEntry = (entry = {}) => ({
   action_tracker: Array.isArray(entry.action_tracker) ? entry.action_tracker : [],
 });
 
-app.post('/api/employee/predict', async (req, res) => {
+app.post('/api/employee/predict', authenticate, async (req, res) => {
   try {
     const {
       company_name,
@@ -709,7 +717,7 @@ app.post('/api/employee/predict', async (req, res) => {
   }
 });
 
-app.post('/api/employee/what-if', (req, res) => {
+app.post('/api/employee/what-if', authenticate, (req, res) => {
   try {
     const { employeeData, referencePrediction } = req.body || {};
     if (!employeeData || typeof employeeData !== 'object') {
@@ -798,7 +806,7 @@ app.post('/api/employee/what-if', (req, res) => {
   }
 });
 
-app.get('/api/employee/history', (req, res) => {
+app.get('/api/employee/history', authenticate, (req, res) => {
   try {
     const companyName = String(req.query.company_name || '').trim();
     const limit = Number(req.query.limit || 20);
@@ -824,7 +832,7 @@ app.get('/api/employee/history', (req, res) => {
   }
 });
 
-app.post('/api/employee/history/:runId/review', (req, res) => {
+app.post('/api/employee/history/:runId/review', authenticate, (req, res) => {
   try {
     const runId = String(req.params.runId || '').trim();
     const reviewedBy = String(req.body?.reviewed_by || '').trim();
@@ -861,7 +869,7 @@ app.post('/api/employee/history/:runId/review', (req, res) => {
   }
 });
 
-app.post('/api/employee/history/:runId/actions', (req, res) => {
+app.post('/api/employee/history/:runId/actions', authenticate, (req, res) => {
   try {
     const runId = String(req.params.runId || '').trim();
     const actions = Array.isArray(req.body?.actions) ? req.body.actions : [];
@@ -889,7 +897,7 @@ app.post('/api/employee/history/:runId/actions', (req, res) => {
   }
 });
 
-app.post('/api/suggestions', async (req, res) => {
+app.post('/api/suggestions', authenticate, async (req, res) => {
   try {
     const { employeeData, predictionData } = req.body;
     if (!employeeData || !predictionData) {

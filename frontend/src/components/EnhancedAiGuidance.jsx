@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { apiClient } from "../utils/api";
 import {
   HiAcademicCap,
   HiCheckCircle,
@@ -9,7 +9,6 @@ import {
   HiRefresh,
   HiSparkles,
 } from "react-icons/hi";
-import { API_BASE_URL } from "../config/api";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -357,7 +356,7 @@ const EnhancedAiGuidance = ({ employeeData, predictionData, resumeIntelligence }
       setError("");
 
       try {
-        const response = await axios.post(`${API_BASE_URL}/api/suggestions`, requestPayload, {
+        const response = await apiClient.post(`/api/suggestions`, requestPayload, {
           timeout: 60000,
         });
 
